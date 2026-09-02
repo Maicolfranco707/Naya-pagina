@@ -1,0 +1,24 @@
+@import "tailwindcss";
+
+@theme {
+  --color-naya-green: #1F3A34;
+  --color-naya-terracotta: #BE5B4C;
+  --color-naya-salmon: #DDAA88;
+  --color-naya-cream: #E9E7D7;
+  --color-naya-sage: #C5D2B1;
+  --color-naya-sand: #CECCBF;
+  --color-naya-rose: #D2C6C6;
+
+  --font-sans: var(--font-manrope), sans-serif;
+}
+
+body {
+  background-color: var(--color-naya-cream);
+  color: #1e293b;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Gradient Oro Rosa del manual de marca */
+.bg-gradient-rose-gold {
+  background: linear-gradient(135deg, #b76f5d 0%, #ddaa88 35%, #e1e0c4 70%, #be5b4c 100%);
+}
