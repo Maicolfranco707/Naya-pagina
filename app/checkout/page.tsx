@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 
 interface CartItem {
+  id: number;
   nombre: string;
   cantidad: number;
   precio: number;
@@ -40,9 +41,10 @@ export default function CheckoutPage() {
       try {
         const parsed = JSON.parse(carritoGuardado);
         const itemsFormateados = parsed.map((item: any) => ({
+          id: item.producto?.id ?? item.id,
           nombre: item.producto?.nombre || item.nombre,
           cantidad: item.cantidad,
-          precio: item.producto?.precio || item.precio,
+          precio: item.producto?.precio ?? item.precio,
         }));
         setItems(itemsFormateados);
       } catch (e) {

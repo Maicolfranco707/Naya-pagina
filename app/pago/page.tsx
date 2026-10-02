@@ -66,39 +66,7 @@ export default function PaginaPago() {
       window.location.href = urlWhatsApp;
 
     } else if (metodoPago === "tarjeta") {
-      // PAGO CON TARJETA (MERCADO PAGO)
-      try {
-        const response = await fetch("/api/crear-preferencia", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            items: orden.items.map(item => ({
-              title: item.nombre,
-              quantity: item.cantidad,
-              unit_price: item.precio,
-            })),
-            shipmentCost: orden.costoEnvio,
-            payer: {
-              name: orden.formData.nombre,
-              surname: orden.formData.apellidos,
-              email: orden.formData.email,
-            },
-          }),
-        });
-
-        const data = await response.json();
-
-        if (data.init_point) {
-          window.location.href = data.init_point;
-        } else {
-          alert(data.error || "Hubo un error al iniciar el pago con tarjeta.");
-          setProcesando(false);
-        }
-      } catch (error) {
-        console.error(error);
-        alert("Error de conexión al procesar la tarjeta.");
-        setProcesando(false);
-      }
+      router.push("/checkout/pago");
     } else {
       alert(`Método ${metodoPago.toUpperCase()} seleccionado.`);
       setProcesando(false);
