@@ -1,5 +1,6 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import { CartItem } from '@/utils/checkout';
 import { ArrowRight } from 'lucide-react';
 
@@ -8,22 +9,46 @@ interface CatalogProps {
   searchTerm: string;
 }
 
-const productos = [
-  { id: 1, name: 'Shampoo Reparador Botánico', price: 65000, category: 'Shampoos', badge: 'Más vendido', image: 'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&q=80&w=700' },
-  { id: 2, name: 'Acondicionador Nutritivo Ancestral', price: 60000, category: 'Acondicionadores', badge: 'Esencial', image: 'https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?auto=format&fit=crop&q=80&w=700' },
-  { id: 3, name: 'Aceite Capilar de Argán & Romero', price: 75000, category: 'Tratamientos', badge: 'Favorito', image: 'https://images.unsplash.com/photo-1608248597359-994b5aa6b6a2?auto=format&fit=crop&q=80&w=700' },
-  { id: 4, name: 'Mascarilla Capilar Regeneradora', price: 85000, category: 'Tratamientos', badge: 'Nuevo', image: 'https://images.unsplash.com/photo-1526947425960-945c6e72858f?auto=format&fit=crop&q=80&w=700' },
-  { id: 5, name: 'Shampoo Purificante Herbal', price: 62000, category: 'Shampoos', badge: '', image: 'https://images.unsplash.com/photo-1571781926291-c477ebfd024b?auto=format&fit=crop&q=80&w=700' },
-  { id: 6, name: 'Tónico Crecimiento Intenso', price: 70000, category: 'Tratamientos', badge: 'Alta demanda', image: 'https://images.unsplash.com/photo-1608248597359-994b5aa6b6a2?auto=format&fit=crop&q=80&w=700' },
-];
+interface ProductoCatalogo {
+  id: number;
+  categoria: string;
+  nombre: string;
+  descripcion: string;
+  precio: number;
+  imagen: string;
+}
 
 export default function Catalog({ onAddToCart, searchTerm }: CatalogProps) {
   const [categoria, setCategoria] = useState('Todos');
-  const categorias = ['Todos', 'Shampoos', 'Acondicionadores', 'Tratamientos'];
+  const [productos, setProductos] = useState<ProductoCatalogo[]>([]);
+  const [error, setError] = useState('');
+  const [cargando, setCargando] = useState(true);
+
+  useEffect(() => {
+    let activo = true;
+    fetch('/api/productos')
+      .then(async (response) => {
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'No se pudo cargar el catálogo.');
+        if (activo) setProductos(data as ProductoCatalogo[]);
+      })
+      .catch((reason: unknown) => {
+        if (activo) setError(reason instanceof Error ? reason.message : 'No se pudo cargar el catálogo.');
+      })
+      .finally(() => {
+        if (activo) setCargando(false);
+      });
+
+    return () => {
+      activo = false;
+    };
+  }, []);
+
+  const categorias = ['Todos', ...new Set(productos.map((producto) => producto.categoria))];
 
   const filtrados = productos.filter(prod => {
-    const matchCat = categoria === 'Todos' || prod.category === categoria;
-    const matchSearch = prod.name.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchCat = categoria === 'Todos' || prod.categoria === categoria;
+    const matchSearch = prod.nombre.toLowerCase().includes(searchTerm.toLowerCase());
     return matchCat && matchSearch;
   });
 
@@ -48,7 +73,11 @@ export default function Catalog({ onAddToCart, searchTerm }: CatalogProps) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-        {filtrados.length === 0 ? (
+        {error ? (
+          <p className="col-span-full text-center text-red-700 py-16" role="alert">{error}</p>
+        ) : cargando ? (
+          <p className="col-span-full text-center text-naya-green/60 py-16">Cargando productos...</p>
+        ) : filtrados.length === 0 ? (
           <p className="col-span-full text-center text-naya-green/60 py-16 font-serif text-lg">No se encontraron productos con ese criterio.</p>
         ) : (
           filtrados.map((prod) => (
@@ -58,28 +87,25 @@ export default function Catalog({ onAddToCart, searchTerm }: CatalogProps) {
             >
               <div>
                 <div className="h-80 overflow-hidden relative bg-naya-sand">
-                  <img 
-                    src={prod.image} 
-                    alt={prod.name} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 filter brightness-[0.98]"
+                  <Image
+                    src={prod.imagen}
+                    alt={prod.nombre}
+                    fill
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover group-hover:scale-105 transition-transform duration-700 brightness-[0.98]"
                   />
-                  {prod.badge && (
-                    <span className="absolute top-4 left-4 bg-naya-green text-naya-sand text-[10px] uppercase tracking-[0.2em] font-semibold px-3.5 py-1.5 rounded-full shadow-xs">
-                      {prod.badge}
-                    </span>
-                  )}
                 </div>
                 <div className="p-8 space-y-3">
-                  <span className="text-[11px] text-naya-terracotta font-semibold uppercase tracking-[0.2em]">{prod.category}</span>
-                  <h3 className="text-2xl font-serif text-naya-green leading-snug">{prod.name}</h3>
+                  <span className="text-[11px] text-naya-terracotta font-semibold uppercase tracking-[0.2em]">{prod.categoria}</span>
+                  <h3 className="text-2xl font-serif text-naya-green leading-snug">{prod.nombre}</h3>
                   <p className="text-xl font-bold text-naya-green font-sans pt-1">
-                    $${prod.price.toLocaleString('es-CO')} <span className="text-xs font-normal text-naya-green/60">COP</span>
+                    ${prod.precio.toLocaleString('es-CO')} <span className="text-xs font-normal text-naya-green/60">COP</span>
                   </p>
                 </div>
               </div>
               <div className="p-8 pt-0">
                 <button
-                  onClick={() => onAddToCart({ id: prod.id, name: prod.name, price: prod.price, quantity: 1 })}
+                  onClick={() => onAddToCart({ id: prod.id, name: prod.nombre, price: prod.precio, quantity: 1 })}
                   className="w-full bg-naya-green text-naya-sand py-4 rounded-2xl font-medium text-xs tracking-wider uppercase hover:bg-naya-terracotta transition-all duration-200 shadow-xs flex items-center justify-center gap-2 cursor-pointer group/btn"
                 >
                   <span>Agregar al Carrito</span>

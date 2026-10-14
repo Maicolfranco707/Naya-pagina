@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { startTransition, useState, useEffect } from "react";
 import Link from "next/link";
 
 interface CartItem {
@@ -11,23 +11,33 @@ interface CartItem {
   precio: number;
 }
 
+interface StoredCartItem {
+  id?: number;
+  nombre?: string;
+  precio?: number;
+  cantidad: number;
+  producto?: { id: number; nombre: string; precio: number };
+}
+
 export default function CheckoutPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState("");
+  const [metodoPago, setMetodoPago] = useState<"wompi" | "whatsapp">("wompi");
 
   const [formData, setFormData] = useState({
-    nombre: "hugo",
-    apellidos: "lloreda",
+    nombre: "",
+    apellidos: "",
     empresa: "",
-    identificacion: "e4tety",
+    identificacion: "",
     pais: "Colombia",
-    direccion: "bello antioquia",
-    apartamento: "Apartamento",
+    direccion: "",
+    apartamento: "",
     departamento: "Antioquia",
     poblacion: "Medellín",
     codigoPostal: "050011",
-    telefono: "313132335",
-    email: "gomezandres@gmail.com",
+    telefono: "",
+    email: "",
     notas: "",
   });
 
@@ -36,17 +46,20 @@ export default function CheckoutPage() {
   const [items, setItems] = useState<CartItem[]>([]);
 
   useEffect(() => {
+    startTransition(() => {
+      setMetodoPago(new URLSearchParams(window.location.search).get("metodo") === "whatsapp" ? "whatsapp" : "wompi");
+    });
     const carritoGuardado = localStorage.getItem("carrito_naya");
     if (carritoGuardado) {
       try {
-        const parsed = JSON.parse(carritoGuardado);
-        const itemsFormateados = parsed.map((item: any) => ({
-          id: item.producto?.id ?? item.id,
-          nombre: item.producto?.nombre || item.nombre,
+        const parsed = JSON.parse(carritoGuardado) as StoredCartItem[];
+        const itemsFormateados = parsed.map((item) => ({
+          id: item.producto?.id ?? item.id ?? 0,
+          nombre: item.producto?.nombre ?? item.nombre ?? "",
           cantidad: item.cantidad,
-          precio: item.producto?.precio ?? item.precio,
-        }));
-        setItems(itemsFormateados);
+          precio: item.producto?.precio ?? item.precio ?? 0,
+        })).filter((item) => Number.isInteger(item.id) && item.id > 0 && Number.isInteger(item.cantidad) && item.cantidad > 0);
+        startTransition(() => setItems(itemsFormateados));
       } catch (e) {
         console.error("Error al leer el carrito:", e);
       }
@@ -61,7 +74,7 @@ export default function CheckoutPage() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!aceptaTerminos) {
       alert("Debes aceptar los términos y condiciones para continuar.");
@@ -73,20 +86,42 @@ export default function CheckoutPage() {
     }
 
     setLoading(true);
+    setCheckoutError("");
 
-    // Guardamos toda la orden temporalmente en localStorage para leerla en la página de pago
-    const ordenTemporal = {
-      formData,
-      costoEnvio,
-      subtotal,
-      total,
-      items,
-    };
+    try {
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          customer: formData,
+          items: items.map(({ id, cantidad }) => ({ id, cantidad })),
+          shippingCost: costoEnvio,
+          paymentProvider: metodoPago,
+        }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "No se pudo guardar el pedido.");
 
-    localStorage.setItem("orden_pendiente_naya", JSON.stringify(ordenTemporal));
-
-    // Redirigir a la página de métodos de pago
-    router.push("/checkout/pago");
+      localStorage.setItem("orden_pendiente_naya", JSON.stringify({
+        id: result.id,
+        reference: result.reference,
+        formData: { email: formData.email },
+        costoEnvio: result.shippingCost,
+        subtotal: result.subtotal,
+        total: result.total,
+        items,
+      }));
+      if (metodoPago === "whatsapp") {
+        const detalle = items.map((item) => `- ${item.nombre} x ${item.cantidad}`).join("\n");
+        const mensaje = `Hola NAYA, quiero confirmar el pedido ${result.reference}.\n\n${detalle}\n\nTotal: $${Number(result.total).toLocaleString("es-CO")} COP\nNombre: ${formData.nombre} ${formData.apellidos}\nTeléfono: ${formData.telefono}`;
+        window.location.assign(`https://wa.me/573042051221?text=${encodeURIComponent(mensaje)}`);
+      } else {
+        router.push("/checkout/pago");
+      }
+    } catch (error) {
+      setCheckoutError(error instanceof Error ? error.message : "No se pudo guardar el pedido. Intenta nuevamente.");
+      setLoading(false);
+    }
   };
 
   return (
@@ -207,6 +242,7 @@ export default function CheckoutPage() {
             </div>
 
             <div className="space-y-4">
+              {checkoutError && <p className="text-sm text-red-700" role="alert">{checkoutError}</p>}
               <label className="flex items-start gap-2 text-xs text-stone-700 cursor-pointer">
                 <input type="checkbox" checked={aceptaTerminos} onChange={(e) => setAceptaTerminos(e.target.checked)} className="mt-0.5 rounded text-emerald-600" />
                 <span>He leído y acepto los términos y condiciones *</span>
@@ -217,7 +253,7 @@ export default function CheckoutPage() {
                 disabled={loading}
                 className="w-full bg-[#8cc63f] hover:bg-[#7cb433] text-white font-bold py-3.5 rounded-xl transition text-sm shadow-sm cursor-pointer disabled:opacity-50"
               >
-                {loading ? "Redirigiendo al pago..." : "Realizar el pedido (Ir a elegir pago)"}
+                {loading ? "Guardando pedido..." : metodoPago === "whatsapp" ? "Guardar pedido y continuar por WhatsApp" : "Realizar el pedido (Ir a elegir pago)"}
               </button>
             </div>
           </div>

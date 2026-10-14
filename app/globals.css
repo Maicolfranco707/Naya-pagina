@@ -1,24 +1,141 @@
 @import "tailwindcss";
 
 @theme {
-  --color-naya-green: #1F3A34;
-  --color-naya-terracotta: #BE5B4C;
-  --color-naya-salmon: #DDAA88;
-  --color-naya-cream: #E9E7D7;
-  --color-naya-sage: #C5D2B1;
-  --color-naya-sand: #CECCBF;
-  --color-naya-rose: #D2C6C6;
+  --color-naya-green: #213a35;
+  --color-naya-cream: #f6efe6;
+  --color-naya-copper: #d9937f;
+  --color-naya-rose: #f3c9d3;
+  --color-naya-lilac: #cdb4e0;
+  --color-naya-terracotta: #d9937f;
+  --color-naya-salmon: #f3c9d3;
+  --color-naya-sage: #cdb4e0;
+  --color-naya-sand: #f6efe6;
+  --color-naya-stone: #e6d8cc;
 
   --font-sans: var(--font-manrope), sans-serif;
 }
 
 body {
-  background-color: var(--color-naya-cream);
+  background-color: #E9E7D7;
   color: #1e293b;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Gradient Oro Rosa del manual de marca */
-.bg-gradient-rose-gold {
-  background: linear-gradient(135deg, #b76f5d 0%, #ddaa88 35%, #e1e0c4 70%, #be5b4c 100%);
+.storefront {
+  --store-green: #213a35;
+  --store-cream: #f6efe6;
+  --store-copper: #d9937f;
+  --store-rose: #f3c9d3;
+  --store-lilac: #cdb4e0;
+  background: var(--store-cream);
+  color: var(--store-green);
+  font-family: var(--font-nunito), "Nunito Sans", sans-serif;
+}
+
+.storefront h1,
+.storefront h2,
+.storefront h3,
+.storefront h4,
+.storefront .font-serif {
+  font-family: var(--font-cormorant), Georgia, serif;
+}
+
+.storefront > section#inicio {
+  background: var(--store-green);
+  color: var(--store-cream);
+}
+
+.storefront > section#garantias {
+  background: var(--store-cream);
+  color: var(--store-green);
+  border-color: color-mix(in srgb, var(--store-green) 14%, transparent);
+}
+
+.storefront > section#catalogo {
+  max-width: none;
+  background: var(--store-green);
+  color: var(--store-cream);
+}
+
+.storefront #catalogo > div {
+  width: min(100%, 80rem);
+  margin-inline: auto;
+}
+
+.storefront .product-card {
+  --product-accent: var(--store-green);
+  border-color: color-mix(in srgb, var(--product-accent) 20%, transparent);
+  border-radius: 20px;
+  background: var(--store-cream);
+  box-shadow: 0 12px 32px rgb(20 34 30 / 10%);
+}
+
+.storefront .product-card--hair {
+  --product-accent: var(--store-green);
+}
+
+.storefront .product-card--nutrition {
+  --product-accent: var(--store-rose);
+}
+
+.storefront .product-card--body {
+  --product-accent: var(--store-lilac);
+}
+
+.storefront .product-card__image {
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--product-accent) 18%, var(--store-cream));
+}
+
+.storefront .product-card__category {
+  color: color-mix(in srgb, var(--product-accent) 74%, var(--store-green));
+}
+
+.storefront .product-card__accent {
+  border-color: color-mix(in srgb, var(--product-accent) 55%, transparent);
+}
+
+.storefront .primary-action {
+  border-radius: 999px;
+  background: var(--store-copper);
+  color: var(--store-green);
+  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.storefront .primary-action:hover {
+  transform: translateY(-2px);
+  background: color-mix(in srgb, var(--store-copper) 88%, white);
+  box-shadow: 0 8px 18px rgb(33 58 53 / 15%);
+}
+
+.storefront .secondary-action {
+  border: 1px solid color-mix(in srgb, var(--store-green) 30%, transparent);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--store-green);
+  transition: transform 180ms ease, background-color 180ms ease;
+}
+
+.storefront .secondary-action:hover {
+  transform: translateY(-2px);
+  background: color-mix(in srgb, var(--store-green) 7%, transparent);
+}
+
+@media (max-width: 640px) {
+  .storefront > section#inicio {
+    padding-block: 3.5rem;
+  }
+
+  .storefront > section#catalogo {
+    padding-inline: 1rem;
+    padding-block: 3.5rem;
+  }
+
+  .storefront #catalogo > div:first-child {
+    margin-bottom: 2rem;
+  }
+
+  .storefront #catalogo .grid {
+    gap: 1rem;
+  }
 }

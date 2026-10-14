@@ -1,10 +1,21 @@
 import type { Metadata } from "next";
-import { Manrope } from "next/font/google";
+import { Cormorant_Garamond, Manrope, Nunito_Sans } from "next/font/google";
 import "./globals.css";
 
-const manrope = Manrope({ 
+const manrope = Manrope({
   subsets: ["latin"],
   variable: "--font-manrope",
+});
+
+const nunitoSans = Nunito_Sans({
+  subsets: ["latin"],
+  variable: "--font-nunito",
+});
+
+const cormorantGaramond = Cormorant_Garamond({
+  subsets: ["latin"],
+  variable: "--font-cormorant",
+  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -19,8 +30,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      {/* Se cambia 'class' por 'className' */}
-      <body className={`${manrope.variable} font-sans`}>
+      <body className={`${manrope.variable} ${nunitoSans.variable} ${cormorantGaramond.variable} font-sans`}>
         {children}
       </body>
     </html>

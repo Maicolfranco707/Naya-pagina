@@ -5,9 +5,8 @@ import { startTransition, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 interface OrdenData {
+  id: string;
   total: number;
-  costoEnvio: number;
-  items: Array<{ id: number; cantidad: number }>;
   formData: { email: string };
 }
 
@@ -43,7 +42,7 @@ export default function PaginaPagoWompi() {
         return;
       }
 
-      if (!Number.isFinite(datos.total) || datos.total <= 0 || !Array.isArray(datos.items)) {
+      if (!datos.id || !Number.isFinite(datos.total) || datos.total <= 0) {
         router.replace("/checkout");
         return;
       }
@@ -54,10 +53,7 @@ export default function PaginaPagoWompi() {
         const response = await fetch("/api/wompi/firma", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            items: datos.items.map(({ id, cantidad }) => ({ id, cantidad })),
-            shippingCost: datos.costoEnvio,
-          }),
+          body: JSON.stringify({ orderId: datos.id }),
         });
         const result = await response.json();
 
@@ -102,7 +98,9 @@ export default function PaginaPagoWompi() {
       };
 
       if (window.location.protocol === "https:") {
-        campos["redirect-url"] = `${window.location.origin}/checkout/confirmacion`;
+        const redirectUrl = new URL("/checkout/confirmacion", window.location.origin);
+        redirectUrl.searchParams.set("reference", checkout.reference);
+        campos["redirect-url"] = redirectUrl.toString();
       }
 
       if (orden.formData?.email) {
