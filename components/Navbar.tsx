@@ -1,95 +1,195 @@
-'use client';
-import { ShoppingBag, Menu, X, Search, Sparkles } from 'lucide-react';
-import { useState, useEffect } from 'react';
+"use client";
+
+import { ChevronDown, Menu, Search, ShoppingBag, X } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface NavbarProps {
   cartCount: number;
   onOpenCart: () => void;
   searchTerm: string;
-  setSearchTerm: (term: string) => void;
+  onSearchChange: (term: string) => void;
 }
 
-export default function Navbar({ cartCount, onOpenCart, searchTerm, setSearchTerm }: NavbarProps) {
-  const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+const cabelloLinks = [
+  { label: "Romero", term: "Romero" },
+  { label: "Cayena", term: "Cayena" },
+  { label: "Shampoo", term: "Shampoo" },
+  { label: "Acondicionadores", term: "Acondicionador" },
+  { label: "Ampolletas", term: "Ampolleta" },
+];
+
+function MenuLinks({
+  links,
+  onSelect,
+}: {
+  links: Array<{ label: string; term: string }>;
+  onSelect: (term: string) => void;
+}) {
+  return links.map(({ label, term }) => (
+    <button
+      key={label}
+      type="button"
+      onClick={() => onSelect(term)}
+      className="naya-nav__dropdown-link"
+    >
+      {label}
+    </button>
+  ));
+}
+
+export default function Navbar({
+  cartCount,
+  onOpenCart,
+  searchTerm,
+  onSearchChange,
+}: NavbarProps) {
+  const [announcementIndex, setAnnouncementIndex] = useState(0);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [openMenu, setOpenMenu] = useState<"cabello" | "piel" | null>(null);
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const timer = window.setInterval(() => {
+      setAnnouncementIndex((current) => (current + 1) % 2);
+    }, 4500);
+
+    return () => window.clearInterval(timer);
   }, []);
+
+  const selectCollection = (term: string) => {
+    onSearchChange(term);
+    setOpenMenu(null);
+    setMobileMenuOpen(false);
+    document.getElementById("catalogo")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const goToKits = () => {
+    setOpenMenu(null);
+    setMobileMenuOpen(false);
+    document.getElementById("kits-rituales")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const searchInput = (
+    <label className="naya-nav__search">
+      <Search aria-hidden="true" size={17} />
+      <input
+        type="search"
+        value={searchTerm}
+        onChange={(event) => onSearchChange(event.target.value)}
+        placeholder="Buscar productos"
+        aria-label="Buscar productos"
+      />
+    </label>
+  );
 
   return (
     <>
-      <div className="bg-naya-green text-naya-sand text-xs py-2 px-4 text-center tracking-[0.2em] uppercase font-medium flex items-center justify-center gap-2">
-        <Sparkles size={13} className="text-naya-terracotta" />
-        <span>Envío gratis a todo el país por compras superiores a $120.000 COP</span>
+      <div className="naya-announcement" aria-live="polite">
+        {announcementIndex === 0 ? (
+          <a
+            href="https://wa.me/573042051221"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Recibe asesoría por WhatsApp"
+          >
+            Recibe asesoría por WhatsApp
+          </a>
+        ) : (
+          <span>Envíos a todo Colombia</span>
+        )}
       </div>
 
-      <nav className={`sticky top-0 z-50 transition-all duration-300 ${scrolled ? 'bg-[#E9E7D7]/95 backdrop-blur-md shadow-sm py-3.5' : 'bg-naya-sand py-5'} border-b border-naya-stone/40`}>
-        <div className="max-w-7xl mx-auto px-6 md:px-12 flex items-center justify-between">
-          
-          <a href="#inicio" className="text-3xl md:text-4xl font-serif tracking-[0.25em] text-naya-green font-bold">
+      <header className="naya-header">
+        <div className="naya-header__top">
+          <div className="naya-header__search-desktop">{searchInput}</div>
+
+          <button
+            type="button"
+            className="naya-header__icon naya-header__mobile-search"
+            onClick={() => setMobileSearchOpen((open) => !open)}
+            aria-label={mobileSearchOpen ? "Cerrar búsqueda" : "Abrir búsqueda"}
+            aria-expanded={mobileSearchOpen}
+          >
+            {mobileSearchOpen ? <X size={20} /> : <Search size={20} />}
+          </button>
+
+          <a href="#inicio" className="naya-header__logo" aria-label="NAYA, ir al inicio">
             NAYA
           </a>
 
-          <div className="hidden lg:flex items-center gap-10 font-medium text-sm text-naya-green/90 tracking-wider">
-            <a href="#inicio" className="hover:text-naya-terracotta transition-colors">Inicio</a>
-            <a href="#nosotros" className="hover:text-naya-terracotta transition-colors">Nosotros</a>
-            <a href="#beneficios" className="hover:text-naya-terracotta transition-colors">Filosofía</a>
-            <a href="#catalogo" className="hover:text-naya-terracotta transition-colors">Colección</a>
-            <a href="#galeria" className="hover:text-naya-terracotta transition-colors">Experiencia</a>
-            <a href="#contacto" className="hover:text-naya-terracotta transition-colors">Contacto</a>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="relative hidden md:block">
-              <input 
-                type="text" 
-                placeholder="Buscar ritual..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="bg-white/70 border border-naya-stone rounded-full px-4 py-2 pl-10 text-xs text-naya-green placeholder-naya-green/50 focus:outline-none focus:border-naya-terracotta w-44 transition-all shadow-2xs"
-              />
-              <Search size={14} className="absolute left-3.5 top-2.5 text-naya-green/50" />
-            </div>
-
-            <button 
-              onClick={onOpenCart} 
-              className="relative p-3 bg-naya-green text-naya-sand rounded-full hover:bg-naya-terracotta transition-all duration-200 shadow-xs flex items-center justify-center cursor-pointer group"
-              aria-label="Abrir carrito"
-            >
-              <ShoppingBag size={18} className="group-hover:scale-105 transition-transform" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-naya-terracotta text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold shadow-xs">
-                  {cartCount}
-                </span>
-              )}
-            </button>
-            
-            <button 
-              onClick={() => setIsOpen(!isOpen)} 
-              className="lg:hidden p-2.5 bg-naya-stone/30 text-naya-green rounded-full hover:bg-naya-stone/50 transition-colors cursor-pointer flex items-center justify-center" 
-              aria-label="Menú"
-            >
-              {isOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
-          </div>
+          <button
+            type="button"
+            className="naya-header__cart"
+            onClick={onOpenCart}
+            aria-label={`Abrir carrito, ${cartCount} productos`}
+          >
+            <ShoppingBag size={19} strokeWidth={1.7} aria-hidden="true" />
+            <span className="naya-header__cart-label">Carrito</span>
+            <span className="naya-header__cart-count">{cartCount}</span>
+          </button>
         </div>
 
-        {isOpen && (
-          <div className="lg:hidden absolute top-full left-0 w-full bg-naya-sand border-b border-naya-stone px-8 py-8 flex flex-col gap-5 font-serif text-xl text-naya-green shadow-xl animate-fadeIn">
-            <a href="#inicio" onClick={() => setIsOpen(false)} className="hover:text-naya-terracotta">Inicio</a>
-            <a href="#nosotros" onClick={() => setIsOpen(false)} className="hover:text-naya-terracotta">Nosotros</a>
-            <a href="#beneficios" onClick={() => setIsOpen(false)} className="hover:text-naya-terracotta">Filosofía</a>
-            <a href="#catalogo" onClick={() => setIsOpen(false)} className="hover:text-naya-terracotta">Colección</a>
-            <a href="#galeria" onClick={() => setIsOpen(false)} className="hover:text-naya-terracotta">Experiencia</a>
-            <a href="#contacto" onClick={() => setIsOpen(false)} className="hover:text-naya-terracotta">Contacto</a>
-          </div>
+        {mobileSearchOpen && (
+          <div className="naya-header__mobile-search-panel">{searchInput}</div>
         )}
-      </nav>
+
+        <nav className="naya-nav" aria-label="Navegación principal">
+          <button
+            type="button"
+            className="naya-nav__mobile-toggle"
+            onClick={() => setMobileMenuOpen((open) => !open)}
+            aria-expanded={mobileMenuOpen}
+            aria-controls="naya-nav-links"
+          >
+            {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
+            <span>{mobileMenuOpen ? "Cerrar" : "Menú"}</span>
+          </button>
+
+          <div
+            id="naya-nav-links"
+            className={`naya-nav__links${mobileMenuOpen ? " naya-nav__links--open" : ""}`}
+          >
+            <div className="naya-nav__group">
+              <button
+                type="button"
+                className="naya-nav__trigger"
+                aria-expanded={openMenu === "cabello"}
+                onClick={() => setOpenMenu(openMenu === "cabello" ? null : "cabello")}
+              >
+                Cabello <ChevronDown size={13} aria-hidden="true" />
+              </button>
+              {openMenu === "cabello" && (
+                <div className="naya-nav__dropdown">
+                  <MenuLinks links={cabelloLinks} onSelect={selectCollection} />
+                </div>
+              )}
+            </div>
+
+            <div className="naya-nav__group">
+              <button
+                type="button"
+                className="naya-nav__trigger"
+                aria-expanded={openMenu === "piel"}
+                onClick={() => setOpenMenu(openMenu === "piel" ? null : "piel")}
+              >
+                Piel <ChevronDown size={13} aria-hidden="true" />
+              </button>
+              {openMenu === "piel" && (
+                <div className="naya-nav__dropdown">
+                  <MenuLinks links={[{ label: "Mantequillas", term: "Mantequilla" }]} onSelect={selectCollection} />
+                </div>
+              )}
+            </div>
+
+            <button type="button" className="naya-nav__link" onClick={goToKits}>
+              Kits
+            </button>
+            <button type="button" className="naya-nav__link" onClick={goToKits}>
+              Ofertas
+            </button>
+          </div>
+        </nav>
+      </header>
     </>
   );
 }

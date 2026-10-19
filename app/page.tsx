@@ -1,31 +1,128 @@
 "use client";
 
-import { startTransition, useState, useEffect } from "react";
+import { startTransition, useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { Inter, Playfair_Display } from "next/font/google";
+import { ArrowRight, ChevronLeft, ChevronRight, Leaf, ShoppingBag, Sparkles, Volume2, VolumeX } from "lucide-react";
+import Navbar from "@/components/Navbar";
+import Benefits from "@/components/Benefits";
+import { CommunityGallery, CustomerReviews } from "@/components/CommunitySections";
+import NayaFooter from "@/components/NayaFooter";
+import NayaWhatsAppButton from "@/components/NayaWhatsAppButton";
+import NewsletterSignup from "@/components/NewsletterSignup";
 import type { Producto } from "@/utils/productos";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
+
+const playfairDisplay = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  weight: ["400", "500", "600", "700"],
+});
 
 interface ItemCarrito {
   producto: Producto;
   cantidad: number;
 }
 
+const numeroWhatsAppNaya = "573042051221";
+const mensajeAsesoriaMantequillas = "Hola NAYA, quiero asesoría sobre las mantequillas corporales.";
+const mensajeAsesoriaAmpolletas = "Hola NAYA, quiero asesoría sobre las ampolletas.";
+const VIDEO_AMPOLLETAS_TIENE_AUDIO = true;
+
+// TODO: confirmar estos pasos con NAYA antes de publicar.
+const pasosAmpolletas = [
+  "Lava tu cabello con tu shampoo NAYA.",
+  "Aplica la ampolleta sobre el cabello y masajea suavemente.",
+  "Déjala actuar el tiempo indicado en la etiqueta y termina tu rutina.",
+];
+
+// TODO: agregar descripción real de cada ampolleta.
+const nombresAmpolletas = ["Ampolleta de Crecimiento", "Ampolleta de Nutrición"];
+
 const imagenesHero = [
   {
     id: 1,
-    imagen: "/naya_foto/modelo1.png",
-    titulo: "RENOVACIÓN PROFUNDA EN TU PIEL Y CABELLO",
-    subtitulo: "Fusionamos extractos naturales con la sabiduría ancestral de nuestras raíces. Cuidado consciente para ti."
+    escritorio: "/naya_foto/modelo3escritorio.png",
+    celular: "/naya_foto/modelo3Movil.png",
+    alt: "NAYA: Rizos que hablan de ti",
+    busqueda: "Capilar",
   },
   {
     id: 2,
-    imagen: "/naya_foto/modelo2.png",
-    titulo: "RENOVACIÓN PROFUNDA EN TU PIEL Y CABELLO",
-    subtitulo: "Fusionamos extractos naturales con la sabiduría ancestral de nuestras raíces. Cuidado consciente para ti."
-  }
+    escritorio: "/naya_foto/modelo4escritorio.png",
+    celular: "/naya_foto/modelo4Movil.png",
+    alt: "NAYA: cuidado botánico para tu cabello",
+    busqueda: "Capilar",
+  },
+  {
+    id: 3,
+    escritorio: "/naya_foto/naya-banner-mantequillas-1920x800.webp",
+    celular: "/naya_foto/naya-banner-mantequillas-1080x1350.webp",
+    alt: "Mantequillas corporales NAYA",
+    busqueda: "Mantequilla",
+  },
 ];
 
-const categorias = ["Todos", "Línea Capilar", "Tratamiento Capilar", "Línea Corporal", "Tratamiento Corporal", "Línea Frutal"];
+const categorias = ["Todos", "Línea Capilar",  "Ampolletas", "Línea Frutal"];
+
+const kitsPromocionales = [
+  {
+    id: -1,
+    nombre: "Kit de Romero",
+    descripcion: "Shampoo + ampolleta + acondicionador",
+    imagen: "/naya_foto/kit-romero.png",
+    precio: 82000,
+    precioSeparado: 86000,
+  },
+  {
+    id: -2,
+    nombre: "Kit de Cayena",
+    descripcion: "Shampoo + ampolleta + acondicionador",
+    imagen: "/naya_foto/kit-cayena.png",
+    precio: 82000,
+    precioSeparado: 86000,
+  },
+];
+
+function textoNormalizado(texto: string): string {
+  return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+function esAmpolleta(producto: Producto): boolean {
+  const texto = textoNormalizado(
+    [producto.nombre, producto.categoria, producto.descripcion, producto.detalles].join(" ")
+  );
+  return /ampollet|ampoll|tonico|crema.*nutricion.*profund|nutricion.*profund.*crema/.test(texto);
+}
+
+function categoriaVisible(producto: Producto): string {
+  const texto = textoNormalizado(`${producto.nombre} ${producto.categoria}`);
+  if (esAmpolleta(producto)) return "Ampolletas";
+  if (texto.includes("mantequilla") && texto.includes("coco")) return "Línea Frutal";
+  return producto.categoria;
+}
+
+function imagenProducto(producto: Producto): string {
+  const texto = textoNormalizado(
+    [producto.nombre, producto.categoria, producto.descripcion, producto.detalles].join(" ")
+  );
+  if (/ampollet.*crecimiento|crecimiento.*ampollet|tonico.*crecimiento|crecimiento.*tonico/.test(texto)) {
+    return "/naya_foto/ampolletaverde.png";
+  }
+  if (/ampollet.*nutricion|nutricion.*ampollet|crema.*nutricion|nutricion.*profund/.test(texto)) {
+    return "/naya_foto/ampolletarosa.png";
+  }
+  if (texto.includes("shampoo") && texto.includes("cayena")) return "/naya_foto/shampoocayena.png";
+  if (texto.includes("shampoo") && texto.includes("romero")) return "/naya_foto/shampooromero.png";
+  if (texto.includes("acondicionador") && texto.includes("romero")) return "/naya_foto/acondicionador2.png";
+  if (texto.includes("acondicionador") && texto.includes("cayena")) return "/naya_foto/acondicionador1.png";
+  return producto.imagen;
+}
 
 function acentoProducto(producto: Producto): string {
   const linea = `${producto.categoria} ${producto.nombre}`.toLowerCase();
@@ -43,11 +140,53 @@ export default function Home() {
   const [cargandoProductos, setCargandoProductos] = useState(true);
   const [errorProductos, setErrorProductos] = useState("");
   const [categoriaActiva, setCategoriaActiva] = useState("Todos");
+  const [searchTerm, setSearchTerm] = useState("");
   const [productoSeleccionado, setProductoSeleccionado] = useState<Producto | null>(null);
   const [cantidadModal, setCantidadModal] = useState(1);
   
-  // Estado para el Slider del Hero (2 imágenes)
+  // Estado del carrusel principal.
   const [heroIndex, setHeroIndex] = useState(0);
+  const [heroPausado, setHeroPausado] = useState(false);
+  const [videoAmpolletasVisible, setVideoAmpolletasVisible] = useState(false);
+  const [prefiereMovimientoReducido, setPrefiereMovimientoReducido] = useState(false);
+  const [videoAmpolletasSilenciado, setVideoAmpolletasSilenciado] = useState(true);
+  const heroTouchStart = useRef<number | null>(null);
+  const heroSwipeTime = useRef(0);
+  const videoAmpolletasRef = useRef<HTMLVideoElement | null>(null);
+
+  useEffect(() => {
+    const video = videoAmpolletasRef.current;
+    if (!video) return;
+
+    const movimientoReducido = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const observer = new IntersectionObserver(
+      ([entry]) => setVideoAmpolletasVisible(entry.isIntersecting),
+      { threshold: 0.25 }
+    );
+    const actualizarPreferencia = () => setPrefiereMovimientoReducido(movimientoReducido.matches);
+
+    observer.observe(video);
+    actualizarPreferencia();
+    movimientoReducido.addEventListener("change", actualizarPreferencia);
+
+    return () => {
+      observer.disconnect();
+      movimientoReducido.removeEventListener("change", actualizarPreferencia);
+    };
+  }, []);
+
+  useEffect(() => {
+    const video = videoAmpolletasRef.current;
+    if (!video) return;
+
+    if (videoAmpolletasVisible && !prefiereMovimientoReducido) {
+      video.play().catch((error: unknown) => {
+        console.warn("No se pudo reproducir el video de las ampolletas:", error);
+      });
+    } else {
+      video.pause();
+    }
+  }, [videoAmpolletasVisible, prefiereMovimientoReducido]);
 
   // Estado del Carrito
   const [carrito, setCarrito] = useState<ItemCarrito[]>([]);
@@ -91,13 +230,14 @@ export default function Home() {
     if (carritoCargado) localStorage.setItem("carrito_naya", JSON.stringify(carrito));
   }, [carrito, carritoCargado]);
 
-  // Cambio automático entre las 2 imágenes cada 4 segundos
+  // Cambio automático entre los banners cada 5 segundos.
   useEffect(() => {
+    if (heroPausado) return;
     const timer = setInterval(() => {
-      setHeroIndex((prev) => (prev === 0 ? 1 : 0));
-    }, 4000);
+      setHeroIndex((prev) => (prev + 1) % imagenesHero.length);
+    }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [heroPausado]);
 
   const agregarAlCarrito = (producto: Producto, cant: number = 1) => {
     setCarrito((prevCarrito) => {
@@ -134,9 +274,29 @@ export default function Home() {
   const totalProductosCarrito = carrito.reduce((sum, item) => sum + item.cantidad, 0);
   const totalPrecioCarrito = carrito.reduce((sum, item) => sum + item.producto.precio * item.cantidad, 0);
 
-  const productosFiltrados = categoriaActiva === "Todos" 
-    ? productos 
-    : productos.filter(p => p.categoria === categoriaActiva);
+  const consulta = searchTerm.trim().toLocaleLowerCase("es-CO");
+  const productosFiltrados = productos.filter((producto) => {
+    const coincideCategoria = categoriaActiva === "Todos"
+        || categoriaVisible(producto) === categoriaActiva;
+    const coincideBusqueda = !consulta
+      || [producto.nombre, producto.categoria, producto.descripcion, producto.detalles]
+        .join(" ")
+        .toLocaleLowerCase("es-CO")
+        .includes(consulta)
+      || (consulta.startsWith("ampoll") && esAmpolleta(producto));
+    return coincideCategoria && coincideBusqueda;
+  });
+
+  // TODO: ordenar por ventas cuando el catálogo exponga datos de popularidad.
+  const productosDestacados = productos.slice(0, 4);
+  const productoCabello = productos.find((producto) => /shampoo|acondicionador/i.test(producto.nombre));
+  const productoPiel = productos.find((producto) => /mantequilla|corporal/i.test(`${producto.nombre} ${producto.categoria}`));
+
+  const seleccionarColeccion = (term: string) => {
+    setSearchTerm(term);
+    setCategoriaActiva("Todos");
+    document.getElementById("catalogo")?.scrollIntoView({ behavior: "smooth" });
+  };
 
   const abrirModal = (producto: Producto) => {
     setProductoSeleccionado(producto);
@@ -144,123 +304,366 @@ export default function Home() {
   };
 
   return (
-    <main className="storefront min-h-screen font-sans">
-      {/* BARRA DE ANUNCIO */}
-      <div className="bg-naya-green text-naya-cream text-xs text-center py-2.5 px-4 font-medium tracking-wide">
-        Bienestar corporal y capilar desde la ancestralidad y lo natural 🌿 | Envíos a todo el país
-      </div>
+    <main className={`storefront min-h-screen font-sans ${inter.variable} ${playfairDisplay.variable}`}>
+      <Navbar
+        cartCount={totalProductosCarrito}
+        onOpenCart={() => setCarritoAbierto(true)}
+        searchTerm={searchTerm}
+        onSearchChange={(term) => {
+          setSearchTerm(term);
+          setCategoriaActiva("Todos");
+        }}
+      />
 
-      {/* HEADER / NAVBAR */}
-      <header className="sticky top-0 bg-naya-cream/95 backdrop-blur-md border-b border-naya-green/10 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between">
-          <a href="#" className="text-3xl font-serif font-semibold text-naya-green tracking-wider">
-            NAYA
-          </a>
+      <section
+        id="inicio"
+        className="naya-hero"
+        aria-label="Banners de NAYA"
+        onMouseEnter={() => setHeroPausado(true)}
+        onMouseLeave={() => setHeroPausado(false)}
+        onTouchStart={(event) => {
+          heroTouchStart.current = event.changedTouches[0]?.clientX ?? null;
+        }}
+        onTouchEnd={(event) => {
+          const start = heroTouchStart.current;
+          heroTouchStart.current = null;
+          if (start === null) return;
+          const end = event.changedTouches[0]?.clientX;
+          if (end === undefined || Math.abs(start - end) < 40) return;
+          event.preventDefault();
+          heroSwipeTime.current = Date.now();
+          setHeroIndex((current) =>
+            (current + (start > end ? 1 : -1) + imagenesHero.length) % imagenesHero.length
+          );
+        }}
+      >
+        <div className="naya-hero__link">
+          <picture className="naya-hero__picture">
+            <source
+              media="(min-width: 768px)"
+              srcSet={imagenesHero[heroIndex].escritorio}
+            />
+            <img
+              src={imagenesHero[heroIndex].celular}
+              alt={imagenesHero[heroIndex].alt}
+              fetchPriority={heroIndex === 0 ? "high" : "auto"}
+              loading={heroIndex === 0 ? "eager" : "lazy"}
+            />
+          </picture>
+          {heroIndex === 2 ? (
+            <>
+              <a
+                className="naya-hero__whatsapp absolute z-10 hidden cursor-pointer md:block"
+                style={{ left: "9.5%", top: "76%", width: "21.5%", height: "11%" }}
+                href={`https://wa.me/${numeroWhatsAppNaya}?text=${encodeURIComponent(mensajeAsesoriaMantequillas)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Recibe asesoría por WhatsApp"
+              />
+              <a
+                className="naya-hero__whatsapp absolute z-10 block cursor-pointer md:hidden"
+                style={{ left: "22%", top: "52%", width: "56%", height: "6.5%" }}
+                href={`https://wa.me/${numeroWhatsAppNaya}?text=${encodeURIComponent(mensajeAsesoriaMantequillas)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Recibe asesoría por WhatsApp"
+              />
+            </>
+          ) : (
+            <a
+              className="naya-hero__image-link"
+              href="#catalogo"
+              aria-label={`${imagenesHero[heroIndex].alt}. Explorar colección`}
+              onClick={(event) => {
+                if (Date.now() - heroSwipeTime.current < 500) {
+                  event.preventDefault();
+                  return;
+                }
+                seleccionarColeccion(imagenesHero[heroIndex].busqueda);
+              }}
+            />
+          )}
+        </div>
 
-          <nav className="hidden md:flex space-x-8 text-sm font-semibold text-naya-green">
-            <a href="#catalogo" className="hover:text-naya-copper transition">Productos</a>
-            <a href="#garantias" className="hover:text-naya-copper transition">¿Por qué elegirnos?</a>
-            <a href="https://wa.me/573042051221" target="_blank" className="hover:text-naya-copper transition">Contacto</a>
-          </nav>
+        <div className="naya-hero__arrows" aria-label="Controles del carrusel">
+          <button
+            type="button"
+            className="naya-hero__arrow"
+            aria-label="Banner anterior"
+            onClick={() => setHeroIndex((current) => (current - 1 + imagenesHero.length) % imagenesHero.length)}
+          >
+            <ChevronLeft size={24} aria-hidden="true" />
+          </button>
+          <button
+            type="button"
+            className="naya-hero__arrow"
+            aria-label="Banner siguiente"
+            onClick={() => setHeroIndex((current) => (current + 1) % imagenesHero.length)}
+          >
+            <ChevronRight size={24} aria-hidden="true" />
+          </button>
+        </div>
 
-          <div className="flex items-center space-x-4">
-            <button 
-              onClick={() => setCarritoAbierto(true)}
-              className="primary-action text-xs font-bold px-5 py-2.5 flex items-center gap-2 shadow-sm"
-            >
-              <span>🛒 Mi Carrito</span>
-              <span className="bg-naya-cream text-naya-green text-[10px] font-bold px-2 py-0.5 rounded-full">
-                {totalProductosCarrito}
-              </span>
-            </button>
+        <div className="naya-hero__dots" aria-label="Navegación de banners">
+          {imagenesHero.map((banner, index) => (
+            <button
+              key={banner.id}
+              type="button"
+              onClick={() => setHeroIndex(index)}
+              className={heroIndex === index ? "naya-hero__dot naya-hero__dot--active" : "naya-hero__dot"}
+              aria-label={`Mostrar banner ${index + 1} de ${imagenesHero.length}`}
+              aria-pressed={heroIndex === index}
+            />
+          ))}
+        </div>
+      </section>
+
+      <section id="mas-vendidos" className="naya-featured">
+        <div className="naya-section-heading">
+          <span className="naya-section-heading__eyebrow">Favoritos botánicos</span>
+          <h2>Los más vendidos</h2>
+          <p>Rituales sencillos para acompañar tu cuidado todos los días.</p>
+        </div>
+
+        {errorProductos ? (
+          <p className="naya-section-message" role="alert">{errorProductos}</p>
+        ) : cargandoProductos ? (
+          <p className="naya-section-message">Cargando productos...</p>
+        ) : productosDestacados.length === 0 ? (
+          <p className="naya-section-message">Pronto encontrarás aquí nuestros favoritos.</p>
+        ) : (
+          <div className="naya-featured__grid">
+            {productosDestacados.map((producto) => (
+              <article className="naya-product-card" key={producto.id}>
+                <div className="naya-product-card__image">
+                  <Image
+                    src={imagenProducto(producto)}
+                    alt={producto.nombre}
+                    fill
+                    sizes="(max-width: 640px) 80vw, (max-width: 1024px) 40vw, 25vw"
+                    className="object-contain"
+                  />
+                </div>
+                <div className="naya-product-card__body">
+                  <span className="naya-product-card__category">{categoriaVisible(producto)}</span>
+                  <h3>{producto.nombre}</h3>
+                  <p className="naya-product-card__price">${producto.precio.toLocaleString("es-CO")} COP</p>
+                  <div className="naya-product-card__actions">
+                    <button type="button" className="naya-button naya-button--outline" onClick={() => abrirModal(producto)}>
+                      Compra rápida
+                    </button>
+                    <button
+                      type="button"
+                      className="naya-button"
+                      onClick={() => {
+                        agregarAlCarrito(producto);
+                        setCarritoAbierto(true);
+                      }}
+                    >
+                      <ShoppingBag size={15} aria-hidden="true" />
+                      Agregar al carrito
+                    </button>
+                  </div>
+                </div>
+              </article>
+            ))}
+          </div>
+        )}
+
+        <div id="kits-rituales" className="naya-kits">
+          <div className="naya-kits__heading">
+            <span className="naya-section-heading__eyebrow">Rutinas completas</span>
+            <h3>Kits de cuidado capilar</h3>
+            <p>Todo lo esencial para un ritual botánico, en una sola compra.</p>
+          </div>
+          <div className="naya-kits__grid">
+            {kitsPromocionales.map((kit) => (
+              <article className="naya-kit-card" key={kit.nombre}>
+                <div className="naya-kit-card__image">
+                  <Image
+                    src={kit.imagen}
+                    alt={kit.nombre}
+                    fill
+                    sizes="(max-width: 640px) 90vw, (max-width: 1024px) 36vw, 28vw"
+                    className="object-contain"
+                  />
+                </div>
+                <div className="naya-kit-card__body">
+                  <span className="naya-product-card__category">Ahorra en tu rutina</span>
+                  <h4>{kit.nombre}</h4>
+                  <p>{kit.descripcion}</p>
+                  <div className="naya-kit-card__pricing">
+                    <del>Por separado: ${kit.precioSeparado.toLocaleString("es-CO")}</del>
+                    <span className="naya-kit-card__price">${kit.precio.toLocaleString("es-CO")} COP</span>
+                    <span className="naya-kit-card__saving">Ahorras ${(kit.precioSeparado - kit.precio).toLocaleString("es-CO")} COP</span>
+                  </div>
+                  <button
+                    type="button"
+                    className="naya-button"
+                    onClick={() => {
+                      const productoKit: Producto = {
+                        id: kit.id,
+                        categoria: "Kit capilar",
+                        nombre: kit.nombre,
+                        descripcion: kit.descripcion,
+                        detalles: kit.descripcion,
+                        precio: kit.precio,
+                        imagen: kit.imagen,
+                      };
+                      agregarAlCarrito(productoKit);
+                      setCarritoAbierto(true);
+                    }}
+                  >
+                    <ShoppingBag size={15} aria-hidden="true" />
+                    Agregar kit al carrito
+                  </button>
+                </div>
+              </article>
+            ))}
           </div>
         </div>
-      </header>
+      </section>
 
-      {/* HERO / BANNER PRINCIPAL CON SLIDER AUTOMÁTICO */}
-      <section id="inicio" className="py-16 sm:py-20 px-4 sm:px-6">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-12 items-center">
-          <div className="space-y-6">
-            <span className="text-naya-copper text-xs font-bold tracking-widest uppercase">
-              Rituales de Cuidado Botánico
-            </span>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-serif leading-tight min-h-30 flex items-center transition-all duration-500">
-              {imagenesHero[heroIndex].titulo}
-            </h1>
-            <p className="text-naya-cream/80 text-sm sm:text-base font-light leading-relaxed max-w-lg transition-all duration-500">
-              {imagenesHero[heroIndex].subtitulo}
-            </p>
-            <div className="pt-2 flex flex-wrap gap-4">
-              <a 
-                href="#catalogo" 
-                className="primary-action inline-flex items-center justify-center font-bold text-sm px-8 py-3.5"
+      <section id="naya-marca" className="naya-brand">
+        <div className="naya-brand__inner">
+          <figure className="naya-brand__video-column">
+            <div className="naya-brand__video-frame">
+              <div className="naya-brand__video-viewport">
+                <Image
+                  src="/naya_foto/ampolletaverde.png"
+                  alt=""
+                  fill
+                  sizes="(max-width: 767px) 280px, 368px"
+                  className="naya-brand__video-poster"
+                />
+                <video
+                  ref={videoAmpolletasRef}
+                  aria-label="Video del proceso de preparación de las ampolletas NAYA"
+                  autoPlay={videoAmpolletasVisible && !prefiereMovimientoReducido}
+                  muted={videoAmpolletasSilenciado}
+                  loop
+                  playsInline
+                  preload="metadata"
+                  poster="/naya_foto/ampolletaverde.png"
+                >
+                  <source src="/videos/naya-ampolletas.mp4" type="video/mp4" />
+                </video>
+              </div>
+              {VIDEO_AMPOLLETAS_TIENE_AUDIO && !prefiereMovimientoReducido && (
+                <button
+                  type="button"
+                  className="naya-brand__video-sound"
+                  aria-label={videoAmpolletasSilenciado ? "Activar sonido" : "Silenciar"}
+                  onClick={() => {
+                    const video = videoAmpolletasRef.current;
+                    if (!video) return;
+                    video.muted = !videoAmpolletasSilenciado;
+                    setVideoAmpolletasSilenciado(video.muted);
+                  }}
+                >
+                  {videoAmpolletasSilenciado
+                    ? <VolumeX size={18} aria-hidden="true" />
+                    : <Volume2 size={18} aria-hidden="true" />}
+                </button>
+              )}
+            </div>
+            <figcaption>Así preparamos nuestras ampolletas</figcaption>
+          </figure>
+
+          <div className="naya-brand__copy">
+            <span className="naya-brand__eyebrow">Hechas en Medellín, con extractos botánicos</span>
+            <h2>Cómo usar nuestras ampolletas</h2>
+            <p>Un paso extra en tu rutina para darle al cabello lo que necesita.</p>
+            <ol className="naya-ampoule-steps">
+              {pasosAmpolletas.map((paso, index) => (
+                <li key={paso}>
+                  <span aria-hidden="true">{index + 1}</span>
+                  <p>{paso}</p>
+                </li>
+              ))}
+            </ol>
+            <div className="naya-ampoule-products">
+              {nombresAmpolletas.map((nombre) => (
+                <div className="naya-ampoule-products__item" key={nombre}>{nombre}</div>
+              ))}
+            </div>
+            <div className="naya-brand__actions">
+              <a
+                className="naya-button"
+                href={`https://wa.me/${numeroWhatsAppNaya}?text=${encodeURIComponent(mensajeAsesoriaAmpolletas)}`}
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                Explorar Catálogo
+                Pedir asesoría <ArrowRight size={15} aria-hidden="true" />
               </a>
-            </div>
-          </div>
-
-          <div className="relative flex flex-col items-center justify-center">
-            {/* Contenedor limpio de la Imagen (sin marcos ni fondos) */}
-            <div className="relative w-full max-w-105 h-90 sm:h-115 rounded-[20px] overflow-hidden shadow-2xl ring-1 ring-naya-cream/20">
-              <Image 
-                key={imagenesHero[heroIndex].id}
-                src={imagenesHero[heroIndex].imagen}
-                alt={imagenesHero[heroIndex].titulo}
-                fill
-                sizes="(max-width: 1024px) 100vw, 420px"
-                className="object-cover transition-all duration-700 ease-in-out"
-              />
-            </div>
-
-            {/* Puntos Indicadores Inferiores */}
-            <div className="flex justify-center items-center gap-3 mt-4">
               <button
-                onClick={() => setHeroIndex(0)}
-                className={`transition-all duration-300 rounded-full ${
-                  heroIndex === 0 
-                    ? "w-8 h-2.5 bg-naya-copper"
-                    : "w-2.5 h-2.5 bg-naya-cream/40 hover:bg-naya-cream/70"
-                }`}
-                title="Imagen 1"
-              />
-              <button
-                onClick={() => setHeroIndex(1)}
-                className={`transition-all duration-300 rounded-full ${
-                  heroIndex === 1 
-                    ? "w-8 h-2.5 bg-naya-copper"
-                    : "w-2.5 h-2.5 bg-naya-cream/40 hover:bg-naya-cream/70"
-                }`}
-                title="Imagen 2"
-              />
+                type="button"
+                className="naya-button naya-button--outline"
+                onClick={() => seleccionarColeccion("Ampolleta")}
+              >
+                Ver ampolletas
+              </button>
             </div>
           </div>
         </div>
       </section>
 
-      {/* GARANTÍAS Y MÉTODOS DE PAGO */}
-      <section id="garantias" className="py-8 px-4 sm:px-6 border-b">
-        <div className="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-          <div className="p-4 flex flex-col items-center">
-            <span className="text-3xl mb-2">💳</span>
-            <h4 className="font-bold text-sm text-naya-green">PSE, Nequi y Tarjetas</h4>
-            <p className="text-xs text-naya-green/65 mt-1">Pagos 100% seguros y directos</p>
-          </div>
-          <div className="p-4 flex flex-col items-center">
-            <span className="text-3xl mb-2">🚚</span>
-            <h4 className="font-bold text-sm text-naya-green">Envíos a toda Colombia</h4>
-            <p className="text-xs text-naya-green/65 mt-1">Rápido y directo a tu puerta</p>
-          </div>
-          <div className="p-4 flex flex-col items-center">
-            <span className="text-3xl mb-2">🌿</span>
-            <h4 className="font-bold text-sm text-naya-green">Fórmulas Botánicas</h4>
-            <p className="text-xs text-naya-green/65 mt-1">Extractos 100% naturales</p>
-          </div>
-          <div className="p-4 flex flex-col items-center">
-            <span className="text-3xl mb-2">💬</span>
-            <h4 className="font-bold text-sm text-naya-green">Asesoría Personalizada</h4>
-            <p className="text-xs text-naya-green/65 mt-1">Atención directa en WhatsApp</p>
-          </div>
+      <section id="categorias" className="naya-categories">
+        <div className="naya-section-heading">
+          <span className="naya-section-heading__eyebrow">Encuentra tu ritual</span>
+          <h2>Explora NAYA</h2>
+          <p>Un cuidado consciente para cada parte de ti.</p>
+        </div>
+        <div className="naya-categories__grid">
+          <a
+            className="naya-category-card"
+            href="#catalogo"
+            onClick={() => seleccionarColeccion("Capilar")}
+          >
+            <div className="naya-category-card__image">
+              {productoCabello ? (
+                <Image src={imagenProducto(productoCabello)} alt="" fill sizes="(max-width: 640px) 90vw, 33vw" className="object-contain p-5" />
+              ) : (
+                <div className="naya-category-card__placeholder"><Leaf size={34} aria-hidden="true" /></div>
+              )}
+            </div>
+            <div className="naya-category-card__label">
+              <div><h3>Cabello</h3><p>Fuerza y vitalidad desde la raíz</p></div>
+              <ArrowRight size={18} aria-hidden="true" />
+            </div>
+          </a>
+          <a
+            className="naya-category-card"
+            href="#catalogo"
+            onClick={() => seleccionarColeccion("Mantequilla")}
+          >
+            <div className="naya-category-card__image">
+              {productoPiel ? (
+                <Image src={imagenProducto(productoPiel)} alt="" fill sizes="(max-width: 640px) 90vw, 33vw" className="object-contain p-5" />
+              ) : (
+                <div className="naya-category-card__placeholder"><Sparkles size={34} aria-hidden="true" /></div>
+              )}
+            </div>
+            <div className="naya-category-card__label">
+              <div><h3>Piel</h3><p>Hidratación de origen botánico</p></div>
+              <ArrowRight size={18} aria-hidden="true" />
+            </div>
+          </a>
+          <a className="naya-category-card" href="#kits-rituales">
+            <div className="naya-category-card__image">
+              <Image
+                src="/naya_foto/kit-romero.png"
+                alt="Kit capilar de Romero NAYA"
+                fill
+                sizes="(max-width: 640px) 90vw, 33vw"
+                className="object-contain p-4"
+              />
+            </div>
+            <div className="naya-category-card__label">
+              <div><h3>Kits</h3><p>Tu rutina completa, en un solo ritual</p></div>
+              <ArrowRight size={18} aria-hidden="true" />
+            </div>
+          </a>
         </div>
       </section>
 
@@ -310,7 +713,7 @@ export default function Home() {
             >
               <div className="product-card__image relative h-56 sm:h-64 w-full mb-4 overflow-hidden flex items-center justify-center">
                 <Image 
-                  src={producto.imagen}
+                  src={imagenProducto(producto)}
                   alt={producto.nombre}
                   fill
                   sizes="(max-width: 640px) calc(100vw - 32px), (max-width: 1024px) calc(50vw - 40px), 280px"
@@ -318,7 +721,7 @@ export default function Home() {
                 />
               </div>
               <span className="product-card__category text-[10px] font-bold uppercase tracking-wider">
-                {producto.categoria}
+                {categoriaVisible(producto)}
               </span>
               <h3 className="text-xl font-semibold text-naya-green mt-1 line-clamp-1">
                 {producto.nombre}
@@ -359,6 +762,13 @@ export default function Home() {
         </div>
       </section>
 
+      <CustomerReviews />
+      <CommunityGallery />
+      <Benefits />
+      <NewsletterSignup />
+      <NayaFooter />
+      <NayaWhatsAppButton />
+
       {/* MODAL DETALLE DE PRODUCTO */}
       {productoSeleccionado && (
         <div className="fixed inset-0 bg-naya-green/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
@@ -373,7 +783,7 @@ export default function Home() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 items-center">
               <div className={`product-card__image relative h-64 sm:h-72 w-full rounded-[20px] flex items-center justify-center ${acentoProducto(productoSeleccionado)}`}>
                 <Image 
-                  src={productoSeleccionado.imagen}
+                  src={imagenProducto(productoSeleccionado)}
                   alt={productoSeleccionado.nombre}
                   fill
                   sizes="(max-width: 640px) calc(100vw - 40px), 300px"
@@ -383,7 +793,7 @@ export default function Home() {
 
               <div className="space-y-4">
                 <span className={`product-card__category text-xs font-bold uppercase tracking-wider ${acentoProducto(productoSeleccionado)}`}>
-                  {productoSeleccionado.categoria}
+                  {categoriaVisible(productoSeleccionado)}
                 </span>
                 <h3 className="text-3xl font-semibold font-serif text-naya-green">
                   {productoSeleccionado.nombre}
@@ -471,7 +881,7 @@ export default function Home() {
                     <div key={item.producto.id} className="py-4 flex gap-4 items-center">
                       <div className="relative h-16 w-16 bg-white/70 rounded-[14px] shrink-0 flex items-center justify-center">
                         <Image 
-                          src={item.producto.imagen}
+                          src={imagenProducto(item.producto)}
                           alt={item.producto.nombre}
                           fill
                           sizes="64px"
