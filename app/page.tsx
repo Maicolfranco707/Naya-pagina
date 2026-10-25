@@ -5,12 +5,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { Inter, Playfair_Display } from "next/font/google";
 import { ArrowRight, ChevronLeft, ChevronRight, Leaf, ShoppingBag, Sparkles, Volume2, VolumeX } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Benefits from "@/components/Benefits";
-import { CommunityGallery, CustomerReviews } from "@/components/CommunitySections";
-import NayaFooter from "@/components/NayaFooter";
-import NayaWhatsAppButton from "@/components/NayaWhatsAppButton";
-import NewsletterSignup from "@/components/NewsletterSignup";
+import Navbar from "@/components/layout/Navbar";
+import Benefits from "@/components/home/Benefits";
+import { CommunityGallery, CustomerReviews } from "@/components/home/CommunitySections";
+import NayaFooter from "@/components/layout/NayaFooter";
+import NayaWhatsAppButton from "@/components/layout/NayaWhatsAppButton";
+import NewsletterSignup from "@/components/home/NewsletterSignup";
 import type { Producto } from "@/utils/productos";
 
 const inter = Inter({
@@ -91,6 +91,10 @@ const kitsPromocionales = [
 
 function textoNormalizado(texto: string): string {
   return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+function normalizarBusqueda(texto: string): string {
+  return textoNormalizado(texto).trim().replace(/\s+/g, " ");
 }
 
 function esAmpolleta(producto: Producto): boolean {
@@ -274,15 +278,14 @@ export default function Home() {
   const totalProductosCarrito = carrito.reduce((sum, item) => sum + item.cantidad, 0);
   const totalPrecioCarrito = carrito.reduce((sum, item) => sum + item.producto.precio * item.cantidad, 0);
 
-  const consulta = searchTerm.trim().toLocaleLowerCase("es-CO");
+  const consulta = normalizarBusqueda(searchTerm);
   const productosFiltrados = productos.filter((producto) => {
     const coincideCategoria = categoriaActiva === "Todos"
         || categoriaVisible(producto) === categoriaActiva;
     const coincideBusqueda = !consulta
-      || [producto.nombre, producto.categoria, producto.descripcion, producto.detalles]
-        .join(" ")
-        .toLocaleLowerCase("es-CO")
-        .includes(consulta)
+      || normalizarBusqueda(
+        [producto.nombre, producto.categoria, producto.descripcion, producto.detalles].join(" ")
+      ).includes(consulta)
       || (consulta.startsWith("ampoll") && esAmpolleta(producto));
     return coincideCategoria && coincideBusqueda;
   });
@@ -303,16 +306,23 @@ export default function Home() {
     setCantidadModal(1);
   };
 
+  const actualizarBusqueda = (term: string) => {
+    setSearchTerm(term);
+    setCategoriaActiva("Todos");
+    if (term.trim()) {
+      requestAnimationFrame(() => {
+        document.getElementById("catalogo")?.scrollIntoView({ behavior: "smooth" });
+      });
+    }
+  };
+
   return (
     <main className={`storefront min-h-screen font-sans ${inter.variable} ${playfairDisplay.variable}`}>
       <Navbar
         cartCount={totalProductosCarrito}
         onOpenCart={() => setCarritoAbierto(true)}
         searchTerm={searchTerm}
-        onSearchChange={(term) => {
-          setSearchTerm(term);
-          setCategoriaActiva("Todos");
-        }}
+        onSearchChange={actualizarBusqueda}
       />
 
       <section
@@ -693,6 +703,13 @@ export default function Home() {
         </div>
 
         {/* Grid de Productos */}
+        {consulta && !cargandoProductos && !errorProductos && (
+          <p className="mb-5 text-center text-sm text-naya-cream/75" role="status" aria-live="polite">
+            {productosFiltrados.length > 0
+              ? `${productosFiltrados.length} ${productosFiltrados.length === 1 ? "producto encontrado" : "productos encontrados"} para “${searchTerm.trim()}”`
+              : `No encontramos productos para “${searchTerm.trim()}”.`}
+          </p>
+        )}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {errorProductos ? (
             <div className="col-span-full py-12 text-center" role="alert">
@@ -704,7 +721,20 @@ export default function Home() {
           ) : cargandoProductos ? (
             <p className="col-span-full py-12 text-center text-sm text-naya-cream/70">Cargando productos...</p>
           ) : productosFiltrados.length === 0 ? (
-            <p className="col-span-full py-12 text-center text-sm text-naya-cream/70">No hay productos disponibles en esta categoría.</p>
+            <div className="col-span-full py-12 text-center">
+              <p className="text-sm text-naya-cream/70">
+                {consulta ? "Prueba con otro nombre, categoría o característica del producto." : "No hay productos disponibles en esta categoría."}
+              </p>
+              {consulta && (
+                <button
+                  type="button"
+                  onClick={() => actualizarBusqueda("")}
+                  className="primary-action mt-4 px-5 py-2 text-sm font-bold"
+                >
+                  Limpiar búsqueda
+                </button>
+              )}
+            </div>
           ) : productosFiltrados.map((producto) => (
             <div 
               key={producto.id} 

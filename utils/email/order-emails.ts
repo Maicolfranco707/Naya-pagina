@@ -20,6 +20,8 @@ interface OrderEmailData {
     unit_price_cop: number;
     quantity: number;
     line_total_cop: number;
+    products: { image_url: string } | null;
+    image_url: string | null;
   }>;
 }
 
@@ -40,10 +42,29 @@ function formatCop(value: number) {
   return `$${value.toLocaleString("es-CO")} COP`;
 }
 
+function productImageUrl(imagePath: string | null) {
+  if (!imagePath) return null;
+
+  const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL
+    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "");
+  const isAbsoluteUrl = /^https?:\/\//i.test(imagePath);
+  if (!isAbsoluteUrl && !configuredSiteUrl) {
+    throw new Error("Configura NEXT_PUBLIC_SITE_URL para incluir imágenes en los correos.");
+  }
+  const imageUrl = new URL(imagePath, configuredSiteUrl || undefined);
+  if (imageUrl.protocol !== "https:" && imageUrl.protocol !== "http:") {
+    throw new Error(`URL de imagen de producto no válida: ${imagePath}`);
+  }
+  return imageUrl.toString();
+}
+
 function orderHtml(order: OrderEmailData, heading: string, intro: string) {
   const items = order.order_items.map((item) => `
     <tr>
-      <td style="padding:10px 0;border-bottom:1px solid #e8e1d8;color:#213a35">${escapeHtml(item.product_name)} × ${item.quantity}</td>
+      <td style="padding:10px 0;border-bottom:1px solid #e8e1d8;color:#213a35">
+        ${item.image_url ? `<img src="${escapeHtml(item.image_url)}" alt="${escapeHtml(item.product_name)}" width="64" height="64" style="display:block;width:64px;height:64px;object-fit:cover;border-radius:6px;margin-bottom:8px" />` : ""}
+        ${escapeHtml(item.product_name)} × ${item.quantity}
+      </td>
       <td style="padding:10px 0;border-bottom:1px solid #e8e1d8;text-align:right;color:#213a35">${formatCop(item.line_total_cop)}</td>
     </tr>`).join("");
 
@@ -68,7 +89,10 @@ function orderHtml(order: OrderEmailData, heading: string, intro: string) {
             <tr><td style="padding:10px 0;border-top:1px solid #e8e1d8;font-weight:bold">Total</td><td style="padding:10px 0;border-top:1px solid #e8e1d8;text-align:right;font-weight:bold">${formatCop(order.total_cop)}</td></tr>
           </tbody>
         </table>
-        <p style="margin-bottom:0;color:#65726e;font-size:13px">${escapeHtml(order.customer_name)} · ${escapeHtml(order.shipping_address)}${order.shipping_apartment ? `, ${escapeHtml(order.shipping_apartment)}` : ""}, ${escapeHtml(order.shipping_city)}, ${escapeHtml(order.shipping_region)}</p>
+        <p style="margin-bottom:0;color:#65726e;font-size:13px">
+          ${escapeHtml(order.customer_name)} · ${escapeHtml(order.customer_email)} · ${escapeHtml(order.customer_phone)}<br />
+          ${escapeHtml(order.shipping_address)}${order.shipping_apartment ? `, ${escapeHtml(order.shipping_apartment)}` : ""}, ${escapeHtml(order.shipping_city)}, ${escapeHtml(order.shipping_region)}
+        </p>
       </div>
       <p style="padding:0 12px;color:#65726e;font-size:12px">Gracias por elegir NAYA.</p>
     </div>
@@ -78,7 +102,7 @@ function orderHtml(order: OrderEmailData, heading: string, intro: string) {
 
 function orderText(order: OrderEmailData, heading: string, intro: string) {
   const items = order.order_items
-    .map((item) => `- ${item.product_name} x ${item.quantity}: ${formatCop(item.line_total_cop)}`)
+    .map((item) => `- ${item.product_name} x ${item.quantity}: ${formatCop(item.line_total_cop)}${item.image_url ? `\n  Imagen: ${item.image_url}` : ""}`)
     .join("\n");
 
   return [
@@ -94,6 +118,8 @@ function orderText(order: OrderEmailData, heading: string, intro: string) {
     `Total: ${formatCop(order.total_cop)}`,
     "",
     `Cliente: ${order.customer_name}`,
+    `Correo: ${order.customer_email}`,
+    `Teléfono: ${order.customer_phone}`,
     `Dirección: ${order.shipping_address}${order.shipping_apartment ? `, ${order.shipping_apartment}` : ""}, ${order.shipping_city}, ${order.shipping_region}`,
     "",
     "Gracias por elegir NAYA.",
@@ -135,12 +161,24 @@ async function loadOrder(orderId: string): Promise<OrderEmailData> {
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .from("orders")
-    .select("id, reference, customer_name, customer_email, customer_phone, shipping_address, shipping_apartment, shipping_city, shipping_region, subtotal_cop, shipping_cop, total_cop, payment_provider, order_items(product_name, unit_price_cop, quantity, line_total_cop)")
+    .select("id, reference, customer_name, customer_email, customer_phone, shipping_address, shipping_apartment, shipping_city, shipping_region, subtotal_cop, shipping_cop, total_cop, payment_provider, order_items(product_name, unit_price_cop, quantity, line_total_cop, products(image_url))")
     .eq("id", orderId)
     .single();
 
   if (error || !data) throw new Error(`No se pudo cargar la orden para notificar: ${error?.message ?? "sin datos"}`);
-  return data as unknown as OrderEmailData;
+  const rawOrder = data as unknown as Omit<OrderEmailData, "order_items"> & {
+    order_items: Array<Omit<OrderEmailData["order_items"][number], "products" | "image_url"> & {
+      products: { image_url: string } | null;
+    }>;
+  };
+
+  return {
+    ...rawOrder,
+    order_items: rawOrder.order_items.map((item) => ({
+      ...item,
+      image_url: productImageUrl(item.products?.image_url ?? null),
+    })),
+  };
 }
 
 export async function sendOrderPlacedEmails(orderId: string) {
@@ -173,11 +211,12 @@ export async function sendPaymentApprovedEmails(orderId: string) {
   const html = orderHtml(order, "Pago confirmado", intro);
   const text = orderText(order, "Pago confirmado", intro);
   const notificationEmail = process.env.STORE_NOTIFICATION_EMAIL;
+  if (!notificationEmail) {
+    throw new Error("Falta configurar STORE_NOTIFICATION_EMAIL para enviar el aviso de venta.");
+  }
 
   await Promise.all([
     sendOnce(`payment-approved:${order.id}:customer`, order.customer_email, `Pago confirmado para ${order.reference} | NAYA`, html, text),
-    ...(notificationEmail
-      ? [sendOnce(`payment-approved:${order.id}:store`, notificationEmail, `Pago aprobado ${order.reference} | NAYA`, html, text)]
-      : []),
+    sendOnce(`payment-approved:${order.id}:store`, notificationEmail, `Pago aprobado ${order.reference} | NAYA`, html, text),
   ]);
 }

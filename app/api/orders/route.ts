@@ -45,14 +45,17 @@ export async function POST(request: Request) {
       );
     }
 
-      const orderId = (data as { id?: string } | null)?.id;
-      if (orderId && body.paymentProvider === "whatsapp") {
-        try {
-      await sendOrderPlacedEmails(orderId);
-    } catch (emailError) {
-      console.error("Order notification could not be sent:", emailError instanceof Error ? emailError.message : "unknown error");
+    const orderId = (data as { id?: string } | null)?.id;
+    if (orderId && body.paymentProvider === "whatsapp") {
+      try {
+        await sendOrderPlacedEmails(orderId);
+      } catch (emailError) {
+        console.error(
+          "Order notification could not be sent:",
+          emailError instanceof Error ? emailError.message : "unknown error"
+        );
+      }
     }
-  }
 
     return NextResponse.json(data, { status: 201 });
   } catch (error) {

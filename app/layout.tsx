@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Manrope, Nunito_Sans } from "next/font/google";
+import { Cormorant_Garamond, Inter, Manrope, Nunito_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
 const manrope = Manrope({
@@ -18,6 +18,17 @@ const cormorantGaramond = Cormorant_Garamond({
   weight: ["400", "500", "600", "700"],
 });
 
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+});
+
+const playfairDisplay = Playfair_Display({
+  subsets: ["latin"],
+  variable: "--font-playfair",
+  weight: ["400", "500", "600", "700"],
+});
+
 export const metadata: Metadata = {
   title: "NAYA | Renovación profunda en tu piel",
   description: "Bienestar corporal y capilar desde la ancestralidad y lo natural",
@@ -30,7 +41,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={`${manrope.variable} ${nunitoSans.variable} ${cormorantGaramond.variable} font-sans`}>
+      <body className={`${manrope.variable} ${nunitoSans.variable} ${cormorantGaramond.variable} ${inter.variable} ${playfairDisplay.variable} font-sans`}>
         {children}
       </body>
     </html>

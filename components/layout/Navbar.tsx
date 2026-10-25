@@ -1,6 +1,7 @@
 "use client";
 
-import { ChevronDown, Menu, Search, ShoppingBag, X } from "lucide-react";
+import { ChevronDown, Menu, Search, ShoppingBag, UserRound, X } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
 interface NavbarProps {
@@ -117,16 +118,22 @@ export default function Navbar({
             NAYA
           </a>
 
-          <button
-            type="button"
-            className="naya-header__cart"
-            onClick={onOpenCart}
-            aria-label={`Abrir carrito, ${cartCount} productos`}
-          >
-            <ShoppingBag size={19} strokeWidth={1.7} aria-hidden="true" />
-            <span className="naya-header__cart-label">Carrito</span>
-            <span className="naya-header__cart-count">{cartCount}</span>
-          </button>
+          <div className="naya-header__actions">
+            <Link href="/cuenta" className="naya-header__account" aria-label="Mi cuenta">
+              <UserRound size={19} strokeWidth={1.7} aria-hidden="true" />
+              <span>Mi cuenta</span>
+            </Link>
+            <button
+              type="button"
+              className="naya-header__cart"
+              onClick={onOpenCart}
+              aria-label={`Abrir carrito, ${cartCount} productos`}
+            >
+              <ShoppingBag size={19} strokeWidth={1.7} aria-hidden="true" />
+              <span className="naya-header__cart-label">Carrito</span>
+              <span className="naya-header__cart-count">{cartCount}</span>
+            </button>
+          </div>
         </div>
 
         {mobileSearchOpen && (
