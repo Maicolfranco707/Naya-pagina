@@ -11,6 +11,7 @@ import NayaWhatsAppButton from "@/components/layout/NayaWhatsAppButton";
 import NewsletterSignup from "@/components/home/NewsletterSignup";
 import { WHATSAPP_NUMBER } from "@/utils/contacto";
 import type { Producto } from "@/utils/productos";
+import { ENVIO_GRATIS_DESDE } from "@/utils/envios";
 
 interface ItemCarrito {
   producto: Producto;
@@ -83,7 +84,7 @@ const kitsPromocionales = [
 const beneficiosFranja = [
   "Hecho en Medellín",
   "Extractos botánicos",
-  "Envíos a toda Colombia",
+  "Envío gratis desde $150.000",
   "Paga con tarjeta, PSE o Nequi",
   "Asesoría por WhatsApp",
 ];
@@ -872,6 +873,16 @@ export default function Home() {
               </div>
             ) : (
               <>
+                <div className="naya-cart__free">
+                  <p>
+                    {totalPrecioCarrito >= ENVIO_GRATIS_DESDE
+                      ? "¡Tu pedido tiene envío gratis!"
+                      : <>Te faltan <strong>${(ENVIO_GRATIS_DESDE - totalPrecioCarrito).toLocaleString("es-CO")}</strong> para el envío gratis</>}
+                  </p>
+                  <div className="naya-cart__free-bar" aria-hidden="true">
+                    <span style={{ width: `${Math.min(100, (totalPrecioCarrito / ENVIO_GRATIS_DESDE) * 100)}%` }} />
+                  </div>
+                </div>
                 <ul className="naya-cart__items">
                   {carrito.map((item) => (
                     <li key={item.producto.id} className="naya-cart__item">
@@ -919,7 +930,7 @@ export default function Home() {
                     <span>Subtotal</span>
                     <strong>${totalPrecioCarrito.toLocaleString("es-CO")} COP</strong>
                   </div>
-                  <p className="naya-cart__note">El envío se calcula en el siguiente paso.</p>
+                  <p className="naya-cart__note">Envío $10.000 en Antioquia y $14.900 al resto del país. Códigos de descuento en el siguiente paso.</p>
                   <Link href="/checkout" className="naya-cart__checkout">
                     <Lock size={16} aria-hidden="true" />
                     Ir a pagar

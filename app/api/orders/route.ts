@@ -6,8 +6,8 @@ export const runtime = "nodejs";
 interface CreateOrderBody {
   customer: Record<string, string>;
   items: Array<{ id: number; cantidad: number }>;
-  shippingCost: number;
   paymentProvider: "wompi" | "whatsapp";
+  couponCode?: string | null;
 }
 
 export async function POST(request: Request) {
@@ -21,8 +21,8 @@ export async function POST(request: Request) {
   if (
     !body.customer ||
     !Array.isArray(body.items) ||
-    ![25000, 30000].includes(body.shippingCost) ||
-    !["wompi", "whatsapp"].includes(body.paymentProvider)
+    !["wompi", "whatsapp"].includes(body.paymentProvider) ||
+    (body.couponCode != null && (typeof body.couponCode !== "string" || body.couponCode.length > 30))
   ) {
     return NextResponse.json({ error: "Revisa los datos del pedido e intenta de nuevo." }, { status: 400 });
   }
@@ -42,12 +42,16 @@ export async function POST(request: Request) {
     const { data, error } = await supabase.rpc("create_order", {
       p_customer: body.customer,
       p_items: body.items,
-      p_shipping_cop: body.shippingCost,
       p_payment_provider: body.paymentProvider,
+      p_coupon: body.couponCode?.trim() || null,
     });
 
     if (error) {
       console.error("Supabase order creation failed:", error.message);
+      const cuponInvalido = error.message.match(/Coupon: (.+)$/)?.[1];
+      if (cuponInvalido) {
+        return NextResponse.json({ error: cuponInvalido, couponError: true }, { status: 400 });
+      }
       return NextResponse.json(
         { error: "No se pudo guardar el pedido. Verifica el catálogo y vuelve a intentar." },
         { status: 400 }

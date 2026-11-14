@@ -15,8 +15,10 @@ import {
   RefreshCw,
   Search,
   ShoppingBag,
+  Tag,
   X,
 } from "lucide-react";
+import CouponsPanel from "@/components/admin/CouponsPanel";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
 
 interface Producto {
@@ -56,6 +58,8 @@ interface Pedido {
   customer_notes: string | null;
   subtotal_cop: number;
   shipping_cop: number;
+  discount_cop: number | null;
+  coupon_code: string | null;
   total_cop: number;
   order_status: string;
   payment_status: string;
@@ -108,7 +112,7 @@ export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [cargando, setCargando] = useState(false);
   const [cargandoDatos, setCargandoDatos] = useState(false);
-  const [pestana, setPestana] = useState<"pedidos" | "productos">("pedidos");
+  const [pestana, setPestana] = useState<"pedidos" | "productos" | "cupones">("pedidos");
   const [productos, setProductos] = useState<Producto[]>([]);
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [busqueda, setBusqueda] = useState("");
@@ -402,6 +406,9 @@ export default function AdminPage() {
             <button type="button" role="tab" aria-selected={pestana === "productos"} onClick={() => { setPestana("productos"); setBusqueda(""); }} className={`inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium ${pestana === "productos" ? "border-emerald-900 text-emerald-950" : "border-transparent text-stone-500 hover:text-stone-900"}`}>
               <Box size={16} /> Productos
             </button>
+            <button type="button" role="tab" aria-selected={pestana === "cupones"} onClick={() => { setPestana("cupones"); setBusqueda(""); }} className={`inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium ${pestana === "cupones" ? "border-emerald-900 text-emerald-950" : "border-transparent text-stone-500 hover:text-stone-900"}`}>
+              <Tag size={16} /> Cupones
+            </button>
           </div>
           <label className="mb-3 flex items-center gap-2 border border-stone-300 bg-white px-3 py-2 sm:mb-2 sm:w-72">
             <Search size={16} className="text-stone-400" />
@@ -418,6 +425,8 @@ export default function AdminPage() {
 
         {cargandoDatos ? (
           <p className="py-16 text-center text-sm text-stone-500">Cargando datos...</p>
+        ) : pestana === "cupones" ? (
+          <CouponsPanel />
         ) : pestana === "productos" ? (
           <section className="mt-5">
             <div className="mb-4 flex items-center justify-between gap-3">
@@ -520,7 +529,8 @@ export default function AdminPage() {
                       {pedido.order_items?.map((item) => <li key={item.id} className="flex justify-between gap-4 text-sm"><span className="text-stone-600">{item.product_name} × {item.quantity}</span><span className="shrink-0">{formatoPrecio(item.line_total_cop)}</span></li>)}
                     </ul>
                     <div className="mt-3 border-t border-stone-100 pt-2 text-sm">
-                      <p className="flex justify-between"><span className="text-stone-500">Envío</span><span>{formatoPrecio(pedido.shipping_cop)}</span></p>
+                      {!!pedido.discount_cop && <p className="flex justify-between"><span className="text-stone-500">Descuento{pedido.coupon_code ? ` (${pedido.coupon_code})` : ""}</span><span className="text-emerald-800">−{formatoPrecio(pedido.discount_cop)}</span></p>}
+                      <p className="flex justify-between"><span className="text-stone-500">Envío</span><span>{pedido.shipping_cop === 0 ? "Gratis" : formatoPrecio(pedido.shipping_cop)}</span></p>
                       <p className="mt-1 flex justify-between font-semibold"><span>Total</span><span>{formatoPrecio(pedido.total_cop)}</span></p>
                     </div>
                   </div>

@@ -13,6 +13,8 @@ interface OrderEmailData {
   shipping_region: string;
   subtotal_cop: number;
   shipping_cop: number;
+  discount_cop: number | null;
+  coupon_code: string | null;
   total_cop: number;
   payment_provider: string;
   order_items: Array<{
@@ -92,7 +94,8 @@ function orderHtml(order: OrderEmailData, heading: string, intro: string) {
         <table style="width:100%;margin-top:12px;font-size:14px">
           <tbody>
             <tr><td style="padding:5px 0">Subtotal</td><td style="padding:5px 0;text-align:right">${formatCop(order.subtotal_cop)}</td></tr>
-            <tr><td style="padding:5px 0">Envío</td><td style="padding:5px 0;text-align:right">${formatCop(order.shipping_cop)}</td></tr>
+            ${order.discount_cop ? `<tr><td style="padding:5px 0">Descuento${order.coupon_code ? ` (${escapeHtml(order.coupon_code)})` : ""}</td><td style="padding:5px 0;text-align:right;color:#2f6b45">−${formatCop(order.discount_cop)}</td></tr>` : ""}
+            <tr><td style="padding:5px 0">Envío</td><td style="padding:5px 0;text-align:right">${order.shipping_cop === 0 ? "Gratis" : formatCop(order.shipping_cop)}</td></tr>
             <tr><td style="padding:10px 0;border-top:1px solid #e8e1d8;font-weight:bold">Total</td><td style="padding:10px 0;border-top:1px solid #e8e1d8;text-align:right;font-weight:bold">${formatCop(order.total_cop)}</td></tr>
           </tbody>
         </table>
@@ -122,7 +125,8 @@ function orderText(order: OrderEmailData, heading: string, intro: string) {
     items,
     "",
     `Subtotal: ${formatCop(order.subtotal_cop)}`,
-    `Envío: ${formatCop(order.shipping_cop)}`,
+    ...(order.discount_cop ? [`Descuento${order.coupon_code ? ` (${order.coupon_code})` : ""}: -${formatCop(order.discount_cop)}`] : []),
+    `Envío: ${order.shipping_cop === 0 ? "Gratis" : formatCop(order.shipping_cop)}`,
     `Total: ${formatCop(order.total_cop)}`,
     "",
     `Cliente: ${order.customer_name}`,
@@ -169,7 +173,7 @@ async function loadOrder(orderId: string): Promise<OrderEmailData> {
   const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .from("orders")
-    .select("id, reference, customer_name, customer_email, customer_phone, shipping_address, shipping_apartment, shipping_city, shipping_region, subtotal_cop, shipping_cop, total_cop, payment_provider, order_items(product_name, unit_price_cop, quantity, line_total_cop, products(image_url))")
+    .select("id, reference, customer_name, customer_email, customer_phone, shipping_address, shipping_apartment, shipping_city, shipping_region, subtotal_cop, discount_cop, coupon_code, shipping_cop, total_cop, payment_provider, order_items(product_name, unit_price_cop, quantity, line_total_cop, products(image_url))")
     .eq("id", orderId)
     .single();
 

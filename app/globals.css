@@ -3519,3 +3519,33 @@ body {
   .naya-co { background: #fff; }
   .naya-co__form { box-shadow: none; clip-path: none; }
 }
+
+/* ── Checkout: cupón de descuento y envío gratis ── */
+.naya-co-coupon { margin: 0 0 18px; }
+.naya-co-coupon__row { display: flex; gap: 8px; }
+.naya-co-coupon__row input {
+  flex: 1; min-width: 0; height: 46px; padding: 0 14px;
+  border: 1px solid #d9d1c3; border-radius: 6px; background: #fff;
+  font-size: 14.5px; letter-spacing: .04em;
+}
+.naya-co-coupon__row input:focus { outline: 2px solid #0b3a3c; outline-offset: -1px; }
+.naya-co-coupon__row button {
+  height: 46px; padding: 0 18px; border-radius: 6px; border: 0;
+  background: #0b3a3c; color: #fbf7ef; font-weight: 600; font-size: 14px; cursor: pointer;
+}
+.naya-co-coupon__row button:disabled { background: #c9c2b5; color: #f4efe6; cursor: not-allowed; }
+.naya-co-coupon__error { margin: 8px 0 0; color: #a2382b; font-size: 13px; }
+.naya-co-coupon__chip {
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 10px;
+  padding: 5px 8px 5px 10px; border-radius: 6px; background: #e8efe9; color: #0b3a3c;
+  font-size: 13px; font-weight: 600;
+}
+.naya-co-coupon__chip button { display: grid; place-items: center; border: 0; background: none; color: inherit; cursor: pointer; padding: 2px; }
+.naya-co-totals__discount dd { color: #2f6b45; }
+div.naya-co__option { cursor: default; }
+
+/* ── Carrito: progreso hacia envío gratis ── */
+.naya-cart__free { padding: 12px 20px 14px; border-bottom: 1px solid #e6e0d6; font-size: 13px; color: #0b3a3c; }
+.naya-cart__free p { margin: 0 0 8px; }
+.naya-cart__free-bar { height: 5px; border-radius: 99px; background: #e6e0d6; overflow: hidden; }
+.naya-cart__free-bar span { display: block; height: 100%; background: #0b3a3c; border-radius: inherit; transition: width .3s ease; }

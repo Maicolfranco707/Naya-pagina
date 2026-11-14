@@ -147,7 +147,7 @@ export default function Navbar({
             Recibe asesoría por WhatsApp
           </a>
         ) : (
-          <span>Envíos a todo Colombia</span>
+          <span>Envío gratis en compras desde $150.000</span>
         )}
       </div>
 

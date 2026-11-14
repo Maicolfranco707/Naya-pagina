@@ -4,10 +4,11 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronDown, Lock, MessageCircle, ShoppingBag } from "lucide-react";
+import { ChevronDown, Lock, MessageCircle, ShoppingBag, Tag, Truck, X } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
 import { WHATSAPP_NUMBER } from "@/utils/contacto";
-import { COLUMNAS_PERFIL, DEPARTAMENTOS, esCiudadCapital, type PerfilCliente } from "@/utils/cuenta-cliente";
+import { COLUMNAS_PERFIL, DEPARTAMENTOS, type PerfilCliente } from "@/utils/cuenta-cliente";
+import { cotizarEnvio, ENVIO_GRATIS_DESDE } from "@/utils/envios";
 import type { Producto } from "@/utils/productos";
 
 interface CartItem {
@@ -28,9 +29,6 @@ interface StoredCartItem {
 }
 
 type MetodoPago = "wompi" | "whatsapp";
-
-const ENVIO_CAPITALES = 25000;
-const ENVIO_OTRAS = 30000;
 
 function pesos(valor: number) {
   return `$${valor.toLocaleString("es-CO")}`;
@@ -109,8 +107,10 @@ export default function CheckoutPage() {
   const [clienteEmail, setClienteEmail] = useState("");
   const [guardarDatos, setGuardarDatos] = useState(true);
   const [resumenAbierto, setResumenAbierto] = useState(false);
-  const [costoEnvio, setCostoEnvio] = useState(ENVIO_CAPITALES);
-  const [envioElegidoAMano, setEnvioElegidoAMano] = useState(false);
+  const [codigoCupon, setCodigoCupon] = useState("");
+  const [cupon, setCupon] = useState<{ code: string; discount: number } | null>(null);
+  const [mensajeCupon, setMensajeCupon] = useState("");
+  const [validandoCupon, setValidandoCupon] = useState(false);
 
   const [formData, setFormData] = useState({
     nombre: "",
@@ -219,14 +219,44 @@ export default function CheckoutPage() {
     };
   }, []);
 
-  // Sugerir la tarifa según la ciudad, mientras el cliente no la haya cambiado a mano.
-  useEffect(() => {
-    if (envioElegidoAMano || !formData.poblacion.trim()) return;
-    setCostoEnvio(esCiudadCapital(formData.poblacion) ? ENVIO_CAPITALES : ENVIO_OTRAS);
-  }, [formData.poblacion, envioElegidoAMano]);
-
   const subtotal = useMemo(() => items.reduce((suma, item) => suma + item.precio * item.cantidad, 0), [items]);
-  const total = subtotal + costoEnvio;
+  const descuento = cupon ? Math.min(cupon.discount, subtotal) : 0;
+  // Misma regla que shipping_quote en Supabase (la que realmente cobra).
+  const envio = cotizarEnvio(formData.departamento, formData.poblacion, subtotal - descuento);
+  const costoEnvio = envio.costo;
+  const total = subtotal - descuento + costoEnvio;
+  const faltaParaGratis = Math.max(0, ENVIO_GRATIS_DESDE - (subtotal - descuento));
+
+  const validarCupon = async (codigo: string, monto: number) => {
+    setValidandoCupon(true);
+    try {
+      const response = await fetch("/api/cupones/validar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: codigo, subtotal: monto, email: formData.email }),
+      });
+      const result = await response.json() as { valid?: boolean; code?: string; discount?: number; message?: string };
+      if (result.valid && result.code) {
+        setCupon({ code: result.code, discount: Number(result.discount) || 0 });
+        setMensajeCupon("");
+        setCodigoCupon("");
+      } else {
+        setCupon(null);
+        setMensajeCupon(result.message || "Este código no es válido.");
+      }
+    } catch {
+      setMensajeCupon("No pudimos validar el código. Intenta de nuevo.");
+    } finally {
+      setValidandoCupon(false);
+    }
+  };
+
+  // Si cambia el carrito, el porcentaje se recalcula sobre el nuevo subtotal.
+  const codigoAplicado = cupon?.code;
+  useEffect(() => {
+    if (codigoAplicado && subtotal > 0) void validarCupon(codigoAplicado, subtotal);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subtotal, codigoAplicado]);
   const unidades = items.reduce((suma, item) => suma + item.cantidad, 0);
 
   const cambiar = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -257,12 +287,18 @@ export default function CheckoutPage() {
         body: JSON.stringify({
           customer: formData,
           items: items.map(({ id, cantidad }) => ({ id, cantidad })),
-          shippingCost: costoEnvio,
           paymentProvider: metodoPago,
+          couponCode: cupon?.code ?? null,
         }),
       });
       const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "No se pudo guardar el pedido.");
+      if (!response.ok) {
+        if (result.couponError) {
+          setCupon(null);
+          setMensajeCupon(result.error);
+        }
+        throw new Error(result.error || "No se pudo guardar el pedido.");
+      }
 
       if (clienteId && guardarDatos) {
         const { error: perfilError } = await supabase.from("customer_profiles").upsert({
@@ -325,9 +361,32 @@ export default function CheckoutPage() {
           </li>
         ))}
       </ul>
+      <div className="naya-co-coupon">
+        <div className="naya-co-coupon__row">
+          <input
+            value={codigoCupon}
+            onChange={(e) => { setCodigoCupon(e.target.value.toUpperCase()); setMensajeCupon(""); }}
+            onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); if (codigoCupon.trim()) void validarCupon(codigoCupon.trim(), subtotal); } }}
+            placeholder="Código de descuento"
+            aria-label="Código de descuento"
+            maxLength={30}
+          />
+          <button type="button" disabled={!codigoCupon.trim() || validandoCupon} onClick={() => validarCupon(codigoCupon.trim(), subtotal)}>
+            {validandoCupon ? "..." : "Aplicar"}
+          </button>
+        </div>
+        {mensajeCupon && <p className="naya-co-coupon__error">{mensajeCupon}</p>}
+        {cupon && (
+          <span className="naya-co-coupon__chip">
+            <Tag size={13} aria-hidden="true" /> {cupon.code}
+            <button type="button" aria-label="Quitar código" onClick={() => setCupon(null)}><X size={13} /></button>
+          </span>
+        )}
+      </div>
       <dl className="naya-co-totals">
         <div><dt>Subtotal · {unidades} {unidades === 1 ? "producto" : "productos"}</dt><dd>{pesos(subtotal)}</dd></div>
-        <div><dt>Envío</dt><dd>{pesos(costoEnvio)}</dd></div>
+        {descuento > 0 && <div className="naya-co-totals__discount"><dt>Descuento ({cupon?.code})</dt><dd>−{pesos(descuento)}</dd></div>}
+        <div><dt>Envío</dt><dd>{costoEnvio === 0 ? "Gratis" : pesos(costoEnvio)}</dd></div>
         <div className="naya-co-totals__total"><dt>Total</dt><dd><small>COP</small> {pesos(total)}</dd></div>
       </dl>
     </>
@@ -443,23 +502,20 @@ export default function CheckoutPage() {
           <section className="naya-co__section">
             <h2>Método de envío</h2>
             <div className="naya-co__options">
-              <label className={costoEnvio === ENVIO_CAPITALES ? "naya-co__option naya-co__option--active" : "naya-co__option"}>
-                <input type="radio" name="envio" checked={costoEnvio === ENVIO_CAPITALES} onChange={() => { setCostoEnvio(ENVIO_CAPITALES); setEnvioElegidoAMano(true); }} />
+              <div className="naya-co__option naya-co__option--active">
+                <Truck size={18} aria-hidden="true" />
                 <span className="naya-co__option-text">
-                  <strong>Ciudades capitales</strong>
-                  <small>Bogotá, Medellín, Cali y las demás capitales de departamento</small>
+                  <strong>Envío estándar · {envio.zona}</strong>
+                  <small>{envio.tiempo}</small>
                 </span>
-                <strong>{pesos(ENVIO_CAPITALES)}</strong>
-              </label>
-              <label className={costoEnvio === ENVIO_OTRAS ? "naya-co__option naya-co__option--active" : "naya-co__option"}>
-                <input type="radio" name="envio" checked={costoEnvio === ENVIO_OTRAS} onChange={() => { setCostoEnvio(ENVIO_OTRAS); setEnvioElegidoAMano(true); }} />
-                <span className="naya-co__option-text">
-                  <strong>Otros municipios</strong>
-                  <small>Resto del país</small>
-                </span>
-                <strong>{pesos(ENVIO_OTRAS)}</strong>
-              </label>
+                <strong>{envio.gratis ? "Gratis" : pesos(costoEnvio)}</strong>
+              </div>
             </div>
+            <p className="naya-co__hint">
+              {envio.gratis
+                ? "¡Tu pedido tiene envío gratis!"
+                : `Te faltan ${pesos(faltaParaGratis)} para el envío gratis (compras desde ${pesos(ENVIO_GRATIS_DESDE)}).`}
+            </p>
           </section>
 
           <section className="naya-co__section">
