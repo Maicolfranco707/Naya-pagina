@@ -310,11 +310,11 @@ values
   (3, 'Línea Capilar', 'Shampoo de Romero', 'Fortalece la hebra capilar y estimula el crecimiento saludable.', 'Enriquecido con extracto puro de romero para limpiar profundamente, controlar el exceso de grasa y prevenir la caída del cabello.', 34000, '/naya_foto/shampooromero.png'),
   (4, 'Línea Capilar', 'Acondicionador de Romero', 'Hidratación y fuerza para cabellos débiles o con tendencia a la caída.', 'Aporta suavidad extrema y desenredo mientras aprovecha los beneficios antioxidantes y fortalecedores del romero.', 34000, '/naya_foto/acondicionador2.png'),
   (5, 'Línea Corporal', 'Mantequilla Corporal Coco Festival', 'Ultra hidratación y nutrición intensiva para la piel.', 'Enriquecida con mantecas naturales y aroma a coco. Restaura la barrera de hidratación cutánea en zonas muy secas.', 28500, '/naya_foto/coco_festival.png'),
-  (6, 'Tratamiento Capilar', 'Tónico Crecimiento Intensivo', 'Estimula la hebra capilar y fortalece desde la raíz.', 'Aplica directamente en la raíz para acelerar el crecimiento y frenar la caída excesiva.', 18000, '/naya_foto/ampolletaverde.png'),
+  (6, 'Tratamiento Capilar', 'Ampolleta de Crecimiento', 'Estimula la hebra capilar y fortalece desde la raíz.', 'Aplica directamente en la raíz para acelerar el crecimiento y frenar la caída excesiva.', 18000, '/naya_foto/ampolletaverde.png'),
   (7, 'Línea Frutal', ' Mantequilla Corporal Kiwi', 'Revitalización e hidratación profunda con antioxidantes.', 'Aporta vitaminas y nutrientes esenciales para devolverle la vitalidad al cabello o piel deshidratada.', 28500, '/naya_foto/kiwi.png'),
   (8, 'Línea Frutal', 'Mantequilla Corporal Uva', 'Reparación intensiva para cabellos maltratados.', 'Propiedades antioxidantes de la uva que reparan los daños causados por el calor y procesamientos químicos.', 28500, '/naya_foto/uva.png'),
   (9, 'Línea Frutal', 'Mantequilla Corporal  Cherry', 'Renovación celular y aroma delicioso para tu piel.', 'Remueve suavemente las células muertas dejando la piel sedosa, renovada y con un delicioso perfume a cereza.', 28500, '/naya_foto/cherry.png'),
-  (10, 'Tratamiento Corporal', 'Crema Nutrición Profunda', 'Restaura la elasticidad y suavidad de tu piel.', 'Fórmula de rápida absorción que nutre profundamente sin dejar sensación grasosa.', 18000, '/naya_foto/ampolletarosa.png')
+  (10, 'Tratamiento Corporal', 'Ampolleta de Nutrición', 'Restaura la elasticidad y suavidad de tu piel.', 'Fórmula de rápida absorción que nutre profundamente sin dejar sensación grasosa.', 18000, '/naya_foto/ampolletarosa.png')
 on conflict (id) do update set
   category = excluded.category,
   name = excluded.name,
