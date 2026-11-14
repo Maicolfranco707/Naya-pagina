@@ -3549,3 +3549,22 @@ div.naya-co__option { cursor: default; }
 .naya-cart__free p { margin: 0 0 8px; }
 .naya-cart__free-bar { height: 5px; border-radius: 99px; background: #e6e0d6; overflow: hidden; }
 .naya-cart__free-bar span { display: block; height: 100%; background: #0b3a3c; border-radius: inherit; transition: width .3s ease; }
+
+/* Kits: la foto completa (es vertical 4:5), sin cortar tapas ni frascos */
+.naya-line__media {
+  aspect-ratio: 4 / 5;
+}
+.naya-line__media img {
+  object-position: center;
+}
+@media (min-width: 768px) {
+  .naya-lines__grid {
+    max-width: 1040px;
+    margin-inline: auto;
+  }
+  .naya-lines__intro {
+    max-width: 1040px;
+    margin-inline: auto;
+  }
+}
+.naya-lines__intro p { max-width: 620px; }
