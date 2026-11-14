@@ -5,7 +5,6 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight, Leaf, Lock, Minus, Play, Plus, ShoppingBag, Trash2, Volume2, VolumeX, X } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
-import Benefits from "@/components/home/Benefits";
 import NayaFooter from "@/components/layout/NayaFooter";
 import NayaWhatsAppButton from "@/components/layout/NayaWhatsAppButton";
 import NewsletterSignup from "@/components/home/NewsletterSignup";
@@ -804,7 +803,6 @@ export default function Home() {
         </a>
       </section>
 
-      <Benefits />
       <NewsletterSignup />
       <NayaFooter />
       <NayaWhatsAppButton />
