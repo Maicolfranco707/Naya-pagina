@@ -38,6 +38,11 @@ function escapeHtml(value: string) {
   });
 }
 
+function orderNumber(reference: string) {
+  const code = reference.replace(/^NAYA-/i, "").slice(0, 8).toUpperCase();
+  return `#${code}`;
+}
+
 function formatCop(value: number) {
   return `$${value.toLocaleString("es-CO")} COP`;
 }
@@ -79,7 +84,8 @@ function orderHtml(order: OrderEmailData, heading: string, intro: string) {
       </div>
       <div style="background:#fff;padding:28px">
         <p style="margin-top:0">${intro}</p>
-        <p>Pedido <strong>${escapeHtml(order.reference)}</strong></p>
+        <p style="margin-bottom:4px">Pedido <strong style="font-size:18px">${orderNumber(order.reference)}</strong></p>
+        <p style="margin-top:0;color:#9aa5a1;font-size:11px">Referencia de pago: ${escapeHtml(order.reference)}</p>
         <table style="width:100%;border-collapse:collapse;font-size:14px">
           <tbody>${items}</tbody>
         </table>
@@ -110,7 +116,8 @@ function orderText(order: OrderEmailData, heading: string, intro: string) {
     `NAYA | ${heading}`,
     "",
     intro,
-    `Pedido: ${order.reference}`,
+    `Pedido: ${orderNumber(order.reference)}`,
+    `Referencia de pago: ${order.reference}`,
     "",
     items,
     "",
@@ -184,7 +191,7 @@ async function loadOrder(orderId: string): Promise<OrderEmailData> {
 
 export async function sendOrderPlacedEmails(orderId: string) {
   const order = await loadOrder(orderId);
-  const subject = `Recibimos tu pedido ${order.reference} | NAYA`;
+  const subject = `Recibimos tu pedido ${orderNumber(order.reference)} | NAYA`;
   const intro = order.payment_provider === "wompi"
     ? "Recibimos tu pedido. El pago está pendiente de confirmación."
     : "Recibimos tu pedido. Nuestro equipo coordinará contigo la transferencia por WhatsApp.";
@@ -195,7 +202,7 @@ export async function sendOrderPlacedEmails(orderId: string) {
   const results = await Promise.allSettled([
     sendOnce(`order-placed:${order.id}:customer`, order.customer_email, subject, html, text),
     ...(notificationEmail
-      ? [sendOnce(`order-placed:${order.id}:store`, notificationEmail, `Nuevo pedido ${order.reference} | NAYA`, html, text)]
+      ? [sendOnce(`order-placed:${order.id}:store`, notificationEmail, `Nuevo pedido ${orderNumber(order.reference)} · ${formatCop(order.total_cop)} | NAYA`, html, text)]
       : []),
   ]);
 
@@ -217,7 +224,7 @@ export async function sendPaymentApprovedEmails(orderId: string) {
   }
 
   await Promise.all([
-    sendOnce(`payment-approved:${order.id}:customer`, order.customer_email, `Pago confirmado para ${order.reference} | NAYA`, html, text),
-    sendOnce(`payment-approved:${order.id}:store`, notificationEmail, `Pago aprobado ${order.reference} | NAYA`, html, text),
+    sendOnce(`payment-approved:${order.id}:customer`, order.customer_email, `¡Pago confirmado! Tu pedido ${orderNumber(order.reference)} | NAYA`, html, text),
+    sendOnce(`payment-approved:${order.id}:store`, notificationEmail, `Nueva venta ${orderNumber(order.reference)} · ${formatCop(order.total_cop)} | NAYA`, html, text),
   ]);
 }
