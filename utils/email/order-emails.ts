@@ -45,13 +45,14 @@ function formatCop(value: number) {
 function productImageUrl(imagePath: string | null) {
   if (!imagePath) return null;
 
+  if (/^https?:\/\//i.test(imagePath)) return imagePath;
+
   const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL
     || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "");
-  const isAbsoluteUrl = /^https?:\/\//i.test(imagePath);
-  if (!isAbsoluteUrl && !configuredSiteUrl) {
+  if (!configuredSiteUrl) {
     throw new Error("Configura NEXT_PUBLIC_SITE_URL para incluir imágenes en los correos.");
   }
-  const imageUrl = new URL(imagePath, configuredSiteUrl || undefined);
+  const imageUrl = new URL(imagePath, configuredSiteUrl);
   if (imageUrl.protocol !== "https:" && imageUrl.protocol !== "http:") {
     throw new Error(`URL de imagen de producto no válida: ${imagePath}`);
   }
