@@ -2067,3 +2067,183 @@ body {
     white-space: nowrap;
   }
 }
+
+/* ---------- Mi cuenta: pedidos y datos de envío ---------- */
+.account-card--dashboard {
+  width: min(100%, 720px);
+}
+
+.account-section {
+  margin-top: 30px;
+  padding-top: 26px;
+  border-top: 1px solid rgb(33 58 53 / 10%);
+  text-align: left;
+}
+
+.account-section__title {
+  margin: 0 0 14px;
+  color: #213a35;
+  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.account-section__hint {
+  margin: -8px 0 16px;
+  color: #61706c;
+  font-size: 13px;
+}
+
+.account-section__empty {
+  padding: 22px;
+  border-radius: 6px;
+  color: #61706c;
+  background: #f7f1e8;
+  font-size: 14px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+.account-section__empty p {
+  margin: 0 0 14px;
+}
+
+.account-section__cta {
+  display: inline-flex;
+  padding: 9px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.account-orders {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.account-order {
+  padding: 16px 18px;
+  border: 1px solid rgb(33 58 53 / 12%);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.account-order__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.account-order__number {
+  margin: 0;
+  color: #213a35;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.account-order__date {
+  margin: 2px 0 0;
+  color: #78827e;
+  font-size: 12px;
+}
+
+.account-order__total {
+  margin: 0;
+  color: #213a35;
+  font-size: 15px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.account-order__items {
+  margin: 10px 0 12px;
+  color: #4d5c58;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.account-order__badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.account-badge {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.account-badge--status {
+  color: #213a35;
+  background: rgb(33 58 53 / 9%);
+}
+
+.account-badge--paid {
+  color: #0b6a48;
+  background: #e3f3ea;
+}
+
+.account-badge--muted {
+  color: #78827e;
+  background: #f1ede6;
+}
+
+.account-profile-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px 14px;
+}
+
+.account-profile-grid label {
+  display: grid;
+  gap: 6px;
+  color: #213a35;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.account-profile-grid__wide {
+  grid-column: 1 / -1;
+}
+
+.account-profile-form .account-submit {
+  margin-top: 6px;
+}
+
+.account-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 30px;
+}
+
+.account-logout {
+  border: 0;
+  color: #78827e;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.account-logout:hover {
+  color: #a83232;
+}
+
+@media (max-width: 560px) {
+  .account-profile-grid {
+    grid-template-columns: 1fr;
+  }
+}

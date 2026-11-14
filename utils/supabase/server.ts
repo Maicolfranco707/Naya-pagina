@@ -1,6 +1,10 @@
 import { createClient } from "@supabase/supabase-js";
 
-export function createSupabaseServerClient() {
+/**
+ * Cliente con la llave pública. Si se pasa el token de sesión del cliente,
+ * las consultas se hacen como ese usuario (auth.uid() y RLS lo reconocen).
+ */
+export function createSupabaseServerClient(accessToken?: string) {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
@@ -10,6 +14,7 @@ export function createSupabaseServerClient() {
 
   return createClient(url, anonKey, {
     auth: { persistSession: false, autoRefreshToken: false },
+    ...(accessToken ? { global: { headers: { Authorization: `Bearer ${accessToken}` } } } : {}),
   });
 }
 

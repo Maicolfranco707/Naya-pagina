@@ -5,6 +5,7 @@ import { startTransition, useState, useEffect } from "react";
 import Link from "next/link";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
 import { WHATSAPP_NUMBER } from "@/utils/contacto";
+import { COLUMNAS_PERFIL, DEPARTAMENTOS, POBLACIONES, type PerfilCliente } from "@/utils/cuenta-cliente";
 
 interface CartItem {
   id: number;
@@ -46,6 +47,8 @@ export default function CheckoutPage() {
   const [costoEnvio, setCostoEnvio] = useState<number>(25000);
   const [aceptaTerminos, setAceptaTerminos] = useState<boolean>(true);
   const [items, setItems] = useState<CartItem[]>([]);
+  const [clienteId, setClienteId] = useState<string | null>(null);
+  const [guardarDatos, setGuardarDatos] = useState(true);
 
   useEffect(() => {
     startTransition(() => {
@@ -77,6 +80,7 @@ export default function CheckoutPage() {
         if (error) throw error;
         const user = data.session?.user ?? null;
         if (!activo || !user) return;
+        setClienteId(user.id);
 
         const metadata = user.user_metadata;
         const nombreCompleto = [metadata.full_name, metadata.name, metadata.nombre]
@@ -98,6 +102,28 @@ export default function CheckoutPage() {
           apellidos: actual.apellidos || apellidos,
           telefono: actual.telefono || telefono,
           email: actual.email || user.email || "",
+        }));
+
+        // Datos de envío guardados en la cuenta: tienen prioridad sobre los del registro.
+        const { data: perfil, error: perfilError } = await createSupabaseBrowserClient()
+          .from("customer_profiles")
+          .select(COLUMNAS_PERFIL)
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (perfilError) throw perfilError;
+        if (!activo || !perfil) return;
+        const p = perfil as PerfilCliente;
+        setFormData((actual) => ({
+          ...actual,
+          nombre: p.first_name || actual.nombre,
+          apellidos: p.last_name || actual.apellidos,
+          identificacion: p.identification || actual.identificacion,
+          telefono: p.phone || actual.telefono,
+          direccion: p.address || actual.direccion,
+          apartamento: p.apartment || actual.apartamento,
+          departamento: p.region && (DEPARTAMENTOS as readonly string[]).includes(p.region) ? p.region : actual.departamento,
+          poblacion: p.city && (POBLACIONES as readonly string[]).includes(p.city) ? p.city : actual.poblacion,
+          codigoPostal: p.postal_code || actual.codigoPostal,
         }));
       } catch (error) {
         console.error("No se pudieron cargar los datos del cliente:", error);
@@ -133,9 +159,16 @@ export default function CheckoutPage() {
     setCheckoutError("");
 
     try {
+      const supabase = createSupabaseBrowserClient();
+      const { data: sesion } = await supabase.auth.getSession();
+      const accessToken = sesion.session?.access_token;
+
       const response = await fetch("/api/orders", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        },
         body: JSON.stringify({
           customer: formData,
           items: items.map(({ id, cantidad }) => ({ id, cantidad })),
@@ -145,6 +178,23 @@ export default function CheckoutPage() {
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "No se pudo guardar el pedido.");
+
+      if (clienteId && guardarDatos) {
+        const { error: perfilError } = await supabase.from("customer_profiles").upsert({
+          user_id: clienteId,
+          first_name: formData.nombre.trim() || null,
+          last_name: formData.apellidos.trim() || null,
+          identification: formData.identificacion.trim() || null,
+          phone: formData.telefono.trim() || null,
+          address: formData.direccion.trim() || null,
+          apartment: formData.apartamento.trim() || null,
+          region: formData.departamento,
+          city: formData.poblacion,
+          postal_code: formData.codigoPostal.trim() || null,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: "user_id" });
+        if (perfilError) console.error("No se pudieron guardar los datos de envío:", perfilError.message);
+      }
 
       localStorage.setItem("orden_pendiente_naya", JSON.stringify({
         id: result.id,
@@ -212,17 +262,13 @@ export default function CheckoutPage() {
                 <div>
                   <label className="block mb-1 font-medium text-stone-800">Departamento *</label>
                   <select name="departamento" value={formData.departamento} onChange={handleChange} className="w-full px-3 py-2 border border-stone-300 rounded-md bg-white">
-                    <option value="Antioquia">Antioquia</option>
-                    <option value="Bogotá D.C.">Bogotá D.C.</option>
-                    <option value="Cundinamarca">Cundinamarca</option>
+                    {DEPARTAMENTOS.map((d) => <option key={d} value={d}>{d}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="block mb-1 font-medium text-stone-800">Población</label>
                   <select name="poblacion" value={formData.poblacion} onChange={handleChange} className="w-full px-3 py-2 border border-stone-300 rounded-md bg-white">
-                    <option value="Medellín">Medellín</option>
-                    <option value="Bello">Bello</option>
-                    <option value="Envigado">Envigado</option>
+                    {POBLACIONES.map((c) => <option key={c} value={c}>{c}</option>)}
                   </select>
                 </div>
               </div>
@@ -291,6 +337,16 @@ export default function CheckoutPage() {
                 <input type="checkbox" checked={aceptaTerminos} onChange={(e) => setAceptaTerminos(e.target.checked)} className="mt-0.5 rounded text-emerald-600" />
                 <span>He leído y acepto los términos y condiciones *</span>
               </label>
+              {clienteId ? (
+                <label className="flex items-start gap-2 text-xs text-stone-700 cursor-pointer">
+                  <input type="checkbox" checked={guardarDatos} onChange={(e) => setGuardarDatos(e.target.checked)} className="mt-0.5 rounded text-emerald-600" />
+                  <span>Guardar mis datos de envío para mi próxima compra</span>
+                </label>
+              ) : (
+                <p className="text-xs text-stone-500">
+                  <Link href="/cuenta" className="underline hover:text-emerald-900">Inicia sesión</Link> para ver este pedido en tu cuenta y no volver a llenar tus datos.
+                </p>
+              )}
 
               <button
                 type="submit"

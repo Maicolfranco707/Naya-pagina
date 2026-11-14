@@ -5,6 +5,7 @@ import type { User } from "@supabase/supabase-js";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
+import AccountDashboard from "@/components/account/AccountDashboard";
 
 type AccountTab = "login" | "register";
 
@@ -112,8 +113,6 @@ export default function CuentaPage() {
     }
   };
 
-  const nombreCliente = user?.user_metadata?.full_name;
-
   if (cargando) {
     return (
       <main className="storefront account-page">
@@ -124,23 +123,12 @@ export default function CuentaPage() {
 
   return (
     <main className="storefront account-page">
-      <section className="account-card" aria-labelledby="account-title">
+      <section className={user ? "account-card account-card--dashboard" : "account-card"} aria-labelledby="account-title">
         <Link href="/" className="account-logo" aria-label="NAYA, volver al inicio">NAYA</Link>
         <p className="account-eyebrow">TU ESPACIO NAYA</p>
 
         {user ? (
-          <>
-            <h1 id="account-title">Mi cuenta</h1>
-            <p className="account-subtitle">
-              Hola{typeof nombreCliente === "string" && nombreCliente ? `, ${nombreCliente}` : ""}. Has iniciado sesión con{" "}
-              <strong>{user.email}</strong>
-            </p>
-            <div className="account-orders-note">Pronto podrás ver tus pedidos aquí</div>
-            <button type="button" className="primary-action account-submit" onClick={() => void cerrarSesion()}>
-              Cerrar sesión
-            </button>
-            <Link href="/" className="account-home-link secondary-action">Volver a la tienda</Link>
-          </>
+          <AccountDashboard user={user} onLogout={() => void cerrarSesion()} />
         ) : (
           <>
             <h1 id="account-title">{tab === "login" ? "Bienvenida de nuevo" : "Crear cuenta"}</h1>

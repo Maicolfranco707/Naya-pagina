@@ -28,7 +28,17 @@ export async function POST(request: Request) {
   }
 
   try {
-    const supabase = createSupabaseServerClient();
+    // Si el cliente inició sesión, el pedido queda ligado a su cuenta (orders.user_id = auth.uid()).
+    // Un token vencido o inválido no bloquea la compra: el pedido se guarda como invitado.
+    let accessToken: string | undefined;
+    const authHeader = request.headers.get("authorization") ?? "";
+    const bearer = authHeader.match(/^Bearer\s+(.+)$/i)?.[1];
+    if (bearer) {
+      const { data: userData, error: userError } = await createSupabaseServerClient().auth.getUser(bearer);
+      if (!userError && userData.user) accessToken = bearer;
+    }
+
+    const supabase = createSupabaseServerClient(accessToken);
     const { data, error } = await supabase.rpc("create_order", {
       p_customer: body.customer,
       p_items: body.items,
