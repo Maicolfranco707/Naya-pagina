@@ -10,7 +10,6 @@ import {
   ESTADO_PAGO,
   ESTADO_PEDIDO,
   PERFIL_VACIO,
-  POBLACIONES,
   formatoPesos,
   numeroPedido,
   type PerfilCliente,
@@ -208,15 +207,13 @@ export default function AccountDashboard({ user, onLogout }: AccountDashboardPro
             </label>
             <label>
               Departamento
-              <select className="account-field" value={perfil.region ?? DEPARTAMENTOS[0]} onChange={(e) => cambiarCampo("region", e.target.value)}>
+              <select className="account-field" value={perfil.region ?? "Antioquia"} onChange={(e) => cambiarCampo("region", e.target.value)}>
                 {DEPARTAMENTOS.map((d) => <option key={d} value={d}>{d}</option>)}
               </select>
             </label>
             <label>
               Ciudad
-              <select className="account-field" value={perfil.city ?? POBLACIONES[0]} onChange={(e) => cambiarCampo("city", e.target.value)}>
-                {POBLACIONES.map((c) => <option key={c} value={c}>{c}</option>)}
-              </select>
+              <input className="account-field" autoComplete="address-level2" value={perfil.city ?? ""} onChange={(e) => cambiarCampo("city", e.target.value)} />
             </label>
           </div>
           <button type="submit" className="primary-action account-submit" disabled={guardando}>

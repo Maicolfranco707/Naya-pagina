@@ -1,5 +1,53 @@
-export const DEPARTAMENTOS = ["Antioquia", "Bogotá D.C.", "Cundinamarca"] as const;
-export const POBLACIONES = ["Medellín", "Bello", "Envigado"] as const;
+/** Departamentos de Colombia con su capital (para sugerir la tarifa de envío). */
+export const CAPITALES_POR_DEPARTAMENTO: Record<string, string> = {
+  "Amazonas": "Leticia",
+  "Antioquia": "Medellín",
+  "Arauca": "Arauca",
+  "Atlántico": "Barranquilla",
+  "Bogotá D.C.": "Bogotá",
+  "Bolívar": "Cartagena",
+  "Boyacá": "Tunja",
+  "Caldas": "Manizales",
+  "Caquetá": "Florencia",
+  "Casanare": "Yopal",
+  "Cauca": "Popayán",
+  "Cesar": "Valledupar",
+  "Chocó": "Quibdó",
+  "Córdoba": "Montería",
+  "Cundinamarca": "Bogotá",
+  "Guainía": "Inírida",
+  "Guaviare": "San José del Guaviare",
+  "Huila": "Neiva",
+  "La Guajira": "Riohacha",
+  "Magdalena": "Santa Marta",
+  "Meta": "Villavicencio",
+  "Nariño": "Pasto",
+  "Norte de Santander": "Cúcuta",
+  "Putumayo": "Mocoa",
+  "Quindío": "Armenia",
+  "Risaralda": "Pereira",
+  "San Andrés y Providencia": "San Andrés",
+  "Santander": "Bucaramanga",
+  "Sucre": "Sincelejo",
+  "Tolima": "Ibagué",
+  "Valle del Cauca": "Cali",
+  "Vaupés": "Mitú",
+  "Vichada": "Puerto Carreño",
+};
+
+export const DEPARTAMENTOS = Object.keys(CAPITALES_POR_DEPARTAMENTO);
+
+function normalizarLugar(texto: string) {
+  return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s+/g, " ").trim();
+}
+
+const CAPITALES = new Set(Object.values(CAPITALES_POR_DEPARTAMENTO).map(normalizarLugar));
+
+/** true si la ciudad es una capital de departamento (o Bogotá). */
+export function esCiudadCapital(ciudad: string) {
+  const limpia = normalizarLugar(ciudad).replace(/\b(d\.?c\.?)$/, "").trim();
+  return CAPITALES.has(limpia) || limpia === "santa fe de bogota";
+}
 
 export interface PerfilCliente {
   first_name: string | null;
@@ -20,8 +68,8 @@ export const PERFIL_VACIO: PerfilCliente = {
   phone: "",
   address: "",
   apartment: "",
-  region: DEPARTAMENTOS[0],
-  city: POBLACIONES[0],
+  region: "Antioquia",
+  city: "",
   postal_code: "",
 };
 

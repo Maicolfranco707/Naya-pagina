@@ -1,32 +1,116 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { startTransition, useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { ChevronDown, Lock, MessageCircle, ShoppingBag } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
 import { WHATSAPP_NUMBER } from "@/utils/contacto";
-import { COLUMNAS_PERFIL, DEPARTAMENTOS, POBLACIONES, type PerfilCliente } from "@/utils/cuenta-cliente";
+import { COLUMNAS_PERFIL, DEPARTAMENTOS, esCiudadCapital, type PerfilCliente } from "@/utils/cuenta-cliente";
+import type { Producto } from "@/utils/productos";
 
 interface CartItem {
   id: number;
   nombre: string;
   cantidad: number;
   precio: number;
+  imagen: string;
 }
 
 interface StoredCartItem {
   id?: number;
   nombre?: string;
   precio?: number;
+  imagen?: string;
   cantidad: number;
-  producto?: { id: number; nombre: string; precio: number };
+  producto?: { id: number; nombre: string; precio: number; imagen?: string };
+}
+
+type MetodoPago = "wompi" | "whatsapp";
+
+const ENVIO_CAPITALES = 25000;
+const ENVIO_OTRAS = 30000;
+
+function pesos(valor: number) {
+  return `$${valor.toLocaleString("es-CO")}`;
+}
+
+function leerCarrito(): CartItem[] {
+  try {
+    const parsed = JSON.parse(localStorage.getItem("carrito_naya") ?? "[]") as StoredCartItem[];
+    return parsed
+      .map((item) => ({
+        id: item.producto?.id ?? item.id ?? 0,
+        nombre: item.producto?.nombre ?? item.nombre ?? "",
+        cantidad: item.cantidad,
+        precio: item.producto?.precio ?? item.precio ?? 0,
+        imagen: item.producto?.imagen ?? item.imagen ?? "",
+      }))
+      .filter((item) => Number.isInteger(item.id) && item.id > 0 && Number.isInteger(item.cantidad) && item.cantidad > 0);
+  } catch (error) {
+    console.error("Error al leer el carrito:", error);
+    return [];
+  }
+}
+
+/** Abre el checkout de Wompi con la firma de integridad generada en el servidor. */
+async function irAWompi(orderId: string, email: string) {
+  const publicKey = process.env.NEXT_PUBLIC_WOMPI_PUBLIC_KEY;
+  if (!publicKey) throw new Error("Falta configurar la llave pública de Wompi.");
+
+  const response = await fetch("/api/wompi/firma", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ orderId }),
+  });
+  const firma = await response.json() as { reference?: string; amountInCents?: number; signature?: string; error?: string };
+  if (!response.ok || !firma.reference || !firma.amountInCents || !firma.signature) {
+    throw new Error(firma.error || "No se pudo preparar el pago con Wompi.");
+  }
+
+  const campos: Record<string, string> = {
+    "public-key": publicKey,
+    currency: "COP",
+    "amount-in-cents": String(firma.amountInCents),
+    reference: firma.reference,
+    "signature:integrity": firma.signature,
+    "customer-data:email": email,
+  };
+  if (window.location.protocol === "https:") {
+    const redirectUrl = new URL("/checkout/confirmacion", window.location.origin);
+    redirectUrl.searchParams.set("reference", firma.reference);
+    campos["redirect-url"] = redirectUrl.toString();
+  }
+
+  const form = document.createElement("form");
+  form.method = "GET";
+  form.action = "https://checkout.wompi.co/p/";
+  for (const [name, value] of Object.entries(campos)) {
+    const input = document.createElement("input");
+    input.type = "hidden";
+    input.name = name;
+    input.value = value;
+    form.appendChild(input);
+  }
+  document.body.appendChild(form);
+  form.submit();
 }
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [checkoutError, setCheckoutError] = useState("");
-  const [metodoPago, setMetodoPago] = useState<"wompi" | "whatsapp">("wompi");
+  const [enviando, setEnviando] = useState(false);
+  const [error, setError] = useState("");
+  const [aviso, setAviso] = useState("");
+  const [metodoPago, setMetodoPago] = useState<MetodoPago>("wompi");
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [cargado, setCargado] = useState(false);
+  const [clienteId, setClienteId] = useState<string | null>(null);
+  const [clienteEmail, setClienteEmail] = useState("");
+  const [guardarDatos, setGuardarDatos] = useState(true);
+  const [resumenAbierto, setResumenAbierto] = useState(false);
+  const [costoEnvio, setCostoEnvio] = useState(ENVIO_CAPITALES);
+  const [envioElegidoAMano, setEnvioElegidoAMano] = useState(false);
 
   const [formData, setFormData] = useState({
     nombre: "",
@@ -37,75 +121,75 @@ export default function CheckoutPage() {
     direccion: "",
     apartamento: "",
     departamento: "Antioquia",
-    poblacion: "Medellín",
-    codigoPostal: "050011",
+    poblacion: "",
+    codigoPostal: "",
     telefono: "",
     email: "",
     notas: "",
   });
 
-  const [costoEnvio, setCostoEnvio] = useState<number>(25000);
-  const [aceptaTerminos, setAceptaTerminos] = useState<boolean>(true);
-  const [items, setItems] = useState<CartItem[]>([]);
-  const [clienteId, setClienteId] = useState<string | null>(null);
-  const [guardarDatos, setGuardarDatos] = useState(true);
-
-  useEffect(() => {
-    startTransition(() => {
-      setMetodoPago(new URLSearchParams(window.location.search).get("metodo") === "whatsapp" ? "whatsapp" : "wompi");
-    });
-    const carritoGuardado = localStorage.getItem("carrito_naya");
-    if (carritoGuardado) {
-      try {
-        const parsed = JSON.parse(carritoGuardado) as StoredCartItem[];
-        const itemsFormateados = parsed.map((item) => ({
-          id: item.producto?.id ?? item.id ?? 0,
-          nombre: item.producto?.nombre ?? item.nombre ?? "",
-          cantidad: item.cantidad,
-          precio: item.producto?.precio ?? item.precio ?? 0,
-        })).filter((item) => Number.isInteger(item.id) && item.id > 0 && Number.isInteger(item.cantidad) && item.cantidad > 0);
-        startTransition(() => setItems(itemsFormateados));
-      } catch (e) {
-        console.error("Error al leer el carrito:", e);
-      }
-    }
-  }, []);
-
+  // Carrito + datos actuales del catálogo (nombres, precios y fotos al día).
   useEffect(() => {
     let activo = true;
+    const metodo = new URLSearchParams(window.location.search).get("metodo");
+    const guardados = leerCarrito();
 
-    const cargarDatosCliente = async () => {
+    const cargar = async () => {
+      let actualizados = guardados;
       try {
-        const { data, error } = await createSupabaseBrowserClient().auth.getSession();
-        if (error) throw error;
+        const response = await fetch("/api/productos");
+        if (response.ok) {
+          const catalogo = await response.json() as Producto[];
+          const porId = new Map(catalogo.map((producto) => [producto.id, producto]));
+          const disponibles = guardados.filter((item) => porId.has(item.id));
+          if (disponibles.length < guardados.length) {
+            setAviso("Quitamos del pedido productos que ya no están disponibles.");
+          }
+          actualizados = disponibles.map((item) => {
+            const producto = porId.get(item.id)!;
+            return { ...item, nombre: producto.nombre.trim(), precio: producto.precio, imagen: producto.imagen };
+          });
+        }
+      } catch (reason) {
+        console.error("No se pudo actualizar el catálogo del checkout:", reason);
+      }
+      if (!activo) return;
+      if (metodo === "whatsapp") setMetodoPago("whatsapp");
+      setItems(actualizados);
+      setCargado(true);
+    };
+
+    void cargar();
+    return () => {
+      activo = false;
+    };
+  }, []);
+
+  // Si inició sesión: correo, nombre y datos de envío guardados.
+  useEffect(() => {
+    let activo = true;
+    const cargarCliente = async () => {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const { data, error: sessionError } = await supabase.auth.getSession();
+        if (sessionError) throw sessionError;
         const user = data.session?.user ?? null;
         if (!activo || !user) return;
         setClienteId(user.id);
+        setClienteEmail(user.email ?? "");
 
-        const metadata = user.user_metadata;
-        const nombreCompleto = [metadata.full_name, metadata.name, metadata.nombre]
-          .find((value): value is string => typeof value === "string" && value.trim().length > 0) ?? "";
-        const [nombrePorDefecto = "", ...apellidosPorDefecto] = nombreCompleto.trim().split(/\s+/);
-        const nombre = typeof metadata.first_name === "string" ? metadata.first_name : nombrePorDefecto;
-        const apellidos = typeof metadata.last_name === "string"
-          ? metadata.last_name
-          : apellidosPorDefecto.join(" ");
-        const telefono = typeof metadata.phone === "string"
-          ? metadata.phone
-          : typeof metadata.telefono === "string"
-            ? metadata.telefono
-            : "";
-
+        const metadata = user.user_metadata ?? {};
+        const nombreCompleto = typeof metadata.full_name === "string" ? metadata.full_name.trim() : "";
+        const [nombre = "", ...apellidos] = nombreCompleto.split(/\s+/);
         setFormData((actual) => ({
           ...actual,
-          nombre: actual.nombre || nombre,
-          apellidos: actual.apellidos || apellidos,
-          telefono: actual.telefono || telefono,
           email: actual.email || user.email || "",
+          nombre: actual.nombre || nombre,
+          apellidos: actual.apellidos || apellidos.join(" "),
+          telefono: actual.telefono || (typeof metadata.phone === "string" ? metadata.phone : ""),
         }));
 
-        // Datos de envío guardados en la cuenta: tienen prioridad sobre los del registro.
-        const { data: perfil, error: perfilError } = await createSupabaseBrowserClient()
+        const { data: perfil, error: perfilError } = await supabase
           .from("customer_profiles")
           .select(COLUMNAS_PERFIL)
           .eq("user_id", user.id)
@@ -121,42 +205,43 @@ export default function CheckoutPage() {
           telefono: p.phone || actual.telefono,
           direccion: p.address || actual.direccion,
           apartamento: p.apartment || actual.apartamento,
-          departamento: p.region && (DEPARTAMENTOS as readonly string[]).includes(p.region) ? p.region : actual.departamento,
-          poblacion: p.city && (POBLACIONES as readonly string[]).includes(p.city) ? p.city : actual.poblacion,
+          departamento: p.region && DEPARTAMENTOS.includes(p.region) ? p.region : actual.departamento,
+          poblacion: p.city || actual.poblacion,
           codigoPostal: p.postal_code || actual.codigoPostal,
         }));
-      } catch (error) {
-        console.error("No se pudieron cargar los datos del cliente:", error);
+      } catch (reason) {
+        console.error("No se pudieron cargar los datos del cliente:", reason);
       }
     };
-
-    void cargarDatosCliente();
+    void cargarCliente();
     return () => {
       activo = false;
     };
   }, []);
 
-  const subtotal = items.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
-  const total = subtotal + costoEnvio;
+  // Sugerir la tarifa según la ciudad, mientras el cliente no la haya cambiado a mano.
+  useEffect(() => {
+    if (envioElegidoAMano || !formData.poblacion.trim()) return;
+    setCostoEnvio(esCiudadCapital(formData.poblacion) ? ENVIO_CAPITALES : ENVIO_OTRAS);
+  }, [formData.poblacion, envioElegidoAMano]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const subtotal = useMemo(() => items.reduce((suma, item) => suma + item.precio * item.cantidad, 0), [items]);
+  const total = subtotal + costoEnvio;
+  const unidades = items.reduce((suma, item) => suma + item.cantidad, 0);
+
+  const cambiar = (event: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = event.target;
+    setFormData((actual) => ({ ...actual, [name]: value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!aceptaTerminos) {
-      alert("Debes aceptar los términos y condiciones para continuar.");
-      return;
-    }
+  const enviar = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     if (items.length === 0) {
-      alert("Tu carrito está vacío.");
+      setError("Tu carrito está vacío.");
       return;
     }
-
-    setLoading(true);
-    setCheckoutError("");
+    setEnviando(true);
+    setError("");
 
     try {
       const supabase = createSupabaseBrowserClient();
@@ -189,7 +274,7 @@ export default function CheckoutPage() {
           address: formData.direccion.trim() || null,
           apartment: formData.apartamento.trim() || null,
           region: formData.departamento,
-          city: formData.poblacion,
+          city: formData.poblacion.trim() || null,
           postal_code: formData.codigoPostal.trim() || null,
           updated_at: new Date().toISOString(),
         }, { onConflict: "user_id" });
@@ -205,160 +290,222 @@ export default function CheckoutPage() {
         total: result.total,
         items,
       }));
+
       if (metodoPago === "whatsapp") {
         const detalle = items.map((item) => `- ${item.nombre} x ${item.cantidad}`).join("\n");
-        const mensaje = `Hola NAYA, quiero confirmar el pedido ${result.reference}.\n\n${detalle}\n\nTotal: $${Number(result.total).toLocaleString("es-CO")} COP\nNombre: ${formData.nombre} ${formData.apellidos}\nTeléfono: ${formData.telefono}`;
+        const mensaje = `Hola NAYA, quiero confirmar el pedido ${result.reference}.\n\n${detalle}\n\nTotal: ${pesos(Number(result.total))} COP\nNombre: ${formData.nombre} ${formData.apellidos}\nCiudad: ${formData.poblacion}\nTeléfono: ${formData.telefono}`;
         window.location.assign(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`);
-      } else {
+        return;
+      }
+
+      try {
+        await irAWompi(result.id, formData.email);
+      } catch (wompiError) {
+        // El pedido ya quedó guardado: la página de pago permite reintentar sin duplicarlo.
+        console.error("No se pudo abrir Wompi desde el checkout:", wompiError);
         router.push("/checkout/pago");
       }
-    } catch (error) {
-      setCheckoutError(error instanceof Error ? error.message : "No se pudo guardar el pedido. Intenta nuevamente.");
-      setLoading(false);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "No se pudo guardar el pedido. Intenta nuevamente.");
+      setEnviando(false);
     }
   };
 
+  const resumen = (
+    <>
+      <ul className="naya-co-items">
+        {items.map((item) => (
+          <li key={item.id}>
+            <div className="naya-co-items__thumb">
+              {item.imagen && <Image src={item.imagen} alt="" fill sizes="64px" className="object-cover" />}
+              <span>{item.cantidad}</span>
+            </div>
+            <p>{item.nombre}</p>
+            <strong>{pesos(item.precio * item.cantidad)}</strong>
+          </li>
+        ))}
+      </ul>
+      <dl className="naya-co-totals">
+        <div><dt>Subtotal · {unidades} {unidades === 1 ? "producto" : "productos"}</dt><dd>{pesos(subtotal)}</dd></div>
+        <div><dt>Envío</dt><dd>{pesos(costoEnvio)}</dd></div>
+        <div className="naya-co-totals__total"><dt>Total</dt><dd><small>COP</small> {pesos(total)}</dd></div>
+      </dl>
+    </>
+  );
+
+  if (cargado && items.length === 0) {
+    return (
+      <main className="naya-co naya-co--empty">
+        <Link href="/" className="naya-co__logo">NAYA</Link>
+        <ShoppingBag size={40} strokeWidth={1.4} aria-hidden="true" />
+        <h1>Tu carrito está vacío</h1>
+        {aviso && <p>{aviso}</p>}
+        <Link href="/#catalogo" className="naya-co__pay">Ver productos</Link>
+      </main>
+    );
+  }
+
   return (
-    <main className="min-h-screen bg-stone-50 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-6">
-          <Link href="/" className="text-xs text-stone-500 hover:text-emerald-900 font-medium inline-flex items-center gap-1 transition">
-            ← Volver a la tienda
-          </Link>
-        </div>
+    <main className="naya-co">
+      <header className="naya-co__header">
+        <Link href="/" className="naya-co__logo">NAYA</Link>
+        <Link href="/" className="naya-co__back">Seguir comprando</Link>
+      </header>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          
-          {/* COLUMNA IZQUIERDA: FORMULARIO */}
-          <div className="lg:col-span-7 bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-stone-200">
-            <h2 className="text-xl font-bold text-stone-900 mb-6 pb-2 border-b border-stone-100">
-              Detalles de facturación y envío
-            </h2>
+      <div className="naya-co__mobile-summary">
+        <button type="button" onClick={() => setResumenAbierto((abierto) => !abierto)} aria-expanded={resumenAbierto}>
+          <span>
+            <ShoppingBag size={17} aria-hidden="true" />
+            {resumenAbierto ? "Ocultar resumen del pedido" : "Mostrar resumen del pedido"}
+            <ChevronDown size={16} aria-hidden="true" className={resumenAbierto ? "naya-co__chev naya-co__chev--open" : "naya-co__chev"} />
+          </span>
+          <strong>{pesos(total)}</strong>
+        </button>
+        {resumenAbierto && <div className="naya-co__mobile-summary-body">{resumen}</div>}
+      </div>
 
-            <div className="space-y-4 text-xs sm:text-sm text-stone-700">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block mb-1 font-medium text-stone-800">Nombre *</label>
-                  <input type="text" name="nombre" required value={formData.nombre} onChange={handleChange} className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-600" />
-                </div>
-                <div>
-                  <label className="block mb-1 font-medium text-stone-800">Apellidos *</label>
-                  <input type="text" name="apellidos" required value={formData.apellidos} onChange={handleChange} className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-600" />
-                </div>
-              </div>
-
-              <div>
-                <label className="block mb-1 font-medium text-stone-800">Número de Identificación *</label>
-                <input type="text" name="identificacion" required value={formData.identificacion} onChange={handleChange} className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-600" />
-              </div>
-
-              <div>
-                <label className="block mb-1 font-medium text-stone-800">Dirección de la calle *</label>
-                <input type="text" name="direccion" required value={formData.direccion} onChange={handleChange} className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-600 mb-2" />
-                <input type="text" name="apartamento" value={formData.apartamento} onChange={handleChange} className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-600" />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block mb-1 font-medium text-stone-800">Departamento *</label>
-                  <select name="departamento" value={formData.departamento} onChange={handleChange} className="w-full px-3 py-2 border border-stone-300 rounded-md bg-white">
-                    {DEPARTAMENTOS.map((d) => <option key={d} value={d}>{d}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="block mb-1 font-medium text-stone-800">Población</label>
-                  <select name="poblacion" value={formData.poblacion} onChange={handleChange} className="w-full px-3 py-2 border border-stone-300 rounded-md bg-white">
-                    {POBLACIONES.map((c) => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label className="block mb-1 font-medium text-stone-800">Teléfono *</label>
-                <input type="tel" name="telefono" required value={formData.telefono} onChange={handleChange} className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-600" />
-              </div>
-
-              <div>
-                <label className="block mb-1 font-medium text-stone-800">Correo electrónico *</label>
-                <input type="email" name="email" required value={formData.email} onChange={handleChange} className="w-full px-3 py-2 border border-stone-300 rounded-md focus:outline-none focus:ring-1 focus:ring-emerald-600" />
-              </div>
-
-              <div>
-                <label className="block mb-1 font-medium text-stone-800">Notas del pedido (opcional)</label>
-                <textarea name="notas" rows={2} value={formData.notas} onChange={handleChange} className="w-full px-3 py-2 border border-stone-300 rounded-md" />
-              </div>
+      <div className="naya-co__layout">
+        <form className="naya-co__form" onSubmit={enviar}>
+          <section className="naya-co__section">
+            <div className="naya-co__section-head">
+              <h2>Contacto</h2>
+              {!clienteId && <Link href="/cuenta">Iniciar sesión</Link>}
             </div>
-          </div>
+            {clienteId ? (
+              <p className="naya-co__hint">Comprando como <strong>{clienteEmail}</strong></p>
+            ) : null}
+            <label className="naya-co__field">
+              <span>Correo electrónico</span>
+              <input type="email" name="email" required autoComplete="email" value={formData.email} onChange={cambiar} />
+            </label>
+          </section>
 
-          {/* COLUMNA DERECHA: RESUMEN Y BOTÓN CONTINUAR */}
-          <div className="lg:col-span-5 bg-white p-6 sm:p-8 rounded-2xl shadow-sm border border-stone-200 sticky top-6">
-            <h2 className="text-xl font-bold mb-4 text-stone-900 border-b border-stone-100 pb-2">Tu pedido</h2>
-
-            <div className="space-y-3 pb-3 border-b border-stone-200">
-              {items.map((item, idx) => (
-                <div key={idx} className="flex justify-between items-start text-sm">
-                  <span className="text-stone-700">{item.nombre} × {item.cantidad}</span>
-                  <span className="font-semibold text-stone-900">${(item.precio * item.cantidad).toLocaleString("es-CO")}</span>
-                </div>
-              ))}
+          <section className="naya-co__section">
+            <h2>Entrega</h2>
+            <div className="naya-co__static">
+              <span>País</span>
+              <strong>Colombia</strong>
             </div>
-
-            <div className="py-3 border-b border-stone-200 flex justify-between items-center text-sm">
-              <span className="font-semibold text-stone-700">Subtotal</span>
-              <span className="font-semibold text-stone-900">${subtotal.toLocaleString("es-CO")}</span>
-            </div>
-
-            <div className="py-4 space-y-3 border-b border-stone-200">
-              <span className="text-sm font-semibold text-stone-700 block">Envío</span>
-              <label onClick={() => setCostoEnvio(25000)} className={`flex justify-between p-3 rounded-xl border text-xs cursor-pointer ${costoEnvio === 25000 ? "border-emerald-600 bg-emerald-50/30 ring-1 ring-emerald-600" : "border-stone-200"}`}>
-                <div className="flex items-center gap-2">
-                  <input type="radio" checked={costoEnvio === 25000} onChange={() => setCostoEnvio(25000)} />
-                  <span>Capitales</span>
-                </div>
-                <span className="font-bold">$25.000</span>
+            <div className="naya-co__row">
+              <label className="naya-co__field">
+                <span>Nombre</span>
+                <input name="nombre" required autoComplete="given-name" value={formData.nombre} onChange={cambiar} />
               </label>
-              <label onClick={() => setCostoEnvio(30000)} className={`flex justify-between p-3 rounded-xl border text-xs cursor-pointer ${costoEnvio === 30000 ? "border-emerald-600 bg-emerald-50/30 ring-1 ring-emerald-600" : "border-stone-200"}`}>
-                <div className="flex items-center gap-2">
-                  <input type="radio" checked={costoEnvio === 30000} onChange={() => setCostoEnvio(30000)} />
-                  <span>Otras Ciudades</span>
-                </div>
-                <span className="font-bold">$30.000</span>
+              <label className="naya-co__field">
+                <span>Apellidos</span>
+                <input name="apellidos" required autoComplete="family-name" value={formData.apellidos} onChange={cambiar} />
               </label>
             </div>
-
-            <div className="py-3 border-b border-stone-200 flex justify-between items-center mb-6 mt-4">
-              <span className="text-base font-semibold text-stone-800">Total</span>
-              <span className="text-xl font-bold text-stone-900">${total.toLocaleString("es-CO")}</span>
-            </div>
-
-            <div className="space-y-4">
-              {checkoutError && <p className="text-sm text-red-700" role="alert">{checkoutError}</p>}
-              <label className="flex items-start gap-2 text-xs text-stone-700 cursor-pointer">
-                <input type="checkbox" checked={aceptaTerminos} onChange={(e) => setAceptaTerminos(e.target.checked)} className="mt-0.5 rounded text-emerald-600" />
-                <span>He leído y acepto los términos y condiciones *</span>
+            <label className="naya-co__field">
+              <span>Cédula o NIT</span>
+              <input name="identificacion" required inputMode="numeric" value={formData.identificacion} onChange={cambiar} />
+            </label>
+            <label className="naya-co__field">
+              <span>Dirección</span>
+              <input name="direccion" required autoComplete="address-line1" placeholder="Ej: Calle 10 # 43-25" value={formData.direccion} onChange={cambiar} />
+            </label>
+            <label className="naya-co__field">
+              <span>Casa, apartamento, barrio o punto de referencia (opcional)</span>
+              <input name="apartamento" autoComplete="address-line2" value={formData.apartamento} onChange={cambiar} />
+            </label>
+            <div className="naya-co__row naya-co__row--3">
+              <label className="naya-co__field">
+                <span>Ciudad o municipio</span>
+                <input name="poblacion" required autoComplete="address-level2" value={formData.poblacion} onChange={cambiar} />
               </label>
-              {clienteId ? (
-                <label className="flex items-start gap-2 text-xs text-stone-700 cursor-pointer">
-                  <input type="checkbox" checked={guardarDatos} onChange={(e) => setGuardarDatos(e.target.checked)} className="mt-0.5 rounded text-emerald-600" />
-                  <span>Guardar mis datos de envío para mi próxima compra</span>
-                </label>
-              ) : (
-                <p className="text-xs text-stone-500">
-                  <Link href="/cuenta" className="underline hover:text-emerald-900">Inicia sesión</Link> para ver este pedido en tu cuenta y no volver a llenar tus datos.
-                </p>
-              )}
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-[#8cc63f] hover:bg-[#7cb433] text-white font-bold py-3.5 rounded-xl transition text-sm shadow-sm cursor-pointer disabled:opacity-50"
-              >
-                {loading ? "Guardando pedido..." : metodoPago === "whatsapp" ? "Guardar pedido y continuar por WhatsApp" : "Realizar el pedido (Ir a elegir pago)"}
-              </button>
+              <label className="naya-co__field">
+                <span>Departamento</span>
+                <select name="departamento" required value={formData.departamento} onChange={cambiar}>
+                  {DEPARTAMENTOS.map((d) => <option key={d} value={d}>{d}</option>)}
+                </select>
+              </label>
+              <label className="naya-co__field">
+                <span>Código postal (opcional)</span>
+                <input name="codigoPostal" inputMode="numeric" autoComplete="postal-code" value={formData.codigoPostal} onChange={cambiar} />
+              </label>
             </div>
-          </div>
+            <label className="naya-co__field">
+              <span>Celular</span>
+              <input type="tel" name="telefono" required autoComplete="tel" placeholder="Para coordinar la entrega" value={formData.telefono} onChange={cambiar} />
+            </label>
+            {clienteId && (
+              <label className="naya-co__check">
+                <input type="checkbox" checked={guardarDatos} onChange={(e) => setGuardarDatos(e.target.checked)} />
+                Guardar mis datos para comprar más rápido la próxima vez
+              </label>
+            )}
+            <details className="naya-co__notes">
+              <summary>Agregar una nota al pedido</summary>
+              <textarea name="notas" rows={2} value={formData.notas} onChange={cambiar} placeholder="Ej: entregar en portería" />
+            </details>
+          </section>
 
+          <section className="naya-co__section">
+            <h2>Método de envío</h2>
+            <div className="naya-co__options">
+              <label className={costoEnvio === ENVIO_CAPITALES ? "naya-co__option naya-co__option--active" : "naya-co__option"}>
+                <input type="radio" name="envio" checked={costoEnvio === ENVIO_CAPITALES} onChange={() => { setCostoEnvio(ENVIO_CAPITALES); setEnvioElegidoAMano(true); }} />
+                <span className="naya-co__option-text">
+                  <strong>Ciudades capitales</strong>
+                  <small>Bogotá, Medellín, Cali y las demás capitales de departamento</small>
+                </span>
+                <strong>{pesos(ENVIO_CAPITALES)}</strong>
+              </label>
+              <label className={costoEnvio === ENVIO_OTRAS ? "naya-co__option naya-co__option--active" : "naya-co__option"}>
+                <input type="radio" name="envio" checked={costoEnvio === ENVIO_OTRAS} onChange={() => { setCostoEnvio(ENVIO_OTRAS); setEnvioElegidoAMano(true); }} />
+                <span className="naya-co__option-text">
+                  <strong>Otros municipios</strong>
+                  <small>Resto del país</small>
+                </span>
+                <strong>{pesos(ENVIO_OTRAS)}</strong>
+              </label>
+            </div>
+          </section>
+
+          <section className="naya-co__section">
+            <h2>Pago</h2>
+            <p className="naya-co__hint"><Lock size={13} aria-hidden="true" /> Todas las transacciones son seguras y están encriptadas.</p>
+            <div className="naya-co__options">
+              <label className={metodoPago === "wompi" ? "naya-co__option naya-co__option--active" : "naya-co__option"}>
+                <input type="radio" name="pago" checked={metodoPago === "wompi"} onChange={() => setMetodoPago("wompi")} />
+                <span className="naya-co__option-text">
+                  <strong>Tarjeta, PSE, Nequi o Bancolombia</strong>
+                  <small>Pagas en la página segura de Wompi y vuelves a NAYA</small>
+                </span>
+                <span className="naya-co__brands" aria-hidden="true">
+                  <span>VISA</span><span>MC</span><span>PSE</span>
+                </span>
+              </label>
+              <label className={metodoPago === "whatsapp" ? "naya-co__option naya-co__option--active" : "naya-co__option"}>
+                <input type="radio" name="pago" checked={metodoPago === "whatsapp"} onChange={() => setMetodoPago("whatsapp")} />
+                <span className="naya-co__option-text">
+                  <strong>Transferencia por WhatsApp</strong>
+                  <small>Te enviamos los datos y confirmamos tu pago por chat</small>
+                </span>
+                <MessageCircle size={20} aria-hidden="true" />
+              </label>
+            </div>
+          </section>
+
+          {aviso && <p className="naya-co__notice">{aviso}</p>}
+          {error && <p className="naya-co__error" role="alert">{error}</p>}
+
+          <button type="submit" className="naya-co__pay" disabled={enviando || !cargado}>
+            {enviando
+              ? "Procesando..."
+              : metodoPago === "whatsapp"
+                ? "Enviar pedido por WhatsApp"
+                : `Pagar ${pesos(total)}`}
+          </button>
+          <p className="naya-co__legal">
+            Al continuar aceptas nuestros <Link href="/terminos">Términos y condiciones</Link> y la{" "}
+            <Link href="/privacidad">Política de privacidad</Link>.
+          </p>
         </form>
+
+        <aside className="naya-co__summary" aria-label="Resumen del pedido">
+          {cargado ? resumen : <p className="naya-co__hint">Cargando tu pedido...</p>}
+        </aside>
       </div>
     </main>
   );
