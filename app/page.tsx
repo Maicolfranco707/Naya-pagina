@@ -3,7 +3,7 @@
 import { startTransition, useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ChevronLeft, ChevronRight, Leaf, Lock, Minus, Plus, ShoppingBag, Trash2, Volume2, VolumeX, X } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Leaf, Lock, Minus, Play, Plus, ShoppingBag, Trash2, Volume2, VolumeX, X } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Benefits from "@/components/home/Benefits";
 import NayaFooter from "@/components/layout/NayaFooter";
@@ -114,10 +114,11 @@ const INSTAGRAM_URL = "https://www.instagram.com/naya_renovacion/";
 
 // Galería #RitualNAYA (como #LAMOUROSA): cada foto abre su publicación de Instagram.
 // Para cambiar una: pega el enlace del post en `url` y la foto (guárdala en public/naya_foto/ig/) en `src`.
+// `video` (opcional): archivo .mp4 en public/naya_foto/ig/; se reproduce en silencio y en bucle, y `src` es la portada.
 // TODO: reemplazar `src` por la portada original de cada publicación.
-const galeriaRitual = [
-  { url: "https://www.instagram.com/p/DfnvLnuIMGO/", etiqueta: "Línea Cayena", src: "/naya_foto/kit-cayena.png", posicion: "center 55%" },
-  { url: "https://www.instagram.com/p/Dfab9wfAhEh/", etiqueta: "Adiós a la caída", src: "/naya_foto/shampooromero.png", posicion: "center 45%" },
+const galeriaRitual: Array<{ url: string; etiqueta: string; src: string; posicion: string; video?: string }> = [
+  { url: "https://www.instagram.com/reel/DbqnInaA7an/", etiqueta: "Cayena, nuestra flor favorita", src: "/naya_foto/kit-cayena.png", posicion: "center 55%", video: "/naya_foto/ig/cayena-feria.mp4" },
+  { url: "https://www.instagram.com/reel/Da5qMJUAtPu/", etiqueta: "Ampolleta de Crecimiento", src: "/naya_foto/shampooromero.png", posicion: "center 45%", video: "/naya_foto/ig/ampolleta-crecimiento.mp4" },
   { url: "https://www.instagram.com/reel/DevAICsAv4Q/", etiqueta: "¿Qué mantequilla eres?", src: "/naya_foto/cherry.png", posicion: "center 60%" },
   { url: "https://www.instagram.com/p/De8ARoIg7w0/", etiqueta: "Ampolleta de Nutrición", src: "/naya_foto/ampolletarosa.png", posicion: "center 50%" },
   { url: "https://www.instagram.com/reel/DffMq5pAWv-/", etiqueta: "Rutina de una clienta", src: "/naya_foto/shampoocayena.png", posicion: "center 45%" },
@@ -771,6 +772,22 @@ export default function Home() {
                 aria-label={`${foto.etiqueta}, ver en Instagram`}
               >
                 <Image src={foto.src} alt="" fill sizes="(max-width: 767px) 50vw, 33vw" className="object-cover" style={{ objectPosition: foto.posicion }} />
+                {foto.video && (
+                  <>
+                    <video
+                      className="naya-ritual__video"
+                      src={foto.video}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      preload="metadata"
+                      aria-hidden="true"
+                      onError={(e) => { e.currentTarget.style.display = "none"; }}
+                    />
+                    <span className="naya-ritual__play" aria-hidden="true"><Play size={14} fill="currentColor" /></span>
+                  </>
+                )}
                 <span className="naya-ritual__label">
                   <small>NAYA</small>
                   {foto.etiqueta}
