@@ -117,12 +117,12 @@ const INSTAGRAM_URL = "https://www.instagram.com/naya_renovacion/";
 // `video` (opcional): archivo .mp4 en public/naya_foto/ig/; se reproduce en silencio y en bucle, y `src` es la portada.
 // TODO: reemplazar `src` por la portada original de cada publicación.
 const galeriaRitual: Array<{ url: string; etiqueta: string; src: string; posicion: string; video?: string }> = [
-  { url: "https://www.instagram.com/reel/DbqnInaA7an/", etiqueta: "Cayena, nuestra flor favorita", src: "/naya_foto/kit-cayena.png", posicion: "center 55%", video: "/naya_foto/ig/cayena-feria.mp4" },
-  { url: "https://www.instagram.com/reel/Da5qMJUAtPu/", etiqueta: "Ampolleta de Crecimiento", src: "/naya_foto/shampooromero.png", posicion: "center 45%", video: "/naya_foto/ig/ampolleta-crecimiento.mp4" },
-  { url: "https://www.instagram.com/reel/DevAICsAv4Q/", etiqueta: "¿Qué mantequilla eres?", src: "/naya_foto/cherry.png", posicion: "center 60%" },
-  { url: "https://www.instagram.com/p/De8ARoIg7w0/", etiqueta: "Ampolleta de Nutrición", src: "/naya_foto/ampolletarosa.png", posicion: "center 50%" },
+  { url: "https://www.instagram.com/reel/DevAICsAv4Q/", etiqueta: "¿Qué mantequilla eres?", src: "/naya_foto/ig/mantequillas.jpg", posicion: "center 40%", video: "/naya_foto/ig/mantequillas.mp4" },
+  { url: "https://www.instagram.com/p/Dfab9wfAhEh/", etiqueta: "Adiós a la caída", src: "/naya_foto/shampooromero.png", posicion: "center 45%" },
+  { url: "https://www.instagram.com/p/DfnvLnuIMGO/", etiqueta: "Línea Cayena", src: "/naya_foto/kit-cayena.png", posicion: "center 55%" },
   { url: "https://www.instagram.com/reel/DffMq5pAWv-/", etiqueta: "Rutina de una clienta", src: "/naya_foto/shampoocayena.png", posicion: "center 45%" },
   { url: "https://www.instagram.com/p/DfPr4-kILd4/", etiqueta: "El aliado de tu shampoo", src: "/naya_foto/kit-romero.png", posicion: "center 55%" },
+  { url: "https://www.instagram.com/p/De8ARoIg7w0/", etiqueta: "Ritual de hidratación", src: "/naya_foto/ig/ampolleta-nutricion.jpg", posicion: "center 45%", video: "/naya_foto/ig/ampolleta-nutricion.mp4" },
 ];
 
 function textoNormalizado(texto: string): string {
@@ -777,12 +777,16 @@ export default function Home() {
                     <video
                       className="naya-ritual__video"
                       src={foto.video}
+                      poster={foto.src}
+                      style={{ objectPosition: foto.posicion }}
                       autoPlay
                       muted
                       loop
                       playsInline
                       preload="metadata"
                       aria-hidden="true"
+                      // React no pone el atributo "muted" en el HTML inicial y los celulares bloquean el autoplay sin él.
+                      ref={(el) => { if (el) { el.muted = true; el.play().catch(() => {}); } }}
                       onError={(e) => { e.currentTarget.style.display = "none"; }}
                     />
                     <span className="naya-ritual__play" aria-hidden="true"><Play size={14} fill="currentColor" /></span>
