@@ -111,6 +111,49 @@ function categoriaVisible(producto: Producto): string {
   return producto.categoria;
 }
 
+// Palabras que la gente escribe distinto a como están en el catálogo.
+const SINONIMOS_BUSQUEDA: Record<string, string> = {
+  champu: "shampoo",
+  shampu: "shampoo",
+  champoo: "shampoo",
+  pelo: "capilar",
+  cabello: "capilar",
+  cuerpo: "corporal",
+  serum: "ampolleta",
+  vitamina: "ampolleta",
+  combo: "kit",
+};
+
+const PALABRAS_VACIAS = new Set(["de", "del", "la", "las", "el", "los", "y", "para", "con", "un", "una", "en"]);
+
+/** Lleva cada palabra a su forma base: sin plural y con sinónimos ("shampoos" → "shampoo"). */
+function raizBusqueda(palabra: string): string {
+  let raiz = SINONIMOS_BUSQUEDA[palabra] ?? palabra;
+  if (raiz.length > 5 && raiz.endsWith("es")) raiz = raiz.slice(0, -2);
+  else if (raiz.length > 3 && raiz.endsWith("s")) raiz = raiz.slice(0, -1);
+  return SINONIMOS_BUSQUEDA[raiz] ?? raiz;
+}
+
+function palabrasBusqueda(consulta: string): string[] {
+  return consulta
+    .split(" ")
+    .filter((palabra) => palabra && !PALABRAS_VACIAS.has(palabra))
+    .map(raizBusqueda);
+}
+
+function textoBuscable(producto: Producto): string {
+  return normalizarBusqueda(
+    [
+      producto.nombre,
+      producto.categoria,
+      producto.descripcion,
+      producto.detalles,
+      categoriaVisible(producto),
+      esAmpolleta(producto) ? "ampolleta" : "",
+    ].join(" ")
+  );
+}
+
 function imagenProducto(producto: Producto): string {
   const texto = textoNormalizado(
     [producto.nombre, producto.categoria, producto.descripcion, producto.detalles].join(" ")
@@ -279,16 +322,24 @@ export default function Home() {
   const totalPrecioCarrito = carrito.reduce((sum, item) => sum + item.producto.precio * item.cantidad, 0);
 
   const consulta = normalizarBusqueda(searchTerm);
-  const productosFiltrados = productos.filter((producto) => {
-    const coincideCategoria = categoriaActiva === "Todos"
-        || categoriaVisible(producto) === categoriaActiva;
-    const coincideBusqueda = !consulta
-      || normalizarBusqueda(
-        [producto.nombre, producto.categoria, producto.descripcion, producto.detalles].join(" ")
-      ).includes(consulta)
-      || (consulta.startsWith("ampoll") && esAmpolleta(producto));
-    return coincideCategoria && coincideBusqueda;
+  const palabras = palabrasBusqueda(consulta);
+  const buscaKits = palabras.some((palabra) => palabra.startsWith("kit"));
+  const productosDeCategoria = productos.filter((producto) =>
+    categoriaActiva === "Todos" || categoriaVisible(producto) === categoriaActiva
+  );
+  // Primero productos que tengan TODAS las palabras; si no hay, los que tengan ALGUNA.
+  const coincidenTodas = productosDeCategoria.filter((producto) => {
+    const texto = textoBuscable(producto);
+    return palabras.every((palabra) => texto.includes(palabra));
   });
+  const productosFiltrados = palabras.length === 0
+    ? productosDeCategoria
+    : coincidenTodas.length > 0
+      ? coincidenTodas
+      : productosDeCategoria.filter((producto) => {
+        const texto = textoBuscable(producto);
+        return palabras.some((palabra) => palabra !== "kit" && texto.includes(palabra));
+      });
 
   // TODO: ordenar por ventas cuando el catálogo exponga datos de popularidad.
   const productosDestacados = productos.slice(0, 4);
@@ -310,8 +361,9 @@ export default function Home() {
     setSearchTerm(term);
     setCategoriaActiva("Todos");
     if (term.trim()) {
+      const irAKits = palabrasBusqueda(normalizarBusqueda(term)).some((palabra) => palabra.startsWith("kit"));
       requestAnimationFrame(() => {
-        document.getElementById("catalogo")?.scrollIntoView({ behavior: "smooth" });
+        document.getElementById(irAKits ? "kits-rituales" : "catalogo")?.scrollIntoView({ behavior: "smooth" });
       });
     }
   };
@@ -710,8 +762,15 @@ export default function Home() {
           ) : productosFiltrados.length === 0 ? (
             <div className="col-span-full py-12 text-center">
               <p className="text-sm text-naya-cream/70">
-                {consulta ? "Prueba con otro nombre, categoría o característica del producto." : "No hay productos disponibles en esta categoría."}
+                {buscaKits
+                  ? "Los kits tienen su propia sección más arriba."
+                  : consulta ? "Prueba con otro nombre, categoría o característica del producto." : "No hay productos disponibles en esta categoría."}
               </p>
+              {buscaKits && (
+                <a href="#kits-rituales" className="primary-action mt-4 mr-2 inline-block px-5 py-2 text-sm font-bold">
+                  Ver kits
+                </a>
+              )}
               {consulta && (
                 <button
                   type="button"
