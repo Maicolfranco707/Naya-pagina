@@ -3664,3 +3664,112 @@ div.naya-co__option { cursor: default; }
   background: rgba(0, 0, 0, 0.45);
   color: #fff;
 }
+
+/* ── Club NAYA (boletín) ── */
+.naya-ritual { margin-bottom: 0; padding-bottom: 56px; }
+.naya-nl {
+  padding: 0 clamp(16px, 4vw, 40px) 64px;
+}
+.naya-nl__card {
+  width: min(100%, 760px);
+  margin: 0 auto;
+  padding: clamp(32px, 5vw, 52px) clamp(20px, 5vw, 56px);
+  border-radius: 18px;
+  background: #0b3a3c;
+  color: #fbf7ef;
+  text-align: center;
+}
+.naya-nl__eyebrow {
+  margin: 0 0 10px;
+  color: #e3b27a;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.naya-nl__card h2 {
+  margin: 0;
+  font-family: var(--font-display), serif;
+  font-size: clamp(28px, 4vw, 40px);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+.naya-nl__text {
+  max-width: 480px;
+  margin: 12px auto 24px;
+  color: rgba(251, 247, 239, 0.78);
+  font-size: 15.5px;
+  line-height: 1.55;
+}
+.naya-nl__form {
+  display: flex;
+  gap: 8px;
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 6px;
+  border-radius: 999px;
+  background: #fbf7ef;
+}
+.naya-nl__form input {
+  flex: 1;
+  min-width: 0;
+  padding: 0 18px;
+  border: 0;
+  background: transparent;
+  color: #0b3a3c;
+  font-size: 15px;
+  outline: none;
+}
+.naya-nl__form button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 46px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 999px;
+  background: #b86b2e;
+  color: #fff;
+  font-size: 14.5px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.naya-nl__form button:hover { background: #a35d25; }
+.naya-nl__form button:disabled { opacity: 0.7; cursor: wait; }
+.naya-nl__error { margin: 12px 0 0; color: #f2b8a8; font-size: 13.5px; }
+.naya-nl__fine { margin: 14px 0 0; color: rgba(251, 247, 239, 0.55); font-size: 12.5px; }
+.naya-nl__done p { margin: 14px 0 16px; color: rgba(251, 247, 239, 0.85); font-size: 15.5px; }
+.naya-nl__code {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 22px;
+  border: 1.5px dashed #e3b27a;
+  border-radius: 10px;
+  background: rgba(227, 178, 122, 0.12);
+  color: #fbf7ef;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+}
+@media (max-width: 520px) {
+  .naya-nl__form { flex-direction: column; padding: 0; border-radius: 0; background: transparent; }
+  .naya-nl__form input { height: 50px; border-radius: 999px; background: #fbf7ef; }
+  .naya-nl__form button { justify-content: center; height: 50px; }
+}
+.naya-nl__card { background: #efe2d2; color: #0b3a3c; }
+.naya-nl__card h2 { text-wrap: balance; }
+.naya-nl__eyebrow { color: #b86b2e; }
+.naya-nl__text { color: #3f5856; }
+.naya-nl__form { background: #fff; box-shadow: 0 1px 0 rgba(11, 58, 60, 0.06); }
+.naya-nl__fine { color: #6b7d7b; }
+.naya-nl__error { color: #a2382b; }
+.naya-nl__done p { color: #3f5856; }
+.naya-nl__code { border-color: #b86b2e; background: #fff; color: #0b3a3c; }
+@media (max-width: 520px) {
+  .naya-nl__form { background: transparent; box-shadow: none; }
+  .naya-nl__form input { background: #fff; }
+}

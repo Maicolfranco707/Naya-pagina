@@ -653,3 +653,26 @@ grant execute on function public.create_order(jsonb, jsonb, text, text) to anon,
 insert into public.coupons (code, description, discount_type, discount_value, one_per_email)
 values ('BIENVENIDA10', '10% de descuento en tu primera compra', 'percent', 10, true)
 on conflict (code) do nothing;
+
+
+-- Suscriptores del boletín (sección "Entérate primero de las promos")
+create table if not exists public.newsletter_subscribers (
+  email text primary key check (email = lower(email) and email ~ '^[^@\s]+@[^@\s]+\.[^@\s]+$'),
+  source text not null default 'home',
+  created_at timestamptz not null default now()
+);
+
+alter table public.newsletter_subscribers enable row level security;
+
+drop policy if exists "Anyone can subscribe" on public.newsletter_subscribers;
+create policy "Anyone can subscribe"
+  on public.newsletter_subscribers for insert to anon, authenticated
+  with check (true);
+
+drop policy if exists "Admins read subscribers" on public.newsletter_subscribers;
+create policy "Admins read subscribers"
+  on public.newsletter_subscribers for select to authenticated
+  using (public.is_admin());
+
+grant insert on public.newsletter_subscribers to anon, authenticated;
+grant select on public.newsletter_subscribers to authenticated;
