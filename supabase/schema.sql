@@ -305,16 +305,16 @@ grant execute on function public.get_order_payment_status(text) to anon, authent
 
 insert into public.products (id, category, name, description, details, price_cop, image_url)
 values
-  (1, 'Línea Capilar', 'Shampoo de Cayena', 'Limpieza profunda y cuidado natural para el cuero cabelludo.', 'Formulado con extractos herbales para limpiar sin resecar. Estimula la circulación del cuero cabelludo y promueve el brillo natural.', 34000, '/naya_foto/shampoo1.png'),
-  (2, 'Línea Capilar', 'Acondicionador de  Cayena', 'Desenredo inmediato, suavidad y brillo natural.', 'Sella la cutícula capilar dejando el cabello suave, manejable y libre de frizz. Ideal para uso diario.', 34000, '/naya_foto/acondi1.png'),
-  (3, 'Línea Capilar', 'Shampoo de Romero', 'Fortalece la hebra capilar y estimula el crecimiento saludable.', 'Enriquecido con extracto puro de romero para limpiar profundamente, controlar el exceso de grasa y prevenir la caída del cabello.', 34000, '/naya_foto/shampoo2.png'),
-  (4, 'Línea Capilar', 'Acondicionador de Romero', 'Hidratación y fuerza para cabellos débiles o con tendencia a la caída.', 'Aporta suavidad extrema y desenredo mientras aprovecha los beneficios antioxidantes y fortalecedores del romero.', 34000, '/naya_foto/acondi2.png'),
+  (1, 'Línea Capilar', 'Shampoo de Cayena', 'Limpieza profunda y cuidado natural para el cuero cabelludo.', 'Formulado con extractos herbales para limpiar sin resecar. Estimula la circulación del cuero cabelludo y promueve el brillo natural.', 34000, '/naya_foto/shampoocayena.png'),
+  (2, 'Línea Capilar', 'Acondicionador de  Cayena', 'Desenredo inmediato, suavidad y brillo natural.', 'Sella la cutícula capilar dejando el cabello suave, manejable y libre de frizz. Ideal para uso diario.', 34000, '/naya_foto/acondicionador1.png'),
+  (3, 'Línea Capilar', 'Shampoo de Romero', 'Fortalece la hebra capilar y estimula el crecimiento saludable.', 'Enriquecido con extracto puro de romero para limpiar profundamente, controlar el exceso de grasa y prevenir la caída del cabello.', 34000, '/naya_foto/shampooromero.png'),
+  (4, 'Línea Capilar', 'Acondicionador de Romero', 'Hidratación y fuerza para cabellos débiles o con tendencia a la caída.', 'Aporta suavidad extrema y desenredo mientras aprovecha los beneficios antioxidantes y fortalecedores del romero.', 34000, '/naya_foto/acondicionador2.png'),
   (5, 'Línea Corporal', 'Mantequilla Corporal Coco Festival', 'Ultra hidratación y nutrición intensiva para la piel.', 'Enriquecida con mantecas naturales y aroma a coco. Restaura la barrera de hidratación cutánea en zonas muy secas.', 28500, '/naya_foto/coco_festival.png'),
-  (6, 'Tratamiento Capilar', 'Tónico Crecimiento Intensivo', 'Estimula la hebra capilar y fortalece desde la raíz.', 'Aplica directamente en la raíz para acelerar el crecimiento y frenar la caída excesiva.', 18000, '/naya_foto/crecimiento.png'),
+  (6, 'Tratamiento Capilar', 'Tónico Crecimiento Intensivo', 'Estimula la hebra capilar y fortalece desde la raíz.', 'Aplica directamente en la raíz para acelerar el crecimiento y frenar la caída excesiva.', 18000, '/naya_foto/ampolletaverde.png'),
   (7, 'Línea Frutal', ' Mantequilla Corporal Kiwi', 'Revitalización e hidratación profunda con antioxidantes.', 'Aporta vitaminas y nutrientes esenciales para devolverle la vitalidad al cabello o piel deshidratada.', 28500, '/naya_foto/kiwi.png'),
   (8, 'Línea Frutal', 'Mantequilla Corporal Uva', 'Reparación intensiva para cabellos maltratados.', 'Propiedades antioxidantes de la uva que reparan los daños causados por el calor y procesamientos químicos.', 28500, '/naya_foto/uva.png'),
   (9, 'Línea Frutal', 'Mantequilla Corporal  Cherry', 'Renovación celular y aroma delicioso para tu piel.', 'Remueve suavemente las células muertas dejando la piel sedosa, renovada y con un delicioso perfume a cereza.', 28500, '/naya_foto/cherry.png'),
-  (10, 'Tratamiento Corporal', 'Crema Nutrición Profunda', 'Restaura la elasticidad y suavidad de tu piel.', 'Fórmula de rápida absorción que nutre profundamente sin dejar sensación grasosa.', 18000, '/naya_foto/nutricion.png')
+  (10, 'Tratamiento Corporal', 'Crema Nutrición Profunda', 'Restaura la elasticidad y suavidad de tu piel.', 'Fórmula de rápida absorción que nutre profundamente sin dejar sensación grasosa.', 18000, '/naya_foto/ampolletarosa.png')
 on conflict (id) do update set
   category = excluded.category,
   name = excluded.name,
