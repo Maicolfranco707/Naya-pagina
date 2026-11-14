@@ -112,12 +112,15 @@ const lineasCapilares = [
 
 const INSTAGRAM_URL = "https://www.instagram.com/naya_renovacion/";
 
-// TODO: reemplazar por fotos originales del Instagram de NAYA (clientas, tutoriales).
-const fotosInstagram = [
-  { src: "/naya_foto/shampoocayena.png", alt: "Shampoo de Cayena NAYA" },
-  { src: "/naya_foto/kit-romero.png", alt: "Kit de Romero NAYA" },
-  { src: "/naya_foto/ampolletarosa.png", alt: "Ampolleta de Nutrición NAYA" },
-  { src: "/naya_foto/coco_festival.png", alt: "Mantequilla Coco Festival NAYA" },
+// Galería #RitualNAYA (estilo #LAMOUROSA): cada foto abre su producto.
+// TODO: cambiar `src` por fotos reales de uso (clientas, tutoriales, mesa de baño) cuando estén.
+const galeriaRitual = [
+  { productoId: 12, etiqueta: "Kit Cayena", src: "/naya_foto/kit-cayena.png", posicion: "center 55%" },
+  { productoId: 3, etiqueta: "Shampoo de Romero", src: "/naya_foto/shampooromero.png", posicion: "center 45%" },
+  { productoId: 9, etiqueta: "Mantequilla Cherry", src: "/naya_foto/cherry.png", posicion: "center 60%" },
+  { productoId: 7, etiqueta: "Mantequilla Kiwi", src: "/naya_foto/kiwi.png", posicion: "center 60%" },
+  { productoId: 1, etiqueta: "Shampoo de Cayena", src: "/naya_foto/shampoocayena.png", posicion: "center 45%" },
+  { productoId: 11, etiqueta: "Kit Romero", src: "/naya_foto/kit-romero.png", posicion: "center 55%" },
 ];
 
 function textoNormalizado(texto: string): string {
@@ -753,21 +756,31 @@ export default function Home() {
         )}
       </section>
 
-      <section className="naya-ig" aria-labelledby="naya-ig-title">
-        <div className="naya-ig__copy">
-          <h2 id="naya-ig-title">Mira cómo se usa en Instagram</h2>
-          <p>Tutoriales, resultados de clientas y promociones primero en <strong>@naya_renovacion</strong>.</p>
-          <a className="naya-button" href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">
-            Seguir en Instagram <ArrowRight size={15} aria-hidden="true" />
-          </a>
+      <section className="naya-ritual" aria-labelledby="naya-ritual-title">
+        <h2 id="naya-ritual-title">#RitualNAYA</h2>
+        <div className="naya-ritual__grid">
+          {galeriaRitual.map((foto) => {
+            const producto = productos.find((item) => item.id === foto.productoId);
+            return (
+              <button
+                key={foto.src}
+                type="button"
+                className="naya-ritual__tile"
+                onClick={() => producto ? abrirModal(producto) : verCategoria("Todos")}
+                aria-label={`Ver ${foto.etiqueta}`}
+              >
+                <Image src={foto.src} alt="" fill sizes="(max-width: 767px) 50vw, 33vw" className="object-cover" style={{ objectPosition: foto.posicion }} />
+                <span className="naya-ritual__label">
+                  <small>NAYA</small>
+                  {foto.etiqueta}
+                </span>
+              </button>
+            );
+          })}
         </div>
-        <div className="naya-ig__grid">
-          {fotosInstagram.map((foto) => (
-            <a key={foto.src} href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="naya-ig__tile" aria-label={`${foto.alt}, ver en Instagram`}>
-              <Image src={foto.src} alt="" fill sizes="(max-width: 767px) 45vw, 18vw" className="object-cover" />
-            </a>
-          ))}
-        </div>
+        <a className="naya-ritual__ig" href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer">
+          Síguenos en Instagram @naya_renovacion <ArrowRight size={15} aria-hidden="true" />
+        </a>
       </section>
 
       <Benefits />

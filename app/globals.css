@@ -3568,3 +3568,76 @@ div.naya-co__option { cursor: default; }
   }
 }
 .naya-lines__intro p { max-width: 620px; }
+
+/* ── Galería #RitualNAYA (estilo #LAMOUROSA) ── */
+.naya-ritual {
+  width: min(100%, 1240px);
+  margin: 0 auto 64px;
+  padding: 40px clamp(16px, 4vw, 40px) 0;
+  text-align: center;
+}
+.naya-ritual h2 {
+  margin: 0 0 26px;
+  color: #0b3a3c;
+  font-size: clamp(32px, 4.6vw, 52px);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+.naya-ritual__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.naya-ritual__tile {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  background: #ece4d8;
+  cursor: pointer;
+  text-align: left;
+}
+.naya-ritual__tile img { transition: transform 500ms ease; }
+.naya-ritual__tile:hover img { transform: scale(1.04); }
+.naya-ritual__tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0) 45%);
+  pointer-events: none;
+}
+.naya-ritual__label {
+  position: absolute;
+  left: clamp(14px, 2vw, 28px);
+  bottom: clamp(14px, 2vw, 26px);
+  z-index: 1;
+  display: grid;
+  gap: 4px;
+  color: #fff;
+  font-size: clamp(15px, 1.5vw, 20px);
+  font-weight: 500;
+  line-height: 1.15;
+  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.35);
+}
+.naya-ritual__label small {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+}
+.naya-ritual__ig {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 22px;
+  color: #0b3a3c;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+@media (max-width: 767px) {
+  .naya-ritual__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+  .naya-ritual__tile { aspect-ratio: 4 / 5; }
+}
