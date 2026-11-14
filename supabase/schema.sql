@@ -314,7 +314,9 @@ values
   (7, 'Línea Frutal', ' Mantequilla Corporal Kiwi', 'Revitalización e hidratación profunda con antioxidantes.', 'Aporta vitaminas y nutrientes esenciales para devolverle la vitalidad al cabello o piel deshidratada.', 28500, '/naya_foto/kiwi.png'),
   (8, 'Línea Frutal', 'Mantequilla Corporal Uva', 'Reparación intensiva para cabellos maltratados.', 'Propiedades antioxidantes de la uva que reparan los daños causados por el calor y procesamientos químicos.', 28500, '/naya_foto/uva.png'),
   (9, 'Línea Frutal', 'Mantequilla Corporal  Cherry', 'Renovación celular y aroma delicioso para tu piel.', 'Remueve suavemente las células muertas dejando la piel sedosa, renovada y con un delicioso perfume a cereza.', 28500, '/naya_foto/cherry.png'),
-  (10, 'Tratamiento Corporal', 'Ampolleta de Nutrición', 'Restaura la elasticidad y suavidad de tu piel.', 'Fórmula de rápida absorción que nutre profundamente sin dejar sensación grasosa.', 18000, '/naya_foto/ampolletarosa.png')
+  (10, 'Tratamiento Corporal', 'Ampolleta de Nutrición', 'Restaura la elasticidad y suavidad de tu piel.', 'Fórmula de rápida absorción que nutre profundamente sin dejar sensación grasosa.', 18000, '/naya_foto/ampolletarosa.png'),
+  (11, 'Kits', 'Kit de Romero', 'Shampoo + acondicionador + ampolleta de la línea Romero.', 'La rutina completa para el cabello débil, quebradizo o con caída: shampoo y acondicionador de Romero más una ampolleta.', 82000, '/naya_foto/kit-romero.png'),
+  (12, 'Kits', 'Kit de Cayena', 'Shampoo + acondicionador + ampolleta de la línea Cayena.', 'La rutina completa para el cabello opaco, reseco o con frizz: shampoo y acondicionador de Cayena más una ampolleta.', 82000, '/naya_foto/kit-cayena.png')
 on conflict (id) do update set
   category = excluded.category,
   name = excluded.name,

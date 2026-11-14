@@ -3,7 +3,7 @@
 import { startTransition, useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ChevronLeft, ChevronRight, Leaf, ShoppingBag, Volume2, VolumeX } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Leaf, Lock, Minus, Plus, ShoppingBag, Trash2, Volume2, VolumeX, X } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Benefits from "@/components/home/Benefits";
 import NayaFooter from "@/components/layout/NayaFooter";
@@ -55,11 +55,15 @@ const imagenesHero = [
   },
 ];
 
-const categorias = ["Todos", "Línea Capilar",  "Ampolletas", "Línea Frutal"];
+const categorias = ["Todos", "Kits", "Línea Capilar", "Ampolletas", "Línea Frutal"];
+
+// Los kits son productos reales en Supabase (ids 11 y 12) para que se puedan pagar.
+const ID_KIT_ROMERO = 11;
+const ID_KIT_CAYENA = 12;
 
 const kitsPromocionales = [
   {
-    id: -1,
+    id: ID_KIT_ROMERO,
     nombre: "Kit de Romero",
     descripcion: "Shampoo + ampolleta + acondicionador",
     imagen: "/naya_foto/kit-romero.png",
@@ -67,7 +71,7 @@ const kitsPromocionales = [
     precioSeparado: 86000,
   },
   {
-    id: -2,
+    id: ID_KIT_CAYENA,
     nombre: "Kit de Cayena",
     descripcion: "Shampoo + ampolleta + acondicionador",
     imagen: "/naya_foto/kit-cayena.png",
@@ -91,7 +95,7 @@ const lineasCapilares = [
     titular: "Para el cabello opaco, reseco o con frizz",
     texto: "Una flor con muchas propiedades para tu cabello: limpia sin resecar y le devuelve el brillo y la suavidad.",
     beneficios: ["Brillo natural", "Desenreda y controla el frizz", "Ideal para uso diario"],
-    kitId: -2,
+    kitId: ID_KIT_CAYENA,
     busqueda: "cayena",
   },
   {
@@ -100,7 +104,7 @@ const lineasCapilares = [
     titular: "Para el cabello débil, quebradizo o con caída",
     texto: "Elige el Romero si notas que tu cabello está más débil: fortalece la hebra y estimula un crecimiento saludable.",
     beneficios: ["Ayuda a frenar la caída", "Controla el exceso de grasa", "Fortalece desde la raíz"],
-    kitId: -1,
+    kitId: ID_KIT_ROMERO,
     busqueda: "romero",
   },
 ];
@@ -123,7 +127,12 @@ function normalizarBusqueda(texto: string): string {
   return textoNormalizado(texto).trim().replace(/\s+/g, " ");
 }
 
+function esKit(producto: Producto): boolean {
+  return textoNormalizado(producto.categoria).startsWith("kit");
+}
+
 function esAmpolleta(producto: Producto): boolean {
+  if (esKit(producto)) return false;
   const texto = textoNormalizado(
     [producto.nombre, producto.categoria, producto.descripcion, producto.detalles].join(" ")
   );
@@ -132,6 +141,7 @@ function esAmpolleta(producto: Producto): boolean {
 
 function categoriaVisible(producto: Producto): string {
   const texto = textoNormalizado(`${producto.nombre} ${producto.categoria}`);
+  if (esKit(producto)) return "Kits";
   if (esAmpolleta(producto)) return "Ampolletas";
   if (texto.includes("mantequilla") && texto.includes("coco")) return "Línea Frutal";
   return producto.categoria;
@@ -181,6 +191,7 @@ function textoBuscable(producto: Producto): string {
 }
 
 function imagenProducto(producto: Producto): string {
+  if (producto.id === ID_KIT_ROMERO || producto.id === ID_KIT_CAYENA) return producto.imagen;
   const texto = textoNormalizado(
     [producto.nombre, producto.categoria, producto.descripcion, producto.detalles].join(" ")
   );
@@ -290,7 +301,12 @@ export default function Home() {
     const carritoGuardado = localStorage.getItem("carrito_naya");
     if (carritoGuardado) {
       try {
-        const itemsGuardados = JSON.parse(carritoGuardado) as ItemCarrito[];
+        const idsViejos: Record<number, number> = { [-1]: ID_KIT_ROMERO, [-2]: ID_KIT_CAYENA };
+        const itemsGuardados = (JSON.parse(carritoGuardado) as ItemCarrito[]).map((item) =>
+          idsViejos[item.producto.id]
+            ? { ...item, producto: { ...item.producto, id: idsViejos[item.producto.id] } }
+            : item
+        );
         startTransition(() => setCarrito(itemsGuardados));
       } catch (e) {
         console.error("Error al cargar el carrito", e);
@@ -382,9 +398,8 @@ export default function Home() {
     setSearchTerm(term);
     setCategoriaActiva("Todos");
     if (term.trim()) {
-      const irAKits = palabrasBusqueda(normalizarBusqueda(term)).some((palabra) => palabra.startsWith("kit"));
       requestAnimationFrame(() => {
-        document.getElementById(irAKits ? "kits-rituales" : "catalogo")?.scrollIntoView({ behavior: "smooth" });
+        document.getElementById("catalogo")?.scrollIntoView({ behavior: "smooth" });
       });
     }
   };
@@ -541,9 +556,9 @@ export default function Home() {
                       type="button"
                       className="naya-line__buy"
                       onClick={() => {
-                        agregarAlCarrito({
+                        agregarAlCarrito(productos.find((producto) => producto.id === kit.id) ?? {
                           id: kit.id,
-                          categoria: "Kit capilar",
+                          categoria: "Kits",
                           nombre: kit.nombre,
                           descripcion: kit.descripcion,
                           detalles: kit.descripcion,
@@ -833,117 +848,89 @@ export default function Home() {
         </div>
       )}
 
-      {/* DRAWER / SLIDE-OVER DEL CARRITO */}
+      {/* CARRITO */}
       {carritoAbierto && (
-        <div className="fixed inset-0 z-50 overflow-hidden">
-          <div 
-            className="absolute inset-0 bg-naya-green/60 backdrop-blur-sm transition-opacity"
-            onClick={() => setCarritoAbierto(false)}
-          />
+        <div className="naya-cart" role="dialog" aria-modal="true" aria-labelledby="naya-cart-title">
+          <button type="button" className="naya-cart__backdrop" aria-label="Cerrar carrito" onClick={() => setCarritoAbierto(false)} />
+          <aside className="naya-cart__panel">
+            <header className="naya-cart__header">
+              <h2 id="naya-cart-title">
+                Tu carrito{totalProductosCarrito > 0 && <span> ({totalProductosCarrito})</span>}
+              </h2>
+              <button type="button" className="naya-cart__close" aria-label="Cerrar carrito" onClick={() => setCarritoAbierto(false)}>
+                <X size={22} aria-hidden="true" />
+              </button>
+            </header>
 
-          <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-            <div className="w-screen max-w-md bg-naya-cream shadow-2xl flex flex-col">
-              
-              {/* Header del Carrito */}
-              <div className="p-5 sm:p-6 bg-naya-green text-naya-cream flex items-center justify-between">
-                <div className="flex items-center space-x-3">
-                  <span className="text-2xl">🛒</span>
-                  <h2 className="text-xl font-serif font-bold">Tu Carrito</h2>
-                </div>
-                <button 
-                  onClick={() => setCarritoAbierto(false)}
-                  className="text-naya-cream hover:text-naya-copper text-xl font-bold p-1"
-                >
-                  ✕
+            {carrito.length === 0 ? (
+              <div className="naya-cart__empty">
+                <ShoppingBag size={36} strokeWidth={1.4} aria-hidden="true" />
+                <p>Tu carrito está vacío</p>
+                <button type="button" className="naya-cart__checkout" onClick={() => { setCarritoAbierto(false); document.getElementById("catalogo")?.scrollIntoView({ behavior: "smooth" }); }}>
+                  Ver productos
                 </button>
               </div>
-
-              {/* Lista de productos */}
-              <div className="flex-1 overflow-y-auto p-5 sm:p-6 divide-y divide-naya-green/10">
-                {carrito.length === 0 ? (
-                  <div className="h-full flex flex-col items-center justify-center text-center text-naya-green/50 space-y-3">
-                    <span className="text-5xl">🌿</span>
-                    <p className="text-sm font-medium">Tu carrito está vacío.</p>
-                    <p className="text-xs">Añade productos de NAYA para comenzar tu pedido.</p>
-                  </div>
-                ) : (
-                  carrito.map((item) => (
-                    <div key={item.producto.id} className="py-4 flex gap-4 items-center">
-                      <div className="relative h-16 w-16 bg-white/70 rounded-[14px] shrink-0 flex items-center justify-center">
-                        <Image 
+            ) : (
+              <>
+                <ul className="naya-cart__items">
+                  {carrito.map((item) => (
+                    <li key={item.producto.id} className="naya-cart__item">
+                      <div className="naya-cart__thumb">
+                        <Image
                           src={imagenProducto(item.producto)}
                           alt={item.producto.nombre}
                           fill
-                          sizes="64px"
-                          className="object-contain p-1"
+                          sizes="84px"
+                          className="object-cover"
                         />
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-sm font-bold text-naya-green truncate">{item.producto.nombre}</h4>
-                        <p className="text-xs text-naya-green/65 font-semibold mt-0.5">
-                          ${(item.producto.precio * item.cantidad).toLocaleString('es-CO')} COP
-                        </p>
-                        
-                        <div className="flex items-center space-x-2 mt-2">
-                          <div className="flex items-center border border-naya-green/20 rounded-full">
-                            <button 
-                              onClick={() => cambiarCantidadCarrito(item.producto.id, -1)}
-                              className="px-2 py-0.5 text-xs text-naya-green hover:bg-naya-green/10 rounded-full"
-                            >
-                              -
-                            </button>
-                            <span className="px-2 py-0.5 text-xs font-medium text-naya-green">{item.cantidad}</span>
-                            <button 
-                              onClick={() => cambiarCantidadCarrito(item.producto.id, 1)}
-                              className="px-2 py-0.5 text-xs text-naya-green hover:bg-naya-green/10 rounded-full"
-                            >
-                              +
-                            </button>
-                          </div>
-                          
-                          <button 
+                      <div className="naya-cart__info">
+                        <div className="naya-cart__row">
+                          <h3>{item.producto.nombre.trim()}</h3>
+                          <button
+                            type="button"
+                            className="naya-cart__remove"
+                            aria-label={`Quitar ${item.producto.nombre} del carrito`}
                             onClick={() => eliminarDelCarrito(item.producto.id)}
-                            className="text-[10px] text-naya-green/60 hover:text-naya-copper hover:underline ml-auto"
                           >
-                            Eliminar
+                            <Trash2 size={16} aria-hidden="true" />
                           </button>
                         </div>
+                        <p className="naya-cart__unit">${item.producto.precio.toLocaleString("es-CO")} c/u</p>
+                        <div className="naya-cart__row">
+                          <div className="naya-cart__qty" aria-label="Cantidad">
+                            <button type="button" aria-label="Quitar uno" onClick={() => cambiarCantidadCarrito(item.producto.id, -1)}>
+                              <Minus size={14} aria-hidden="true" />
+                            </button>
+                            <span>{item.cantidad}</span>
+                            <button type="button" aria-label="Agregar uno" onClick={() => cambiarCantidadCarrito(item.producto.id, 1)}>
+                              <Plus size={14} aria-hidden="true" />
+                            </button>
+                          </div>
+                          <strong>${(item.producto.precio * item.cantidad).toLocaleString("es-CO")}</strong>
+                        </div>
                       </div>
-                    </div>
-                  ))
-                )}
-              </div>
+                    </li>
+                  ))}
+                </ul>
 
-              {/* Botones de Finalizar Compra */}
-              {carrito.length > 0 && (
-                <div className="p-5 sm:p-6 border-t border-naya-green/10 bg-white/50 space-y-4">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="text-naya-green/70 font-medium">Subtotal ({totalProductosCarrito} ítems)</span>
-                    <span className="font-bold text-naya-green text-lg">
-                      ${totalPrecioCarrito.toLocaleString('es-CO')} COP
-                    </span>
+                <footer className="naya-cart__footer">
+                  <div className="naya-cart__subtotal">
+                    <span>Subtotal</span>
+                    <strong>${totalPrecioCarrito.toLocaleString("es-CO")} COP</strong>
                   </div>
-
-                  <div className="flex flex-col gap-2">
-                    <Link 
-                      href="/checkout"
-                      className="primary-action w-full font-bold text-center text-xs py-3.5 transition block shadow-lg"
-                    >
-                      🔒 Finalizar Compra y Pagar
-                    </Link>
-
-                    <Link
-                      href="/checkout?metodo=whatsapp"
-                      className="secondary-action w-full font-semibold text-xs py-3 transition flex items-center justify-center gap-2"
-                    >
-                      <span>💬</span> O pedir directo por WhatsApp
-                    </Link>
-                  </div>
-                </div>
-              )}
-
-            </div>
-          </div>
+                  <p className="naya-cart__note">El envío se calcula en el siguiente paso.</p>
+                  <Link href="/checkout" className="naya-cart__checkout">
+                    <Lock size={16} aria-hidden="true" />
+                    Ir a pagar
+                  </Link>
+                  <Link href="/checkout?metodo=whatsapp" className="naya-cart__whatsapp">
+                    Prefiero pedir por WhatsApp
+                  </Link>
+                </footer>
+              </>
+            )}
+          </aside>
         </div>
       )}
     </main>

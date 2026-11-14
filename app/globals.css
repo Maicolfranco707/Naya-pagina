@@ -2735,3 +2735,256 @@ body {
 .naya-card__media:has(img.object-contain) {
   background: #fff;
 }
+
+/* ---------- Carrito ---------- */
+.naya-cart {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+}
+
+.naya-cart__backdrop {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: rgb(11 58 60 / 55%);
+  cursor: pointer;
+}
+
+.naya-cart__panel {
+  position: absolute;
+  inset: 0 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  width: min(100%, 440px);
+  background: #fff;
+  box-shadow: -12px 0 40px rgb(11 58 60 / 18%);
+  animation: naya-cart-in 220ms ease-out;
+}
+
+@keyframes naya-cart-in {
+  from { transform: translateX(24px); opacity: 0.6; }
+}
+
+.naya-cart__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  border-bottom: 1px solid #ece4d8;
+}
+
+.naya-cart__header h2 {
+  margin: 0;
+  color: #0b3a3c;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.naya-cart__header h2 span {
+  color: #7d8c8a;
+  font-family: var(--font-body), system-ui, sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.naya-cart__close {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: #0b3a3c;
+  cursor: pointer;
+}
+
+.naya-cart__close:hover {
+  background: #f4efe7;
+}
+
+.naya-cart__empty {
+  display: grid;
+  flex: 1;
+  align-content: center;
+  justify-items: center;
+  gap: 14px;
+  padding: 24px;
+  color: #3f5856;
+  text-align: center;
+}
+
+.naya-cart__empty p {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.naya-cart__items {
+  flex: 1;
+  overflow-y: auto;
+  margin: 0;
+  padding: 4px 20px;
+  list-style: none;
+}
+
+.naya-cart__item {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: 14px;
+  padding: 16px 0;
+  border-bottom: 1px solid #f0ebe3;
+}
+
+.naya-cart__thumb {
+  position: relative;
+  width: 84px;
+  height: 104px;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #ece4d8;
+}
+
+.naya-cart__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.naya-cart__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.naya-cart__info h3 {
+  margin: 0;
+  color: #0b3a3c;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.naya-cart__remove {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #7d8c8a;
+  cursor: pointer;
+}
+
+.naya-cart__remove:hover {
+  background: #fbe9e9;
+  color: #a83232;
+}
+
+.naya-cart__unit {
+  margin: 2px 0 auto;
+  color: #7d8c8a;
+  font-size: 13px;
+}
+
+.naya-cart__qty {
+  display: inline-flex;
+  align-items: center;
+  margin-top: 10px;
+  border: 1px solid #d9d2c6;
+  border-radius: 8px;
+}
+
+.naya-cart__qty button {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border: 0;
+  background: transparent;
+  color: #0b3a3c;
+  cursor: pointer;
+}
+
+.naya-cart__qty span {
+  min-width: 26px;
+  color: #0b3a3c;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.naya-cart__info .naya-cart__row strong {
+  margin-top: 10px;
+  color: #0b3a3c;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.naya-cart__footer {
+  padding: 18px 20px 20px;
+  border-top: 1px solid #ece4d8;
+  background: #fbf8f3;
+}
+
+.naya-cart__subtotal {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  color: #0b3a3c;
+  font-size: 15px;
+}
+
+.naya-cart__subtotal strong {
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.naya-cart__note {
+  margin: 4px 0 14px;
+  color: #7d8c8a;
+  font-size: 13px;
+}
+
+.naya-cart__checkout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 52px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 8px;
+  background: #0b3a3c;
+  color: #fff;
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.naya-cart__checkout:hover {
+  background: #145154;
+}
+
+.naya-cart__empty .naya-cart__checkout {
+  width: auto;
+}
+
+.naya-cart__whatsapp {
+  display: block;
+  margin-top: 12px;
+  color: #0b3a3c;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
