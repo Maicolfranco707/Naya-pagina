@@ -12,7 +12,7 @@
   --color-naya-sand: #f7f1e8;
   --color-naya-stone: #e6d8cc;
 
-  --font-sans: var(--font-manrope), sans-serif;
+  --font-sans: var(--font-body), sans-serif;
 }
 
 body {
@@ -29,7 +29,7 @@ body {
   --store-lilac: #cdb4e0;
   background: var(--store-cream);
   color: var(--store-green);
-  font-family: var(--font-inter), Inter, sans-serif;
+  font-family: var(--font-body), system-ui, sans-serif;
 }
 
 .storefront h1,
@@ -37,7 +37,7 @@ body {
 .storefront h3,
 .storefront h4,
 .storefront .font-serif {
-  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+  font-family: var(--font-display), Georgia, serif;
 }
 
 .account-page {
@@ -69,7 +69,7 @@ body {
   display: inline-block;
   margin-bottom: 36px;
   color: #0b3a3c;
-  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: 38px;
   font-weight: 600;
   letter-spacing: 0.17em;
@@ -88,7 +88,7 @@ body {
 .account-card h1 {
   margin: 0;
   color: #0b3a3c;
-  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: clamp(30px, 7vw, 38px);
   font-weight: 500;
 }
@@ -1071,7 +1071,7 @@ body {
 .naya-review-card blockquote {
   margin: 14px 0 20px;
   color: #0b3a3c;
-  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: 18px;
   line-height: 1.5;
 }
@@ -1176,7 +1176,7 @@ body {
 .naya-trust__item h2 {
   margin: 0;
   color: #f7f1e8;
-  font-family: var(--font-inter), Inter, sans-serif;
+  font-family: var(--font-body), system-ui, sans-serif;
   font-size: 12px;
   font-weight: 600;
 }
@@ -1274,7 +1274,7 @@ body {
 
 .naya-footer__logo {
   color: #f7f1e8;
-  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: 35px;
   letter-spacing: 0.2em;
   text-decoration: none;
@@ -1282,7 +1282,7 @@ body {
 
 .naya-footer__brand p {
   margin: 10px 0 6px;
-  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: 16px;
 }
 
@@ -1307,7 +1307,7 @@ body {
 .naya-footer__links h2 {
   margin: 2px 0 4px;
   color: #dca76f;
-  font-family: var(--font-inter), Inter, sans-serif;
+  font-family: var(--font-body), system-ui, sans-serif;
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -1541,7 +1541,7 @@ body {
 
 .naya-header__logo {
   color: #0b3a3c;
-  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: 34px;
   font-weight: 600;
   letter-spacing: 0.22em;
@@ -2083,7 +2083,7 @@ body {
 .account-section__title {
   margin: 0 0 14px;
   color: #213a35;
-  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+  font-family: var(--font-display), Georgia, serif;
   font-size: 22px;
   font-weight: 500;
 }
@@ -2246,4 +2246,474 @@ body {
   .account-profile-grid {
     grid-template-columns: 1fr;
   }
+}
+
+/* =====================================================================
+   Rediseño comercial y cálido (estilo tienda real, no plantilla)
+   ===================================================================== */
+
+/* ---------- Franja de beneficios en movimiento ---------- */
+.naya-marquee {
+  overflow: hidden;
+  border-block: 1px solid rgb(11 58 60 / 12%);
+  background: #0b3a3c;
+  color: #f7f1e8;
+}
+
+.naya-marquee__track {
+  display: flex;
+  width: max-content;
+  animation: naya-marquee 32s linear infinite;
+}
+
+.naya-marquee ul {
+  display: flex;
+  gap: 42px;
+  margin: 0;
+  padding: 13px 21px;
+  list-style: none;
+}
+
+.naya-marquee li {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.naya-marquee li svg {
+  color: #e5a46a;
+}
+
+@keyframes naya-marquee {
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .naya-marquee__track { animation: none; }
+}
+
+/* ---------- ¿Cayena o Romero? ---------- */
+.naya-lines {
+  width: min(100%, 1240px);
+  margin-inline: auto;
+  padding: 64px clamp(16px, 4vw, 40px) 24px;
+  scroll-margin-top: 140px;
+}
+
+.naya-lines__intro {
+  max-width: 620px;
+  margin-bottom: 28px;
+}
+
+.naya-lines__intro h2,
+.naya-shop__header h2,
+.naya-ig__copy h2 {
+  margin: 0;
+  color: #0b3a3c;
+  font-size: clamp(32px, 4.2vw, 48px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+}
+
+.naya-lines__intro p {
+  margin: 12px 0 0;
+  color: #3f5856;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.naya-lines__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.naya-line {
+  --line-color: #4f7a3a;
+  --line-soft: #e8f0df;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--line-soft);
+}
+
+.naya-line--cayena {
+  --line-color: #d6427f;
+  --line-soft: #fbe6ee;
+}
+
+.naya-line__media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  background: #fff;
+}
+
+.naya-line__badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: var(--line-color);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.naya-line__body {
+  display: flex;
+  flex-direction: column;
+  padding: 22px 24px 24px;
+}
+
+.naya-line__name {
+  margin: 0;
+  color: var(--line-color);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.naya-line h3 {
+  margin: 6px 0 0;
+  color: #0b3a3c;
+  font-size: clamp(22px, 2.4vw, 28px);
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.naya-line__text {
+  margin: 10px 0 0;
+  color: #3f5856;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+.naya-line__benefits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.naya-line__benefits li {
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: #fff;
+  color: #0b3a3c;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.naya-line__price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin-top: auto;
+  padding-top: 20px;
+}
+
+.naya-line__price span {
+  width: 100%;
+  color: #3f5856;
+  font-size: 13px;
+}
+
+.naya-line__price strong {
+  color: #0b3a3c;
+  font-size: 26px;
+  font-weight: 800;
+}
+
+.naya-line__price del {
+  color: #7d8c8a;
+  font-size: 15px;
+}
+
+.naya-line__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+  margin-top: 14px;
+}
+
+.naya-line__buy {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 48px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--line-color);
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: filter 150ms ease, transform 150ms ease;
+}
+
+.naya-line__buy:hover {
+  filter: brightness(0.92);
+  transform: translateY(-1px);
+}
+
+.naya-line__more {
+  border: 0;
+  background: none;
+  color: #0b3a3c;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+/* ---------- Catálogo ---------- */
+.storefront > section#catalogo.naya-shop {
+  width: min(100%, 1240px);
+  max-width: none;
+  margin-inline: auto;
+  padding: 56px clamp(16px, 4vw, 40px) 64px;
+  background: transparent;
+  color: #0b3a3c;
+  scroll-margin-top: 130px;
+}
+
+.naya-shop__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  justify-content: space-between;
+  gap: 16px 24px;
+  margin-bottom: 24px;
+}
+
+.naya-shop__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.naya-shop__tab {
+  padding: 9px 16px;
+  border: 1px solid rgb(11 58 60 / 22%);
+  border-radius: 999px;
+  background: #fff;
+  color: #0b3a3c;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.naya-shop__tab--active {
+  border-color: #0b3a3c;
+  background: #0b3a3c;
+  color: #fff;
+}
+
+.naya-shop__search {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-bottom: 18px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px;
+}
+
+.naya-shop__search button {
+  border: 0;
+  background: none;
+  color: #b87333;
+  font: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.naya-shop__empty {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  padding: 48px 16px;
+  color: #3f5856;
+  font-size: 15px;
+  text-align: center;
+}
+
+.naya-shop__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 28px 18px;
+}
+
+.naya-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.naya-card__media {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  background: #ece4d8;
+  cursor: pointer;
+}
+
+.naya-card__media img {
+  transition: transform 300ms ease;
+}
+
+.naya-card__media:hover img {
+  transform: scale(1.04);
+}
+
+.naya-card__info {
+  flex: 1;
+  padding: 12px 2px 0;
+}
+
+.naya-card__line {
+  margin: 0;
+  color: #8a5a2c;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.naya-card h3 {
+  margin: 4px 0 0;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.naya-card h3 button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: #0b3a3c;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.naya-card__price {
+  margin: 6px 0 0;
+  color: #0b3a3c;
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.naya-card__add {
+  min-height: 44px;
+  margin-top: 12px;
+  border: 1.5px solid #0b3a3c;
+  border-radius: 8px;
+  background: #fff;
+  color: #0b3a3c;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.naya-card__add:hover {
+  background: #0b3a3c;
+  color: #fff;
+}
+
+/* ---------- Instagram ---------- */
+.naya-ig {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr);
+  align-items: center;
+  gap: 32px;
+  width: min(100%, 1240px);
+  margin: 0 auto 56px;
+  padding: 36px clamp(16px, 4vw, 40px);
+}
+
+.naya-ig__copy p {
+  margin: 12px 0 20px;
+  color: #3f5856;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.naya-ig__copy .naya-button {
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.naya-ig__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.naya-ig__tile {
+  position: relative;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #ece4d8;
+}
+
+.naya-ig__tile img {
+  transition: transform 300ms ease;
+}
+
+.naya-ig__tile:hover img {
+  transform: scale(1.05);
+}
+
+/* ---------- Ajustes generales: menos "plantilla" ---------- */
+.naya-brand__copy h2 {
+  font-weight: 600;
+}
+
+.naya-button {
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+@media (max-width: 1023px) {
+  .naya-shop__grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .naya-ig { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 767px) {
+  .naya-lines { padding-top: 44px; }
+  .naya-lines__grid { grid-template-columns: 1fr; }
+  .naya-line__body { padding: 18px 18px 20px; }
+  .naya-shop__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px 12px; }
+  .naya-card h3 { font-size: 15px; }
+  .naya-card__add { min-height: 40px; font-size: 13px; }
+  .naya-ig__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .naya-marquee li { font-size: 12px; }
 }

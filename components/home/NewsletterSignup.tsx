@@ -17,9 +17,8 @@ export default function NewsletterSignup() {
     <section id="novedades" className="naya-newsletter">
       <div className="naya-newsletter__inner">
         <div>
-          <span className="naya-section-heading__eyebrow">Un momento para ti</span>
-          <h2>Recibe novedades botánicas</h2>
-          <p>Rituales, consejos de cuidado y noticias de NAYA directamente en tu correo.</p>
+          <h2>Entérate primero de las promos</h2>
+          <p>Descuentos, lanzamientos y consejos para tu cabello y tu piel. Nada de spam.</p>
         </div>
         <form className="naya-newsletter__form" onSubmit={handleSubmit}>
           <label className="sr-only" htmlFor="naya-newsletter-email">Tu correo electrónico</label>

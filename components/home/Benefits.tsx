@@ -3,18 +3,18 @@ import { CreditCard, Leaf, Truck } from "lucide-react";
 const pilares = [
   {
     icon: <Truck aria-hidden="true" />,
-    title: "Envíos a todo Colombia",
-    desc: "Llevamos tu ritual NAYA hasta la puerta de tu casa.",
+    title: "Envíos a toda Colombia",
+    desc: "Despachamos desde Medellín hasta la puerta de tu casa.",
   },
   {
     icon: <Leaf aria-hidden="true" />,
-    title: "Cuidado de origen natural",
-    desc: "Fórmulas inspiradas en extractos botánicos.",
+    title: "Hecho con extractos botánicos",
+    desc: "Romero, cayena y frutas en cada fórmula.",
   },
   {
     icon: <CreditCard aria-hidden="true" />,
-    title: "Transferencia o Nequi",
-    desc: "Opciones de pago para que elijas cómo comprar.",
+    title: "Paga como prefieras",
+    desc: "Tarjeta, PSE o Nequi con Wompi, o transferencia por WhatsApp.",
   },
 ];
 

@@ -1,32 +1,16 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Inter, Manrope, Nunito_Sans, Playfair_Display } from "next/font/google";
+import { DM_Sans, Fraunces } from "next/font/google";
 import "./globals.css";
 
-const manrope = Manrope({
+// Textos: DM Sans (cálida y legible). Títulos: Fraunces (serif con carácter).
+const dmSans = DM_Sans({
   subsets: ["latin"],
-  variable: "--font-manrope",
+  variable: "--font-body",
 });
 
-const nunitoSans = Nunito_Sans({
+const fraunces = Fraunces({
   subsets: ["latin"],
-  variable: "--font-nunito",
-});
-
-const cormorantGaramond = Cormorant_Garamond({
-  subsets: ["latin"],
-  variable: "--font-cormorant",
-  weight: ["400", "500", "600", "700"],
-});
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-});
-
-const playfairDisplay = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-playfair",
-  weight: ["400", "500", "600", "700"],
+  variable: "--font-display",
 });
 
 export const metadata: Metadata = {
@@ -41,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={`${manrope.variable} ${nunitoSans.variable} ${cormorantGaramond.variable} ${inter.variable} ${playfairDisplay.variable} font-sans`}>
+      <body className={`${dmSans.variable} ${fraunces.variable} font-sans`}>
         {children}
       </body>
     </html>
