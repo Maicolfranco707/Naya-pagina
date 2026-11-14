@@ -13,15 +13,14 @@ export default function NayaFooter() {
         <div className="naya-footer__links">
           <div>
             <h2>Explora</h2>
-            <a href="#mas-vendidos">Más vendidos</a>
+            <a href="#kits-rituales">Kits Cayena y Romero</a>
             <a href="#catalogo">Todos los productos</a>
-            <a href="#kits-rituales">Kits</a>
+            <a href="#naya-marca">Ampolletas</a>
           </div>
           <div>
-            <h2>Conoce NAYA</h2>
-            <a href="#naya-marca">Nuestra marca</a>
-            <a href="#resenas">Reseñas</a>
-            <a href="#naya-usada-por">Comunidad</a>
+            <h2>Información</h2>
+            <a href="/terminos">Términos y condiciones</a>
+            <a href="/privacidad">Política de privacidad</a>
           </div>
           <div className="naya-footer__social">
             <h2>Síguenos</h2>

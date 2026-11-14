@@ -2717,3 +2717,21 @@ body {
   .naya-ig__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .naya-marquee li { font-size: 12px; }
 }
+
+/* Ajustes tras revisión visual */
+.naya-line__media img {
+  object-position: center 68%;
+}
+
+.storefront .naya-trust__item h2 {
+  color: #0b3a3c;
+}
+
+.storefront .naya-trust__item p {
+  color: rgb(11 58 60 / 72%);
+}
+
+
+.naya-card__media:has(img.object-contain) {
+  background: #fff;
+}

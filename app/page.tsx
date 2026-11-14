@@ -711,7 +711,7 @@ export default function Home() {
                     alt={producto.nombre}
                     fill
                     sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 22vw"
-                    className="object-cover"
+                    className={esAmpolleta(producto) ? "object-contain" : "object-cover"}
                   />
                 </button>
                 <div className="naya-card__info">
