@@ -7,6 +7,8 @@ alter table public.orders add column if not exists discount_cop integer not null
 alter table public.orders add column if not exists coupon_code text;
 alter table public.orders drop constraint if exists orders_shipping_cop_check;
 alter table public.orders drop constraint if exists orders_total_cop_check;
+-- Regla original sin nombre (total = subtotal + envío): no contempla el descuento.
+alter table public.orders drop constraint if exists orders_check;
 alter table public.orders add constraint orders_shipping_cop_check check (shipping_cop >= 0);
 alter table public.orders add constraint orders_total_cop_check check (total_cop = subtotal_cop - discount_cop + shipping_cop);
 
