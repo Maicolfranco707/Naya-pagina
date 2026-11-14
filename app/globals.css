@@ -45,6 +45,14 @@ body {
   min-height: 100svh;
   place-items: center;
   padding: 32px 20px;
+  background: #f6efe6;
+}
+
+.storefront.account-page {
+  --store-green: #213a35;
+  --store-cream: #f6efe6;
+  --store-copper: #d9937f;
+  background: var(--store-cream);
 }
 
 .account-card {
@@ -309,6 +317,78 @@ body {
 .account-loading {
   color: #0b3a3c;
   font-size: 14px;
+}
+
+.storefront.account-page .account-logo,
+.storefront.account-page .account-card h1,
+.storefront.account-page .account-subtitle strong,
+.storefront.account-page .account-form > label,
+.storefront.account-page .account-legal a,
+.storefront.account-page .account-loading {
+  color: #213a35;
+}
+
+.storefront.account-page .account-eyebrow {
+  color: #d9937f;
+}
+
+.storefront.account-page .account-legal a {
+  text-decoration-color: #d9937f;
+}
+
+.account-tabs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.account-tab {
+  min-height: 44px;
+  padding: 8px 10px;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.account-field {
+  width: 100%;
+  min-height: 48px;
+  padding: 0 13px;
+  border: 1px solid #d8d5cc;
+  border-radius: 5px;
+  outline: 0;
+  color: #213a35;
+  background: #fff;
+  font: inherit;
+  font-size: 14px;
+}
+
+.account-field:focus {
+  border-color: #d9937f;
+  outline: 2px solid rgb(217 147 127 / 18%);
+}
+
+.storefront.account-page .account-input-wrap:focus-within,
+.storefront.account-page .account-code-input:focus {
+  border-color: #d9937f;
+  outline-color: rgb(217 147 127 / 18%);
+}
+
+.storefront.account-page .account-card {
+  border-color: rgb(33 58 53 / 12%);
+  box-shadow: 0 18px 55px rgb(33 58 53 / 8%);
+}
+
+.storefront.account-page .account-orders-note {
+  border-color: rgb(33 58 53 / 12%);
+  background: #f6efe6;
+}
+
+.storefront.account-page .account-home-link {
+  color: #213a35;
+  background: #d9937f;
 }
 
 .storefront > section#inicio {
@@ -1481,9 +1561,13 @@ body {
   align-items: center;
   gap: 7px;
   padding: 10px 12px;
+  border: 0;
   border-radius: 999px;
   color: #0b3a3c;
+  background: transparent;
+  font-family: inherit;
   font-size: 12px;
+  cursor: pointer;
   text-decoration: none;
   transition: background-color 160ms ease, color 160ms ease;
 }
@@ -1491,6 +1575,19 @@ body {
 .naya-header__account:hover {
   background: rgb(11 58 60 / 7%);
   color: #b87333;
+}
+
+.naya-header__auth-error {
+  position: absolute;
+  z-index: 20;
+  top: 100%;
+  right: 12px;
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 6px;
+  color: #a83232;
+  background: #fffdf9;
+  font-size: 12px;
 }
 
 #catalogo {

@@ -14,7 +14,7 @@ export async function GET() {
 
     if (error) {
       console.error("Supabase products query failed:", error.message);
-      return NextResponse.json({ error: "No se pudo cargar el catálogo." }, { status: 502 });
+      return NextResponse.json({ error: error.message }, { status: 502 });
     }
 
     return NextResponse.json(data.map((product) => ({

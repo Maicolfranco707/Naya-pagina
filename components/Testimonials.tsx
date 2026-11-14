@@ -32,7 +32,7 @@ export default function Testimonials() {
           </div>
 
           <p className="text-xl md:text-2xl text-naya-green/90 font-serif italic mb-8 leading-relaxed max-w-2xl mx-auto">
-            "{testimonios[current].text}"
+            &ldquo;{testimonios[current].text}&rdquo;
           </p>
 
           <div>

@@ -1,3 +1,5 @@
+import { WHATSAPP_NUMBER } from "@/utils/contacto";
+
 export default function NayaFooter() {
   return (
     <footer id="contacto" className="naya-footer">
@@ -31,7 +33,7 @@ export default function NayaFooter() {
             </a>
             <a
               className="naya-footer__contact"
-              href="https://wa.me/573042051221?text=Hola%20NAYA%2C%20quiero%20hacer%20una%20consulta."
+              href={`https://wa.me/${WHATSAPP_NUMBER}?text=Hola%20NAYA%2C%20quiero%20hacer%20una%20consulta.`}
               target="_blank"
               rel="noreferrer"
             >

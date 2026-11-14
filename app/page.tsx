@@ -11,6 +11,7 @@ import { CommunityGallery, CustomerReviews } from "@/components/home/CommunitySe
 import NayaFooter from "@/components/layout/NayaFooter";
 import NayaWhatsAppButton from "@/components/layout/NayaWhatsAppButton";
 import NewsletterSignup from "@/components/home/NewsletterSignup";
+import { WHATSAPP_NUMBER } from "@/utils/contacto";
 import type { Producto } from "@/utils/productos";
 
 const inter = Inter({
@@ -29,7 +30,6 @@ interface ItemCarrito {
   cantidad: number;
 }
 
-const numeroWhatsAppNaya = "573042051221";
 const mensajeAsesoriaMantequillas = "Hola NAYA, quiero asesoría sobre las mantequillas corporales.";
 const mensajeAsesoriaAmpolletas = "Hola NAYA, quiero asesoría sobre las ampolletas.";
 const VIDEO_AMPOLLETAS_TIENE_AUDIO = true;
@@ -365,7 +365,7 @@ export default function Home() {
               <a
                 className="naya-hero__whatsapp absolute z-10 hidden cursor-pointer md:block"
                 style={{ left: "9.5%", top: "76%", width: "21.5%", height: "11%" }}
-                href={`https://wa.me/${numeroWhatsAppNaya}?text=${encodeURIComponent(mensajeAsesoriaMantequillas)}`}
+                href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensajeAsesoriaMantequillas)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Recibe asesoría por WhatsApp"
@@ -373,7 +373,7 @@ export default function Home() {
               <a
                 className="naya-hero__whatsapp absolute z-10 block cursor-pointer md:hidden"
                 style={{ left: "22%", top: "52%", width: "56%", height: "6.5%" }}
-                href={`https://wa.me/${numeroWhatsAppNaya}?text=${encodeURIComponent(mensajeAsesoriaMantequillas)}`}
+                href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensajeAsesoriaMantequillas)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Recibe asesoría por WhatsApp"
@@ -600,7 +600,7 @@ export default function Home() {
             <div className="naya-brand__actions">
               <a
                 className="naya-button"
-                href={`https://wa.me/${numeroWhatsAppNaya}?text=${encodeURIComponent(mensajeAsesoriaAmpolletas)}`}
+                href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensajeAsesoriaAmpolletas)}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >

@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { startTransition, useState, useEffect } from "react";
 import Link from "next/link";
+import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
+import { WHATSAPP_NUMBER } from "@/utils/contacto";
 
 interface CartItem {
   id: number;
@@ -66,6 +68,48 @@ export default function CheckoutPage() {
     }
   }, []);
 
+  useEffect(() => {
+    let activo = true;
+
+    const cargarDatosCliente = async () => {
+      try {
+        const { data, error } = await createSupabaseBrowserClient().auth.getSession();
+        if (error) throw error;
+        const user = data.session?.user ?? null;
+        if (!activo || !user) return;
+
+        const metadata = user.user_metadata;
+        const nombreCompleto = [metadata.full_name, metadata.name, metadata.nombre]
+          .find((value): value is string => typeof value === "string" && value.trim().length > 0) ?? "";
+        const [nombrePorDefecto = "", ...apellidosPorDefecto] = nombreCompleto.trim().split(/\s+/);
+        const nombre = typeof metadata.first_name === "string" ? metadata.first_name : nombrePorDefecto;
+        const apellidos = typeof metadata.last_name === "string"
+          ? metadata.last_name
+          : apellidosPorDefecto.join(" ");
+        const telefono = typeof metadata.phone === "string"
+          ? metadata.phone
+          : typeof metadata.telefono === "string"
+            ? metadata.telefono
+            : "";
+
+        setFormData((actual) => ({
+          ...actual,
+          nombre: actual.nombre || nombre,
+          apellidos: actual.apellidos || apellidos,
+          telefono: actual.telefono || telefono,
+          email: actual.email || user.email || "",
+        }));
+      } catch (error) {
+        console.error("No se pudieron cargar los datos del cliente:", error);
+      }
+    };
+
+    void cargarDatosCliente();
+    return () => {
+      activo = false;
+    };
+  }, []);
+
   const subtotal = items.reduce((sum, item) => sum + item.precio * item.cantidad, 0);
   const total = subtotal + costoEnvio;
 
@@ -114,7 +158,7 @@ export default function CheckoutPage() {
       if (metodoPago === "whatsapp") {
         const detalle = items.map((item) => `- ${item.nombre} x ${item.cantidad}`).join("\n");
         const mensaje = `Hola NAYA, quiero confirmar el pedido ${result.reference}.\n\n${detalle}\n\nTotal: $${Number(result.total).toLocaleString("es-CO")} COP\nNombre: ${formData.nombre} ${formData.apellidos}\nTeléfono: ${formData.telefono}`;
-        window.location.assign(`https://wa.me/573042051221?text=${encodeURIComponent(mensaje)}`);
+        window.location.assign(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`);
       } else {
         router.push("/checkout/pago");
       }

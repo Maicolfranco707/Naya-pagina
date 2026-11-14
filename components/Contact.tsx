@@ -1,3 +1,5 @@
+import { WHATSAPP_NUMBER } from "@/utils/contacto";
+
 export default function Contact() {
   return (
     <section id="contacto" className="py-28 px-6 md:px-12 max-w-2xl mx-auto">
@@ -44,7 +46,7 @@ export default function Contact() {
         <div className="mt-10 pt-8 border-t border-naya-stone/40 text-center space-y-3">
           <p className="text-xs text-naya-green/60 uppercase tracking-widest font-semibold">Canales Oficiales</p>
           <div className="flex justify-center gap-8 text-xs font-semibold uppercase tracking-wider text-naya-green">
-            <a href="https://wa.me/573135731901" target="_blank" rel="noopener noreferrer" className="hover:text-naya-terracotta transition-colors">WhatsApp</a>
+            <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noopener noreferrer" className="hover:text-naya-terracotta transition-colors">WhatsApp</a>
             <a href="#" className="hover:text-naya-terracotta transition-colors">Instagram</a>
             <a href="#" className="hover:text-naya-terracotta transition-colors">TikTok</a>
           </div>

@@ -1,3 +1,5 @@
+import { WHATSAPP_NUMBER } from "@/utils/contacto";
+
 export interface CartItem {
   id: number;
   name: string;
@@ -6,7 +8,6 @@ export interface CartItem {
 }
 
 export const processWhatsAppCheckout = (cartItems: CartItem[], total: number) => {
-  const phoneNumber = "573135731901";
   let message = "🌿 *Nuevo Pedido - NAYA* 🌿\n\nHola, me gustaría adquirir los siguientes productos:\n";
   
   cartItems.forEach(item => {
@@ -20,5 +21,5 @@ export const processWhatsAppCheckout = (cartItems: CartItem[], total: number) =>
   message += `\n*Total a pagar:* ${formattedTotal}\n\nQuedo atento(a) para coordinar el pago y envío. ¡Muchas gracias!`;
   
   const encodedMessage = encodeURIComponent(message);
-  window.open(`https://wa.me/${phoneNumber}?text=${encodedMessage}`, '_blank');
+  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`, '_blank');
 };

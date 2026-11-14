@@ -58,8 +58,12 @@ export async function POST(request: Request) {
 
     // Si el pago fue aprobado, disparamos el envío del correo
     if (status === "APPROVED") {
-      await sendPaymentApprovedEmails(data.id);
-      console.log(`¡Correo de pago aprobado enviado con éxito para la orden ${data.id}!`);
+      try {
+        await sendPaymentApprovedEmails(data.id);
+        console.log(`¡Correo de pago aprobado enviado con éxito para la orden ${data.id}!`);
+      } catch (emailError) {
+        console.error("No se pudo enviar el correo de pago aprobado:", emailError);
+      }
     }
 
     return NextResponse.json({ received: true });

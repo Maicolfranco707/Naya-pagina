@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
-import { sendOrderPlacedEmails } from "@/utils/email/order-emails";
 
 export const runtime = "nodejs";
 
@@ -43,18 +42,6 @@ export async function POST(request: Request) {
         { error: "No se pudo guardar el pedido. Verifica el catálogo y vuelve a intentar." },
         { status: 400 }
       );
-    }
-
-    const orderId = (data as { id?: string } | null)?.id;
-    if (orderId && body.paymentProvider === "whatsapp") {
-      try {
-        await sendOrderPlacedEmails(orderId);
-      } catch (emailError) {
-        console.error(
-          "Order notification could not be sent:",
-          emailError instanceof Error ? emailError.message : "unknown error"
-        );
-      }
     }
 
     return NextResponse.json(data, { status: 201 });

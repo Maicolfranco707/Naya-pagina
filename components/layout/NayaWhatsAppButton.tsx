@@ -1,9 +1,10 @@
 import { MessageCircle } from "lucide-react";
+import { WHATSAPP_NUMBER } from "@/utils/contacto";
 
 export default function NayaWhatsAppButton() {
   return (
     <a
-      href="https://wa.me/573042051221?text=Hola%20NAYA%2C%20quiero%20recibir%20asesor%C3%ADa."
+      href={`https://wa.me/${WHATSAPP_NUMBER}?text=Hola%20NAYA%2C%20quiero%20recibir%20asesor%C3%ADa.`}
       target="_blank"
       rel="noreferrer"
       className="naya-whatsapp"

@@ -1,8 +1,11 @@
 "use client";
 
-import { ChevronDown, Menu, Search, ShoppingBag, UserRound, X } from "lucide-react";
+import { ChevronDown, LogOut, Menu, Search, ShoppingBag, UserRound, X } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import type { User } from "@supabase/supabase-js";
+import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
+import { WHATSAPP_NUMBER } from "@/utils/contacto";
 
 interface NavbarProps {
   cartCount: number;
@@ -38,6 +41,12 @@ function MenuLinks({
   ));
 }
 
+function getCustomerName(user: User | null) {
+  const fullName = user?.user_metadata?.full_name;
+  if (typeof fullName === "string" && fullName.trim()) return fullName.trim();
+  return user?.email?.split("@")[0] ?? "";
+}
+
 export default function Navbar({
   cartCount,
   onOpenCart,
@@ -48,6 +57,8 @@ export default function Navbar({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [openMenu, setOpenMenu] = useState<"cabello" | "piel" | null>(null);
+  const [accountName, setAccountName] = useState("");
+  const [authError, setAuthError] = useState("");
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -56,6 +67,46 @@ export default function Navbar({
 
     return () => window.clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    let activo = true;
+    let unsubscribe = () => {};
+
+    const comprobarSesion = async () => {
+      try {
+        const supabase = createSupabaseBrowserClient();
+        const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+          if (activo) setAccountName(getCustomerName(session?.user ?? null));
+        });
+        unsubscribe = () => authListener.subscription.unsubscribe();
+
+        const { data, error } = await supabase.auth.getSession();
+        if (error) throw error;
+        if (activo) setAccountName(getCustomerName(data.session?.user ?? null));
+      } catch (error) {
+        console.error("No se pudo comprobar la sesión del cliente:", error);
+        if (activo) setAuthError("No se pudo comprobar la sesión.");
+      }
+    };
+
+    void comprobarSesion();
+    return () => {
+      activo = false;
+      unsubscribe();
+    };
+  }, []);
+
+  const cerrarSesion = async () => {
+    setAuthError("");
+    try {
+      const { error } = await createSupabaseBrowserClient().auth.signOut();
+      if (error) throw error;
+      setAccountName("");
+    } catch (error) {
+      console.error("No se pudo cerrar la sesión del cliente:", error);
+      setAuthError("No se pudo cerrar la sesión. Intenta de nuevo.");
+    }
+  };
 
   const selectCollection = (term: string) => {
     onSearchChange(term);
@@ -88,7 +139,7 @@ export default function Navbar({
       <div className="naya-announcement" aria-live="polite">
         {announcementIndex === 0 ? (
           <a
-            href="https://wa.me/573042051221"
+            href={`https://wa.me/${WHATSAPP_NUMBER}`}
             target="_blank"
             rel="noreferrer"
             aria-label="Recibe asesoría por WhatsApp"
@@ -121,8 +172,19 @@ export default function Navbar({
           <div className="naya-header__actions">
             <Link href="/cuenta" className="naya-header__account" aria-label="Mi cuenta">
               <UserRound size={19} strokeWidth={1.7} aria-hidden="true" />
-              <span>Mi cuenta</span>
+              <span>{accountName || "Mi cuenta"}</span>
             </Link>
+            {accountName && (
+              <button
+                type="button"
+                className="naya-header__account"
+                onClick={() => void cerrarSesion()}
+                aria-label="Cerrar sesión"
+              >
+                <LogOut size={17} aria-hidden="true" />
+                <span>Cerrar sesión</span>
+              </button>
+            )}
             <button
               type="button"
               className="naya-header__cart"
@@ -134,6 +196,7 @@ export default function Navbar({
               <span className="naya-header__cart-count">{cartCount}</span>
             </button>
           </div>
+          {authError && <p className="naya-header__auth-error" role="alert">{authError}</p>}
         </div>
 
         {mobileSearchOpen && (

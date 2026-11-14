@@ -4,7 +4,7 @@ export default function Footer() {
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-12 text-center md:text-left items-center">
         <div>
           <h3 className="text-3xl font-serif font-bold tracking-[0.2em] mb-2">NAYA</h3>
-          <p className="text-xs text-naya-sand/70 italic font-serif">"Belleza que nace desde la raíz."</p>
+          <p className="text-xs text-naya-sand/70 italic font-serif">&ldquo;Belleza que nace desde la raíz.&rdquo;</p>
         </div>
         <div className="flex justify-center gap-8 text-xs font-medium uppercase tracking-widest text-naya-sand/90">
           <a href="#inicio" className="hover:text-naya-terracotta transition-colors">Inicio</a>
