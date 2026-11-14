@@ -379,20 +379,7 @@ export default function Home() {
                 aria-label="Recibe asesoría por WhatsApp"
               />
             </>
-          ) : (
-            <a
-              className="naya-hero__image-link"
-              href="#catalogo"
-              aria-label={`${imagenesHero[heroIndex].alt}. Explorar colección`}
-              onClick={(event) => {
-                if (Date.now() - heroSwipeTime.current < 500) {
-                  event.preventDefault();
-                  return;
-                }
-                seleccionarColeccion(imagenesHero[heroIndex].busqueda);
-              }}
-            />
-          )}
+          ) : null}
         </div>
 
         <div className="naya-hero__arrows" aria-label="Controles del carrusel">
