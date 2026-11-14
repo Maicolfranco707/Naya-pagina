@@ -115,13 +115,12 @@ const INSTAGRAM_URL = "https://www.instagram.com/naya_renovacion/";
 // Galería #RitualNAYA (como #LAMOUROSA): cada foto abre su publicación de Instagram.
 // Para cambiar una: pega el enlace del post en `url` y la foto (guárdala en public/naya_foto/ig/) en `src`.
 // `video` (opcional): archivo .mp4 en public/naya_foto/ig/; se reproduce en silencio y en bucle, y `src` es la portada.
-// TODO: reemplazar `src` por la portada original de cada publicación.
 const galeriaRitual: Array<{ url: string; etiqueta: string; src: string; posicion: string; video?: string }> = [
   { url: "https://www.instagram.com/reel/DevAICsAv4Q/", etiqueta: "¿Qué mantequilla eres?", src: "/naya_foto/ig/mantequillas.jpg", posicion: "center 40%", video: "/naya_foto/ig/mantequillas.mp4" },
-  { url: "https://www.instagram.com/p/Dfab9wfAhEh/", etiqueta: "Adiós a la caída", src: "/naya_foto/shampooromero.png", posicion: "center 45%" },
-  { url: "https://www.instagram.com/p/DfnvLnuIMGO/", etiqueta: "Línea Cayena", src: "/naya_foto/kit-cayena.png", posicion: "center 55%" },
-  { url: "https://www.instagram.com/reel/DffMq5pAWv-/", etiqueta: "Rutina de una clienta", src: "/naya_foto/shampoocayena.png", posicion: "center 45%" },
-  { url: "https://www.instagram.com/p/DfPr4-kILd4/", etiqueta: "El aliado de tu shampoo", src: "/naya_foto/kit-romero.png", posicion: "center 55%" },
+  { url: "https://www.instagram.com/p/DfnvLnuIMGO/", etiqueta: "El poder de la Cayena", src: "/naya_foto/ig/cayena-flor.jpg", posicion: "center 0%" },
+  { url: "https://www.instagram.com/p/DbweWRtoCC2/", etiqueta: "Tips para tu piel en verano", src: "/naya_foto/ig/tips-verano.jpg", posicion: "center 0%" },
+  { url: "https://www.instagram.com/p/DfPr4-kILd4/", etiqueta: "Nutrición o Crecimiento", src: "/naya_foto/ig/ampolletas.jpg", posicion: "center 30%" },
+  { url: "https://www.instagram.com/p/Dekj1MWILML/", etiqueta: "¿Tu piel pide auxilio?", src: "/naya_foto/ig/piel-auxilio.jpg", posicion: "center 28%" },
   { url: "https://www.instagram.com/p/De8ARoIg7w0/", etiqueta: "Ritual de hidratación", src: "/naya_foto/ig/ampolleta-nutricion.jpg", posicion: "center 45%", video: "/naya_foto/ig/ampolleta-nutricion.mp4" },
 ];
 
