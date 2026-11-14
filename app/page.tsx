@@ -112,15 +112,16 @@ const lineasCapilares = [
 
 const INSTAGRAM_URL = "https://www.instagram.com/naya_renovacion/";
 
-// Galería #RitualNAYA (estilo #LAMOUROSA): cada foto abre su producto.
-// TODO: cambiar `src` por fotos reales de uso (clientas, tutoriales, mesa de baño) cuando estén.
+// Galería #RitualNAYA (como #LAMOUROSA): cada foto abre su publicación de Instagram.
+// Para cambiar una: pega el enlace del post en `url` y la foto (guárdala en public/naya_foto/ig/) en `src`.
+// TODO: reemplazar `src` por la portada original de cada publicación.
 const galeriaRitual = [
-  { productoId: 12, etiqueta: "Kit Cayena", src: "/naya_foto/kit-cayena.png", posicion: "center 55%" },
-  { productoId: 3, etiqueta: "Shampoo de Romero", src: "/naya_foto/shampooromero.png", posicion: "center 45%" },
-  { productoId: 9, etiqueta: "Mantequilla Cherry", src: "/naya_foto/cherry.png", posicion: "center 60%" },
-  { productoId: 7, etiqueta: "Mantequilla Kiwi", src: "/naya_foto/kiwi.png", posicion: "center 60%" },
-  { productoId: 1, etiqueta: "Shampoo de Cayena", src: "/naya_foto/shampoocayena.png", posicion: "center 45%" },
-  { productoId: 11, etiqueta: "Kit Romero", src: "/naya_foto/kit-romero.png", posicion: "center 55%" },
+  { url: "https://www.instagram.com/p/DfnvLnuIMGO/", etiqueta: "Línea Cayena", src: "/naya_foto/kit-cayena.png", posicion: "center 55%" },
+  { url: "https://www.instagram.com/p/Dfab9wfAhEh/", etiqueta: "Adiós a la caída", src: "/naya_foto/shampooromero.png", posicion: "center 45%" },
+  { url: "https://www.instagram.com/reel/DevAICsAv4Q/", etiqueta: "¿Qué mantequilla eres?", src: "/naya_foto/cherry.png", posicion: "center 60%" },
+  { url: "https://www.instagram.com/p/De8ARoIg7w0/", etiqueta: "Ampolleta de Nutrición", src: "/naya_foto/ampolletarosa.png", posicion: "center 50%" },
+  { url: "https://www.instagram.com/reel/DffMq5pAWv-/", etiqueta: "Rutina de una clienta", src: "/naya_foto/shampoocayena.png", posicion: "center 45%" },
+  { url: "https://www.instagram.com/p/DfPr4-kILd4/", etiqueta: "El aliado de tu shampoo", src: "/naya_foto/kit-romero.png", posicion: "center 55%" },
 ];
 
 function textoNormalizado(texto: string): string {
@@ -760,21 +761,21 @@ export default function Home() {
         <h2 id="naya-ritual-title">#RitualNAYA</h2>
         <div className="naya-ritual__grid">
           {galeriaRitual.map((foto) => {
-            const producto = productos.find((item) => item.id === foto.productoId);
             return (
-              <button
-                key={foto.src}
-                type="button"
+              <a
+                key={foto.url}
+                href={foto.url}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="naya-ritual__tile"
-                onClick={() => producto ? abrirModal(producto) : verCategoria("Todos")}
-                aria-label={`Ver ${foto.etiqueta}`}
+                aria-label={`${foto.etiqueta}, ver en Instagram`}
               >
                 <Image src={foto.src} alt="" fill sizes="(max-width: 767px) 50vw, 33vw" className="object-cover" style={{ objectPosition: foto.posicion }} />
                 <span className="naya-ritual__label">
                   <small>NAYA</small>
                   {foto.etiqueta}
                 </span>
-              </button>
+              </a>
             );
           })}
         </div>

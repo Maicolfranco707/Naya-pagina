@@ -3641,3 +3641,4 @@ div.naya-co__option { cursor: default; }
   .naya-ritual__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
   .naya-ritual__tile { aspect-ratio: 4 / 5; }
 }
+.naya-ritual__tile { display: block; }
