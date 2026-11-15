@@ -50,7 +50,7 @@ export interface InfoProducto {
 // TODO (NAYA): revisar estos textos con la información real de cada producto.
 const SHAMPOO = "Aplica sobre el cabello húmedo y masajea el cuero cabelludo con las yemas de los dedos durante 1 a 2 minutos. Enjuaga con abundante agua y repite si lo necesitas.";
 const ACONDICIONADOR = "Después del shampoo, retira el exceso de agua y aplica de medios a puntas. Deja actuar de 2 a 3 minutos, desenreda con los dedos y enjuaga.";
-const MANTEQUILLA = "Aplica sobre la piel limpia y seca, idealmente después de la ducha. Masajea con movimientos circulares hasta que se absorba, con énfasis en codos, rodillas, manos y piernas.";
+const MANTEQUILLA = "Aplica sobre la piel limpia y seca, idealmente después de la ducha. Masajea con movimientos circulares hasta que se absorba, sobre todo en codos, rodillas, manos y piernas.";
 
 export const INFO_PRODUCTOS: Record<number, InfoProducto> = {
   1: { // Shampoo de Cayena
