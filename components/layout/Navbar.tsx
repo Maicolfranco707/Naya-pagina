@@ -1,8 +1,8 @@
 "use client";
 
-import { ChevronDown, LogOut, Menu, Search, ShoppingBag, UserRound, X } from "lucide-react";
+import { ChevronDown, Menu, Search, ShoppingBag, UserRound, X } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
 import { WHATSAPP_NUMBER } from "@/utils/contacto";
@@ -41,6 +41,12 @@ function MenuLinks({
   ));
 }
 
+const ANUNCIOS = [
+  "10% OFF en tu primera compra con BIENVENIDA10",
+  "Envío gratis en compras desde $150.000",
+  "Recibe asesoría por WhatsApp",
+];
+
 function getCustomerName(user: User | null) {
   const fullName = user?.user_metadata?.full_name;
   if (typeof fullName === "string" && fullName.trim()) return fullName.trim();
@@ -55,14 +61,15 @@ export default function Navbar({
 }: NavbarProps) {
   const [announcementIndex, setAnnouncementIndex] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchRef = useRef<HTMLInputElement>(null);
   const [openMenu, setOpenMenu] = useState<"cabello" | "piel" | null>(null);
   const [accountName, setAccountName] = useState("");
   const [authError, setAuthError] = useState("");
 
   useEffect(() => {
     const timer = window.setInterval(() => {
-      setAnnouncementIndex((current) => (current + 1) % 2);
+      setAnnouncementIndex((current) => (current + 1) % ANUNCIOS.length);
     }, 4500);
 
     return () => window.clearInterval(timer);
@@ -96,17 +103,9 @@ export default function Navbar({
     };
   }, []);
 
-  const cerrarSesion = async () => {
-    setAuthError("");
-    try {
-      const { error } = await createSupabaseBrowserClient().auth.signOut();
-      if (error) throw error;
-      setAccountName("");
-    } catch (error) {
-      console.error("No se pudo cerrar la sesión del cliente:", error);
-      setAuthError("No se pudo cerrar la sesión. Intenta de nuevo.");
-    }
-  };
+  useEffect(() => {
+    if (searchOpen) searchRef.current?.focus();
+  }, [searchOpen]);
 
   const selectCollection = (term: string) => {
     onSearchChange(term);
@@ -121,144 +120,145 @@ export default function Navbar({
     document.getElementById("kits-rituales")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const searchInput = (
-    <label className="naya-nav__search">
-      <Search aria-hidden="true" size={17} />
-      <input
-        type="search"
-        value={searchTerm}
-        onChange={(event) => onSearchChange(event.target.value)}
-        placeholder="Buscar productos"
-        aria-label="Buscar productos"
-      />
-    </label>
+  const irAlCatalogo = () => {
+    document.getElementById("catalogo")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const navLinks = (
+    <>
+      <div className="nh-nav__group">
+        <button
+          type="button"
+          className="nh-nav__link"
+          aria-expanded={openMenu === "cabello"}
+          onClick={() => setOpenMenu(openMenu === "cabello" ? null : "cabello")}
+        >
+          Cabello <ChevronDown size={13} aria-hidden="true" />
+        </button>
+        {openMenu === "cabello" && (
+          <div className="nh-nav__dropdown">
+            <MenuLinks links={cabelloLinks} onSelect={selectCollection} />
+          </div>
+        )}
+      </div>
+      <div className="nh-nav__group">
+        <button
+          type="button"
+          className="nh-nav__link"
+          aria-expanded={openMenu === "piel"}
+          onClick={() => setOpenMenu(openMenu === "piel" ? null : "piel")}
+        >
+          Piel <ChevronDown size={13} aria-hidden="true" />
+        </button>
+        {openMenu === "piel" && (
+          <div className="nh-nav__dropdown">
+            <MenuLinks links={[{ label: "Mantequillas", term: "Mantequilla" }]} onSelect={selectCollection} />
+          </div>
+        )}
+      </div>
+      <button type="button" className="nh-nav__link" onClick={goToKits}>Kits</button>
+      <button type="button" className="nh-nav__link" onClick={() => selectCollection("")}>Todos</button>
+    </>
   );
 
   return (
     <>
-      <div className="naya-announcement" aria-live="polite">
-        {announcementIndex === 0 ? (
-          <a
-            href={`https://wa.me/${WHATSAPP_NUMBER}`}
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Recibe asesoría por WhatsApp"
-          >
-            Recibe asesoría por WhatsApp
-          </a>
+      <div className="nh-announcement" aria-live="polite">
+        {announcementIndex === 2 ? (
+          <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer">{ANUNCIOS[2]}</a>
         ) : (
-          <span>Envío gratis en compras desde $150.000</span>
+          <span key={announcementIndex}>{ANUNCIOS[announcementIndex]}</span>
         )}
       </div>
 
-      <header className="naya-header">
-        <div className="naya-header__top">
-          <div className="naya-header__search-desktop">{searchInput}</div>
-
-          <button
-            type="button"
-            className="naya-header__icon naya-header__mobile-search"
-            onClick={() => setMobileSearchOpen((open) => !open)}
-            aria-label={mobileSearchOpen ? "Cerrar búsqueda" : "Abrir búsqueda"}
-            aria-expanded={mobileSearchOpen}
-          >
-            {mobileSearchOpen ? <X size={20} /> : <Search size={20} />}
-          </button>
-
-          <a href="#inicio" className="naya-header__logo" aria-label="NAYA, ir al inicio">
-            NAYA
-          </a>
-
-          <div className="naya-header__actions">
-            <Link href="/cuenta" className="naya-header__account" aria-label="Mi cuenta">
-              <UserRound size={19} strokeWidth={1.7} aria-hidden="true" />
-              <span>{accountName || "Mi cuenta"}</span>
-            </Link>
-            {accountName && (
-              <button
-                type="button"
-                className="naya-header__account"
-                onClick={() => void cerrarSesion()}
-                aria-label="Cerrar sesión"
-              >
-                <LogOut size={17} aria-hidden="true" />
-                <span>Cerrar sesión</span>
-              </button>
-            )}
+      <header className="nh">
+        <div className="nh__row">
+          <div className="nh__left">
             <button
               type="button"
-              className="naya-header__cart"
+              className="nh__icon nh__only-mobile"
+              onClick={() => { setMobileMenuOpen((open) => !open); setSearchOpen(false); }}
+              aria-label={mobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
+              aria-expanded={mobileMenuOpen}
+            >
+              {mobileMenuOpen ? <X size={22} strokeWidth={1.6} /> : <Menu size={22} strokeWidth={1.6} />}
+            </button>
+            <button
+              type="button"
+              className="nh__icon nh__only-mobile"
+              onClick={() => { setSearchOpen((open) => !open); setMobileMenuOpen(false); }}
+              aria-label="Buscar productos"
+            >
+              <Search size={21} strokeWidth={1.6} />
+            </button>
+            <nav className="nh-nav nh__only-desktop" aria-label="Navegación principal">{navLinks}</nav>
+          </div>
+
+          <a href="#inicio" className="nh__logo" aria-label="NAYA, ir al inicio">NAYA</a>
+
+          <div className="nh__right">
+            <button
+              type="button"
+              className="nh__icon nh__only-desktop"
+              onClick={() => setSearchOpen((open) => !open)}
+              aria-label="Buscar productos"
+              aria-expanded={searchOpen}
+            >
+              <Search size={21} strokeWidth={1.6} />
+            </button>
+            <Link href="/cuenta" className="nh__icon" aria-label={accountName ? `Mi cuenta (${accountName})` : "Mi cuenta"} title={accountName || "Mi cuenta"}>
+              <UserRound size={21} strokeWidth={1.6} aria-hidden="true" />
+              {accountName && <span className="nh__dot" aria-hidden="true" />}
+            </Link>
+            <button
+              type="button"
+              className="nh__icon"
               onClick={onOpenCart}
               aria-label={`Abrir carrito, ${cartCount} productos`}
             >
-              <ShoppingBag size={19} strokeWidth={1.7} aria-hidden="true" />
-              <span className="naya-header__cart-label">Carrito</span>
-              <span className="naya-header__cart-count">{cartCount}</span>
+              <ShoppingBag size={21} strokeWidth={1.6} aria-hidden="true" />
+              {cartCount > 0 && <span className="nh__badge">{cartCount}</span>}
             </button>
           </div>
           {authError && <p className="naya-header__auth-error" role="alert">{authError}</p>}
         </div>
 
-        {mobileSearchOpen && (
-          <div className="naya-header__mobile-search-panel">{searchInput}</div>
+        {searchOpen && (
+          <div className="nh-search">
+            <form
+              className="nh-search__inner"
+              onSubmit={(event) => { event.preventDefault(); setSearchOpen(false); irAlCatalogo(); }}
+            >
+              <Search size={18} aria-hidden="true" />
+              <input
+                ref={searchRef}
+                type="search"
+                value={searchTerm}
+                onChange={(event) => onSearchChange(event.target.value)}
+                placeholder="¿Qué estás buscando? Shampoo, ampolleta, mantequilla…"
+                aria-label="Buscar productos"
+              />
+              <button type="button" className="nh__icon" onClick={() => setSearchOpen(false)} aria-label="Cerrar búsqueda">
+                <X size={20} strokeWidth={1.6} />
+              </button>
+            </form>
+          </div>
         )}
 
-        <nav className="naya-nav" aria-label="Navegación principal">
-          <button
-            type="button"
-            className="naya-nav__mobile-toggle"
-            onClick={() => setMobileMenuOpen((open) => !open)}
-            aria-expanded={mobileMenuOpen}
-            aria-controls="naya-nav-links"
-          >
-            {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
-            <span>{mobileMenuOpen ? "Cerrar" : "Menú"}</span>
-          </button>
-
-          <div
-            id="naya-nav-links"
-            className={`naya-nav__links${mobileMenuOpen ? " naya-nav__links--open" : ""}`}
-          >
-            <div className="naya-nav__group">
-              <button
-                type="button"
-                className="naya-nav__trigger"
-                aria-expanded={openMenu === "cabello"}
-                onClick={() => setOpenMenu(openMenu === "cabello" ? null : "cabello")}
-              >
-                Cabello <ChevronDown size={13} aria-hidden="true" />
-              </button>
-              {openMenu === "cabello" && (
-                <div className="naya-nav__dropdown">
-                  <MenuLinks links={cabelloLinks} onSelect={selectCollection} />
-                </div>
-              )}
-            </div>
-
-            <div className="naya-nav__group">
-              <button
-                type="button"
-                className="naya-nav__trigger"
-                aria-expanded={openMenu === "piel"}
-                onClick={() => setOpenMenu(openMenu === "piel" ? null : "piel")}
-              >
-                Piel <ChevronDown size={13} aria-hidden="true" />
-              </button>
-              {openMenu === "piel" && (
-                <div className="naya-nav__dropdown">
-                  <MenuLinks links={[{ label: "Mantequillas", term: "Mantequilla" }]} onSelect={selectCollection} />
-                </div>
-              )}
-            </div>
-
-            <button type="button" className="naya-nav__link" onClick={goToKits}>
-              Kits
-            </button>
-            <button type="button" className="naya-nav__link" onClick={goToKits}>
-              Ofertas
-            </button>
-          </div>
-        </nav>
+        {mobileMenuOpen && (
+          <nav className="nh-mobile" aria-label="Menú">
+            <p className="nh-mobile__title">Cabello</p>
+            <MenuLinks links={cabelloLinks} onSelect={selectCollection} />
+            <p className="nh-mobile__title">Piel</p>
+            <MenuLinks links={[{ label: "Mantequillas", term: "Mantequilla" }]} onSelect={selectCollection} />
+            <p className="nh-mobile__title">Tienda</p>
+            <button type="button" className="naya-nav__dropdown-link" onClick={goToKits}>Kits</button>
+            <button type="button" className="naya-nav__dropdown-link" onClick={() => selectCollection("")}>Todos los productos</button>
+            <Link href="/cuenta" className="naya-nav__dropdown-link" onClick={() => setMobileMenuOpen(false)}>
+              {accountName ? `Mi cuenta (${accountName})` : "Iniciar sesión / Mi cuenta"}
+            </Link>
+          </nav>
+        )}
       </header>
     </>
   );
