@@ -78,7 +78,6 @@ export const INFO_PRODUCTOS: Record<number, InfoProducto> = {
     beneficios: ["Hidratación profunda", "Con vitamina E", "Aroma tropical a coco"],
     modoUso: MANTEQUILLA,
     idealPara: "Piel seca o áspera que necesita hidratación extra.",
-    galeria: ["/naya_foto/mantequilla-mano.jpg"],
   },
   6: { // Ampolleta de Crecimiento
     beneficios: ["Ayuda a potenciar el crecimiento", "A base de ácido hialurónico, biotina y romero", "Deja el cabello suave y con brillo"],
@@ -89,19 +88,16 @@ export const INFO_PRODUCTOS: Record<number, InfoProducto> = {
     beneficios: ["Hidratación profunda", "Con vitamina E", "Aroma fresco y frutal"],
     modoUso: MANTEQUILLA,
     idealPara: "Piel seca o áspera que necesita hidratación extra.",
-    galeria: ["/naya_foto/mantequilla-mano.jpg"],
   },
   8: { // Mantequilla Uva
     beneficios: ["Hidratación profunda", "Con vitamina E", "Aroma intenso y especial"],
     modoUso: MANTEQUILLA,
     idealPara: "Piel seca o áspera que necesita hidratación extra.",
-    galeria: ["/naya_foto/mantequilla-mano.jpg"],
   },
   9: { // Mantequilla Cherry
     beneficios: ["Hidratación profunda", "Con vitamina E", "Aroma dulce a cereza"],
     modoUso: MANTEQUILLA,
     idealPara: "Piel seca o áspera que necesita hidratación extra.",
-    galeria: ["/naya_foto/mantequilla-mano.jpg"],
   },
   10: { // Ampolleta de Nutrición
     beneficios: ["Nutrición e hidratación profunda al instante"],
