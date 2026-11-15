@@ -45,10 +45,10 @@ export default function LinksPage() {
     <main className="nl">
       <div className="nl__card">
         <div className="nl__avatar">
-          <Image src="/naya_foto/naya-logo.png" alt="Logo de NAYA" fill sizes="110px" className="object-cover" priority />
+          <Image src="/naya_foto/naya-logo.png" alt="Logo de NAYA" fill sizes="190px" className="object-cover" priority />
         </div>
         <h1 className="nl__name">NAYA Renovación</h1>
-        <p className="nl__tag">Cuidado natural para tu cabello y tu piel. Medellín, Colombia.</p>
+        <p className="nl__tag">Cuidado natural · Medellín, Colombia</p>
 
         <div className="nl__social">
           <a href={WHATSAPP} target="_blank" rel="noreferrer" aria-label="WhatsApp de NAYA"><IconoWhatsApp /></a>

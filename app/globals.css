@@ -4822,18 +4822,18 @@ a.nh-mega__title:hover { color: #b86b2e; }
 }
 
 /* ── Página de links (para la bio de Instagram) ── */
-.nl { min-height: 100vh; display: flex; justify-content: center; padding: 40px 18px 40px; background: #1f3b36; }
+.nl { min-height: 100vh; display: flex; justify-content: center; padding: 40px 18px 40px; background: #1d3a35; }
 .nl__card { width: min(100%, 480px); display: flex; flex-direction: column; align-items: center; text-align: center; }
-.nl__avatar { position: relative; width: 104px; aspect-ratio: 1; overflow: hidden; border-radius: 50%; }
-.nl__name { margin: 14px 0 4px; color: #f3e9dc; font-size: 18px; font-weight: 700; }
-.nl__tag { margin: 0 0 14px; color: rgb(243 233 220 / 75%); font-size: 14px; }
+.nl__avatar { position: relative; width: 190px; aspect-ratio: 1; margin: -24px 0 -30px; }
+.nl__name { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.nl__tag { position: relative; z-index: 1; margin: 0 0 16px; color: rgb(243 233 220 / 75%); font-size: 14px; }
 .nl__social { display: flex; gap: 18px; margin-bottom: 24px; color: #f3e9dc; }
 .nl__social a { color: inherit; }
 .nl__social a:hover { opacity: .75; }
 .nl__links { display: grid; gap: 12px; width: 100%; margin: 0; padding: 0; list-style: none; }
 .nl__link {
   display: block; padding: 16px 20px; border-radius: 10px; background: #f3e9dc;
-  color: #1f3b36; font-size: 15px; font-weight: 600; text-decoration: none; transition: background-color 150ms ease;
+  color: #1d3a35; font-size: 15px; font-weight: 600; text-decoration: none; transition: background-color 150ms ease;
 }
 .nl__link:hover { background: #fff; }
 .nl__foot { margin: 28px 0 0; color: rgb(243 233 220 / 55%); font-size: 12.5px; }
