@@ -12,8 +12,6 @@ import ProductoCard from "@/components/shop/ProductoCard";
 import { IDS_FAVORITOS, urlProducto } from "@/utils/catalogo";
 import { useRouter } from "next/navigation";
 import MantequillasBanner from "@/components/home/MantequillasBanner";
-import RizosBanner from "@/components/home/RizosBanner";
-import RitualBanner from "@/components/home/RitualBanner";
 import { WHATSAPP_NUMBER } from "@/utils/contacto";
 import type { Producto } from "@/utils/productos";
 import { ENVIO_GRATIS_DESDE } from "@/utils/envios";
@@ -48,11 +46,10 @@ const AMPOLLETAS = [
 ];
 
 // El primer banner es la oferta (PromoBanner, hecho en código); los demás son imágenes.
-const imagenesHero: Array<{ id: number; promo?: boolean; mantequillas?: boolean; rizos?: boolean; ritual?: boolean; escritorio: string; celular: string; alt: string; busqueda: string }> = [
+const imagenesHero: Array<{ id: number; promo?: boolean; mantequillas?: boolean; escritorio: string; celular: string; alt: string; busqueda: string }> = [
   { id: 0, promo: true, escritorio: "", celular: "", alt: "10% OFF en tu primera compra con BIENVENIDA10", busqueda: "" },
   {
     id: 1,
-    rizos: true,
     escritorio: "/naya_foto/modelo3escritorio.png",
     celular: "/naya_foto/modelo3Movil.png",
     alt: "NAYA: Rizos que hablan de ti",
@@ -60,7 +57,6 @@ const imagenesHero: Array<{ id: number; promo?: boolean; mantequillas?: boolean;
   },
   {
     id: 2,
-    ritual: true,
     escritorio: "/naya_foto/modelo4escritorio.png",
     celular: "/naya_foto/modelo4Movil.png",
     alt: "NAYA: cuidado botánico para tu cabello",
@@ -468,14 +464,6 @@ export default function Home() {
         {imagenesHero[heroIndex].promo ? (
           <div className="naya-hero__link naya-hero__picture">
             <PromoBanner onShop={() => verCategoria("Todos")} />
-          </div>
-        ) : imagenesHero[heroIndex].rizos ? (
-          <div className="naya-hero__link naya-hero__picture">
-            <RizosBanner onShop={() => verCategoria("Línea Capilar")} />
-          </div>
-        ) : imagenesHero[heroIndex].ritual ? (
-          <div className="naya-hero__link naya-hero__picture">
-            <RitualBanner onShop={() => verCategoria("Todos")} onBody={() => verCategoria("Línea Frutal")} />
           </div>
         ) : imagenesHero[heroIndex].mantequillas ? (
           <div className="naya-hero__link naya-hero__picture">
