@@ -246,7 +246,7 @@ export default function CheckoutPage() {
       const response = await fetch("/api/cupones/validar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: codigo, subtotal: monto, email: formData.email }),
+        body: JSON.stringify({ code: codigo, subtotal: monto, email: formData.email, phone: formData.telefono, identification: formData.identificacion }),
       });
       const result = await response.json() as { valid?: boolean; code?: string; discount?: number; message?: string };
       if (result.valid && result.code) {

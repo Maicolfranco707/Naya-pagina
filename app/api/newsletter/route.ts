@@ -1,9 +1,14 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
+import { limitarSolicitudes } from "@/utils/rate-limit";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
+  // Máximo 5 suscripciones por hora por visitante
+  const bloqueado = await limitarSolicitudes(request, "newsletter", 5, 3600);
+  if (bloqueado) return bloqueado;
+
   const body = await request.json().catch(() => null) as { email?: unknown } | null;
   const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
 

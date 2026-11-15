@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/utils/supabase/server";
+import { limitarSolicitudes } from "@/utils/rate-limit";
 
 export const runtime = "nodejs";
 
@@ -11,6 +12,10 @@ interface CreateOrderBody {
 }
 
 export async function POST(request: Request) {
+  // Máximo 8 pedidos cada 10 minutos por visitante
+  const bloqueado = await limitarSolicitudes(request, "orders", 8, 600);
+  if (bloqueado) return bloqueado;
+
   let body: CreateOrderBody;
   try {
     body = await request.json() as CreateOrderBody;
