@@ -155,12 +155,14 @@ export default function Navbar({
         {openMenu === "piel" && (
           <div className="nh-nav__dropdown">
             <MenuLinks links={[{ label: "Mantequillas", term: "Mantequilla" }]} onSelect={selectCollection} />
+            {onOpenQuiz && (
+              <button type="button" className="naya-nav__dropdown-link nh-nav__quiz" onClick={() => { setOpenMenu(null); onOpenQuiz(); }}>✨ ¿Qué mantequilla eres?</button>
+            )}
           </div>
         )}
       </div>
       <button type="button" className="nh-nav__link" onClick={goToKits}>Kits</button>
       <button type="button" className="nh-nav__link" onClick={() => selectCollection("")}>Todos</button>
-      {onOpenQuiz && <button type="button" className="nh-nav__link nh-nav__link--accent" onClick={onOpenQuiz}>Haz el test</button>}
     </>
   );
 
@@ -254,12 +256,13 @@ export default function Navbar({
             <MenuLinks links={cabelloLinks} onSelect={selectCollection} />
             <p className="nh-mobile__title">Piel</p>
             <MenuLinks links={[{ label: "Mantequillas", term: "Mantequilla" }]} onSelect={selectCollection} />
+            {onOpenQuiz && (
+              <button type="button" className="naya-nav__dropdown-link nh-nav__quiz" onClick={() => { setMobileMenuOpen(false); onOpenQuiz(); }}>✨ ¿Qué mantequilla eres? Haz el test</button>
+            )}
             <p className="nh-mobile__title">Tienda</p>
             <button type="button" className="naya-nav__dropdown-link" onClick={goToKits}>Kits</button>
             <button type="button" className="naya-nav__dropdown-link" onClick={() => selectCollection("")}>Todos los productos</button>
-            {onOpenQuiz && (
-              <button type="button" className="naya-nav__dropdown-link" onClick={() => { setMobileMenuOpen(false); onOpenQuiz(); }}>✨ Descubre tu rutina (test)</button>
-            )}
+
             <Link href="/cuenta" className="naya-nav__dropdown-link" onClick={() => setMobileMenuOpen(false)}>
               {accountName ? `Mi cuenta (${accountName})` : "Iniciar sesión / Mi cuenta"}
             </Link>

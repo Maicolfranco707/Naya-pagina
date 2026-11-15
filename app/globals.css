@@ -4390,3 +4390,12 @@ div.naya-co__option { cursor: default; }
   .nq__option { padding: 12px 14px; }
 }
 @media (prefers-reduced-motion: reduce) { .nq, .nq__panel, .nq__body { animation: none; } }
+.nh-nav__quiz { color: #b86b2e !important; font-weight: 700; }
+.nq__step { margin: 14px 0 0; color: #6b7d7b; font-size: 12.5px; text-align: center; }
+.nq__step + h2 { margin-top: 4px; }
+.nq__result { display: grid; grid-template-columns: 150px 1fr; gap: 16px; align-items: center; margin-top: 18px; padding: 12px; border: 1px solid #ece2d4; border-radius: 16px; background: #fff; }
+.nq__result-photo { position: relative; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 12px; }
+.nq__result strong { display: block; font-size: 17px; }
+.nq__result small { display: block; margin: 6px 0 8px; color: #3f5856; font-size: 13.5px; }
+.nq__result b { font-size: 18px; }
+@media (max-width: 520px) { .nq__result { grid-template-columns: 120px 1fr; } }
