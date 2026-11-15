@@ -7,7 +7,11 @@ export const ENVIO_GRATIS_DESDE = 150000;
 export const ENVIO_ANTIOQUIA = 10000;
 export const ENVIO_NACIONAL = 14900;
 
-const AREA_METROPOLITANA = ["medellin", "envigado", "bello", "sabaneta", "itagui"];
+// Los 10 municipios del Valle de Aburrá
+const AREA_METROPOLITANA = [
+  "medellin", "envigado", "bello", "sabaneta", "itagui",
+  "la estrella", "caldas", "copacabana", "girardota", "barbosa",
+];
 
 function normalizar(texto: string) {
   return texto.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
