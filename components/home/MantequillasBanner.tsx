@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowRight, MessageCircle } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 
 const AROMAS = [
   { nombre: "Coco", src: "/naya_foto/coco_festival.png" },
@@ -10,7 +10,7 @@ const AROMAS = [
   { nombre: "Cherry", src: "/naya_foto/cherry.png" },
 ];
 
-export default function MantequillasBanner({ onShop, whatsappHref }: { onShop: () => void; whatsappHref: string }) {
+export default function MantequillasBanner({ onShop, onQuiz }: { onShop: () => void; onQuiz: () => void }) {
   return (
     <div className="naya-mb">
       <div className="naya-mb__copy">
@@ -31,9 +31,9 @@ export default function MantequillasBanner({ onShop, whatsappHref }: { onShop: (
           <button type="button" className="naya-mb__cta" onClick={onShop}>
             Ver mantequillas <ArrowRight size={16} aria-hidden="true" />
           </button>
-          <a className="naya-mb__wa" href={whatsappHref} target="_blank" rel="noopener noreferrer">
-            <MessageCircle size={17} aria-hidden="true" /> ¿Cuál es para ti? Te asesoramos
-          </a>
+          <button type="button" className="naya-mb__wa" onClick={onQuiz}>
+            <Sparkles size={17} aria-hidden="true" /> ¿Cuál es para ti? Haz el test
+          </button>
         </div>
         <p className="naya-mb__price">Desde <strong>$28.500</strong></p>
       </div>

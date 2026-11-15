@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useState, useEffect, useRef } from "react";
+import { startTransition, useCallback, useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight, Leaf, Lock, Minus, Play, Plus, ShoppingBag, Trash2, Volume2, VolumeX, X } from "lucide-react";
@@ -9,6 +9,7 @@ import NayaFooter from "@/components/layout/NayaFooter";
 import NayaWhatsAppButton from "@/components/layout/NayaWhatsAppButton";
 import PromoBanner from "@/components/home/PromoBanner";
 import MantequillasBanner from "@/components/home/MantequillasBanner";
+import RutinaQuiz, { type InicioTest } from "@/components/home/RutinaQuiz";
 import { WHATSAPP_NUMBER } from "@/utils/contacto";
 import type { Producto } from "@/utils/productos";
 import { ENVIO_GRATIS_DESDE } from "@/utils/envios";
@@ -18,7 +19,6 @@ interface ItemCarrito {
   cantidad: number;
 }
 
-const mensajeAsesoriaMantequillas = "Hola NAYA, quiero asesoría sobre las mantequillas corporales.";
 const mensajeAsesoriaAmpolletas = "Hola NAYA, quiero asesoría sobre las ampolletas.";
 const VIDEO_AMPOLLETAS_TIENE_AUDIO = true;
 
@@ -230,6 +230,10 @@ function acentoProducto(producto: Producto): string {
 
 export default function Home() {
   const [productos, setProductos] = useState<Producto[]>([]);
+  const [quizAbierto, setQuizAbierto] = useState(false);
+  const [quizInicio, setQuizInicio] = useState<InicioTest>(null);
+  const abrirQuiz = (inicio: InicioTest) => { setQuizInicio(inicio); setQuizAbierto(true); };
+  const cerrarQuiz = useCallback(() => setQuizAbierto(false), []);
   const [cargandoProductos, setCargandoProductos] = useState(true);
   const [errorProductos, setErrorProductos] = useState("");
   const [categoriaActiva, setCategoriaActiva] = useState("Todos");
@@ -418,6 +422,7 @@ export default function Home() {
       <Navbar
         cartCount={totalProductosCarrito}
         onOpenCart={() => setCarritoAbierto(true)}
+        onOpenQuiz={() => abrirQuiz(null)}
         searchTerm={searchTerm}
         onSearchChange={actualizarBusqueda}
       />
@@ -452,7 +457,7 @@ export default function Home() {
           <div className="naya-hero__link naya-hero__picture">
             <MantequillasBanner
               onShop={() => verCategoria("Línea Frutal")}
-              whatsappHref={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensajeAsesoriaMantequillas)}`}
+              onQuiz={() => abrirQuiz("piel")}
             />
           </div>
         ) : (
@@ -524,6 +529,9 @@ export default function Home() {
         <div className="naya-lines__intro">
           <h2 id="naya-lines-title">¿Cayena o Romero?</h2>
           <p>Cada cabello necesita algo distinto. Elige tu línea y llévate el kit completo: shampoo, acondicionador y ampolleta.</p>
+          <button type="button" className="naya-quiz-link" onClick={() => abrirQuiz("cabello")}>
+            ¿No sabes cuál elegir? Haz el test de 1 minuto <ArrowRight size={15} aria-hidden="true" />
+          </button>
         </div>
         <div className="naya-lines__grid">
           {lineasCapilares.map((linea) => {
@@ -801,6 +809,19 @@ export default function Home() {
         </a>
       </section>
 
+      <RutinaQuiz
+        abierto={quizAbierto}
+        inicio={quizInicio}
+        productos={productos}
+        imagen={imagenProducto}
+        onClose={cerrarQuiz}
+        onAgregar={(lista) => {
+          lista.forEach((p) => agregarAlCarrito(p));
+          setQuizAbierto(false);
+          setCarritoAbierto(true);
+        }}
+        whatsappHref={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hola NAYA, hice el test y quiero asesoría.")}`}
+      />
       <NayaFooter />
       <NayaWhatsAppButton />
 

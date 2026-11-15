@@ -12,6 +12,7 @@ interface NavbarProps {
   onOpenCart: () => void;
   searchTerm: string;
   onSearchChange: (term: string) => void;
+  onOpenQuiz?: () => void;
 }
 
 const cabelloLinks = [
@@ -58,6 +59,7 @@ export default function Navbar({
   onOpenCart,
   searchTerm,
   onSearchChange,
+  onOpenQuiz,
 }: NavbarProps) {
   const [announcementIndex, setAnnouncementIndex] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -158,6 +160,7 @@ export default function Navbar({
       </div>
       <button type="button" className="nh-nav__link" onClick={goToKits}>Kits</button>
       <button type="button" className="nh-nav__link" onClick={() => selectCollection("")}>Todos</button>
+      {onOpenQuiz && <button type="button" className="nh-nav__link nh-nav__link--accent" onClick={onOpenQuiz}>Haz el test</button>}
     </>
   );
 
@@ -254,6 +257,9 @@ export default function Navbar({
             <p className="nh-mobile__title">Tienda</p>
             <button type="button" className="naya-nav__dropdown-link" onClick={goToKits}>Kits</button>
             <button type="button" className="naya-nav__dropdown-link" onClick={() => selectCollection("")}>Todos los productos</button>
+            {onOpenQuiz && (
+              <button type="button" className="naya-nav__dropdown-link" onClick={() => { setMobileMenuOpen(false); onOpenQuiz(); }}>✨ Descubre tu rutina (test)</button>
+            )}
             <Link href="/cuenta" className="naya-nav__dropdown-link" onClick={() => setMobileMenuOpen(false)}>
               {accountName ? `Mi cuenta (${accountName})` : "Iniciar sesión / Mi cuenta"}
             </Link>
