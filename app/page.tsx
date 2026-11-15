@@ -8,6 +8,9 @@ import Navbar from "@/components/layout/Navbar";
 import NayaFooter from "@/components/layout/NayaFooter";
 import NayaWhatsAppButton from "@/components/layout/NayaWhatsAppButton";
 import PromoBanner from "@/components/home/PromoBanner";
+import ProductoCard from "@/components/shop/ProductoCard";
+import { IDS_FAVORITOS } from "@/utils/catalogo";
+import { useRouter } from "next/navigation";
 import MantequillasBanner from "@/components/home/MantequillasBanner";
 import { WHATSAPP_NUMBER } from "@/utils/contacto";
 import type { Producto } from "@/utils/productos";
@@ -228,6 +231,7 @@ function acentoProducto(producto: Producto): string {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [productos, setProductos] = useState<Producto[]>([]);
   // El test de mantequillas tiene su propia página y se abre en una pestaña aparte.
   const abrirQuiz = () => window.open("/test-mantequillas", "_blank", "noopener");
@@ -394,9 +398,9 @@ export default function Home() {
       });
 
   const verCategoria = (categoria: string) => {
-    setSearchTerm("");
-    setCategoriaActiva(categoria);
-    document.getElementById("catalogo")?.scrollIntoView({ behavior: "smooth" });
+    // El catálogo completo vive en /productos.
+    const cat = categoria === "Línea Frutal" ? "Corporal" : categoria === "Todos" ? "" : categoria;
+    router.push(cat ? `/productos?cat=${encodeURIComponent(cat)}` : "/productos");
   };
 
   const abrirModal = (producto: Producto) => {
@@ -419,7 +423,6 @@ export default function Home() {
       <Navbar
         cartCount={totalProductosCarrito}
         onOpenCart={() => setCarritoAbierto(true)}
-        onOpenQuiz={abrirQuiz}
         searchTerm={searchTerm}
         onSearchChange={actualizarBusqueda}
       />
@@ -670,34 +673,13 @@ export default function Home() {
       </section>
 
       <section id="catalogo" className="naya-shop" aria-labelledby="naya-shop-title">
-        <div className="naya-shop__header">
-          <h2 id="naya-shop-title">Todos los productos</h2>
-          <div className="naya-shop__tabs" role="tablist" aria-label="Filtrar productos">
-            {categorias.map((cat) => (
-              <button
-                key={cat}
-                type="button"
-                role="tab"
-                aria-selected={categoriaActiva === cat}
-                onClick={() => setCategoriaActiva(cat)}
-                className={categoriaActiva === cat ? "naya-shop__tab naya-shop__tab--active" : "naya-shop__tab"}
-              >
-                {cat}
-              </button>
-            ))}
+        <div className="naya-shop__header naya-shop__header--fav">
+          <div>
+            <p className="naya-shop__eyebrow">Lo más vendido</p>
+            <h2 id="naya-shop-title">Los favoritos</h2>
           </div>
+          <Link href="/productos" className="naya-shop__all">Ver todos los productos <ArrowRight size={15} aria-hidden="true" /></Link>
         </div>
-
-        {consulta && !cargandoProductos && !errorProductos && (
-          <div className="naya-shop__search" role="status" aria-live="polite">
-            <span>
-              {productosFiltrados.length > 0
-                ? `${productosFiltrados.length} ${productosFiltrados.length === 1 ? "resultado" : "resultados"} para “${searchTerm.trim()}”`
-                : `No encontramos productos para “${searchTerm.trim()}”.`}
-            </span>
-            <button type="button" onClick={() => actualizarBusqueda("")}>Quitar búsqueda</button>
-          </div>
-        )}
 
         {errorProductos ? (
           <div className="naya-shop__empty" role="alert">
@@ -706,52 +688,17 @@ export default function Home() {
           </div>
         ) : cargandoProductos ? (
           <p className="naya-shop__empty">Cargando productos...</p>
-        ) : productosFiltrados.length === 0 ? (
-          <div className="naya-shop__empty">
-            <p>
-              {buscaKits
-                ? "Los kits están en la sección ¿Cayena o Romero?, más arriba."
-                : consulta ? "Prueba con otra palabra, por ejemplo: shampoo, romero o mantequilla." : "No hay productos disponibles en esta categoría."}
-            </p>
-            {buscaKits && <a href="#kits-rituales" className="naya-button">Ver kits</a>}
-          </div>
         ) : (
           <div className="naya-shop__grid">
-            {productosFiltrados.map((producto) => (
-              <article key={producto.id} className={`naya-card ${acentoProducto(producto)}`}>
-                <button
-                  type="button"
-                  className="naya-card__media"
-                  onClick={() => abrirModal(producto)}
-                  aria-label={`Ver detalles de ${producto.nombre}`}
-                >
-                  <Image
-                    src={imagenProducto(producto)}
-                    alt={producto.nombre}
-                    fill
-                    sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 22vw"
-                    className="object-cover"
-                  />
-                </button>
-                <div className="naya-card__info">
-                  <p className="naya-card__line">{categoriaVisible(producto)}</p>
-                  <h3>
-                    <button type="button" onClick={() => abrirModal(producto)}>{producto.nombre.trim()}</button>
-                  </h3>
-                  <p className="naya-card__price">${producto.precio.toLocaleString("es-CO")}</p>
-                </div>
-                <button
-                  type="button"
-                  className="naya-card__add"
-                  onClick={() => {
-                    agregarAlCarrito(producto, 1);
-                    setCarritoAbierto(true);
-                  }}
-                >
-                  Agregar al carrito
-                </button>
-              </article>
-            ))}
+            {IDS_FAVORITOS.map((id) => productos.find((p) => p.id === id))
+              .filter((p): p is Producto => Boolean(p))
+              .map((producto) => (
+                <ProductoCard
+                  key={producto.id}
+                  producto={producto}
+                  onAgregar={(p) => { agregarAlCarrito(p, 1); setCarritoAbierto(true); }}
+                />
+              ))}
           </div>
         )}
       </section>

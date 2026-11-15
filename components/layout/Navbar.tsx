@@ -2,44 +2,19 @@
 
 import { ChevronDown, Menu, Search, ShoppingBag, UserRound, X } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
 import { WHATSAPP_NUMBER } from "@/utils/contacto";
+import { CATEGORIAS_TIENDA, categoriaTienda, urlProducto } from "@/utils/catalogo";
+import type { Producto } from "@/utils/productos";
 
 interface NavbarProps {
   cartCount: number;
   onOpenCart: () => void;
-  searchTerm: string;
-  onSearchChange: (term: string) => void;
-  onOpenQuiz?: () => void;
-}
-
-const cabelloLinks = [
-  { label: "Romero", term: "Romero" },
-  { label: "Cayena", term: "Cayena" },
-  { label: "Shampoo", term: "Shampoo" },
-  { label: "Acondicionadores", term: "Acondicionador" },
-  { label: "Ampolletas", term: "Ampolleta" },
-];
-
-function MenuLinks({
-  links,
-  onSelect,
-}: {
-  links: Array<{ label: string; term: string }>;
-  onSelect: (term: string) => void;
-}) {
-  return links.map(({ label, term }) => (
-    <button
-      key={label}
-      type="button"
-      onClick={() => onSelect(term)}
-      className="naya-nav__dropdown-link"
-    >
-      {label}
-    </button>
-  ));
+  searchTerm?: string;
+  onSearchChange?: (term: string) => void;
 }
 
 const ANUNCIOS = [
@@ -54,117 +29,74 @@ function getCustomerName(user: User | null) {
   return user?.email?.split("@")[0] ?? "";
 }
 
-export default function Navbar({
-  cartCount,
-  onOpenCart,
-  searchTerm,
-  onSearchChange,
-  onOpenQuiz,
-}: NavbarProps) {
+// Los productos del menú se cargan una sola vez por visita.
+let productosMenu: Producto[] | null = null;
+
+export default function Navbar({ cartCount, onOpenCart, searchTerm, onSearchChange }: NavbarProps) {
+  const router = useRouter();
   const [announcementIndex, setAnnouncementIndex] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const searchRef = useRef<HTMLInputElement>(null);
-  const [openMenu, setOpenMenu] = useState<"cabello" | "piel" | null>(null);
+  const [comprarOpen, setComprarOpen] = useState(false);
+  const [busqueda, setBusqueda] = useState(searchTerm ?? "");
+  const [productos, setProductos] = useState<Producto[]>(productosMenu ?? []);
   const [accountName, setAccountName] = useState("");
-  const [authError, setAuthError] = useState("");
+  const searchRef = useRef<HTMLInputElement>(null);
+  const cierreMenu = useRef<number | null>(null);
 
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      setAnnouncementIndex((current) => (current + 1) % ANUNCIOS.length);
-    }, 4500);
-
+    const timer = window.setInterval(() => setAnnouncementIndex((c) => (c + 1) % ANUNCIOS.length), 4500);
     return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    if (productosMenu) return;
+    fetch("/api/productos")
+      .then((r) => (r.ok ? r.json() : []))
+      .then((data: Producto[]) => {
+        if (!Array.isArray(data)) return;
+        productosMenu = data;
+        setProductos(data);
+      })
+      .catch(() => {});
   }, []);
 
   useEffect(() => {
     let activo = true;
     let unsubscribe = () => {};
-
-    const comprobarSesion = async () => {
-      try {
-        const supabase = createSupabaseBrowserClient();
-        const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
-          if (activo) setAccountName(getCustomerName(session?.user ?? null));
-        });
-        unsubscribe = () => authListener.subscription.unsubscribe();
-
-        const { data, error } = await supabase.auth.getSession();
-        if (error) throw error;
+    try {
+      const supabase = createSupabaseBrowserClient();
+      const { data: listener } = supabase.auth.onAuthStateChange((_e, session) => {
+        if (activo) setAccountName(getCustomerName(session?.user ?? null));
+      });
+      unsubscribe = () => listener.subscription.unsubscribe();
+      void supabase.auth.getSession().then(({ data }) => {
         if (activo) setAccountName(getCustomerName(data.session?.user ?? null));
-      } catch (error) {
-        console.error("No se pudo comprobar la sesión del cliente:", error);
-        if (activo) setAuthError("No se pudo comprobar la sesión.");
-      }
-    };
-
-    void comprobarSesion();
-    return () => {
-      activo = false;
-      unsubscribe();
-    };
+      });
+    } catch (error) {
+      console.error("No se pudo comprobar la sesión del cliente:", error);
+    }
+    return () => { activo = false; unsubscribe(); };
   }, []);
 
   useEffect(() => {
     if (searchOpen) searchRef.current?.focus();
   }, [searchOpen]);
 
-  const selectCollection = (term: string) => {
-    onSearchChange(term);
-    setOpenMenu(null);
-    setMobileMenuOpen(false);
-    document.getElementById("catalogo")?.scrollIntoView({ behavior: "smooth" });
+  const buscar = (event: React.FormEvent) => {
+    event.preventDefault();
+    const q = busqueda.trim();
+    setSearchOpen(false);
+    router.push(q ? `/productos?q=${encodeURIComponent(q)}` : "/productos");
   };
 
-  const goToKits = () => {
-    setOpenMenu(null);
-    setMobileMenuOpen(false);
-    document.getElementById("kits-rituales")?.scrollIntoView({ behavior: "smooth" });
-  };
+  const abrirComprar = () => { if (cierreMenu.current) window.clearTimeout(cierreMenu.current); setComprarOpen(true); };
+  const cerrarComprar = () => { cierreMenu.current = window.setTimeout(() => setComprarOpen(false), 150); };
 
-  const irAlCatalogo = () => {
-    document.getElementById("catalogo")?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const navLinks = (
-    <>
-      <div className="nh-nav__group">
-        <button
-          type="button"
-          className="nh-nav__link"
-          aria-expanded={openMenu === "cabello"}
-          onClick={() => setOpenMenu(openMenu === "cabello" ? null : "cabello")}
-        >
-          Cabello <ChevronDown size={13} aria-hidden="true" />
-        </button>
-        {openMenu === "cabello" && (
-          <div className="nh-nav__dropdown">
-            <MenuLinks links={cabelloLinks} onSelect={selectCollection} />
-          </div>
-        )}
-      </div>
-      <div className="nh-nav__group">
-        <button
-          type="button"
-          className="nh-nav__link"
-          aria-expanded={openMenu === "piel"}
-          onClick={() => setOpenMenu(openMenu === "piel" ? null : "piel")}
-        >
-          Piel <ChevronDown size={13} aria-hidden="true" />
-        </button>
-        {openMenu === "piel" && (
-          <div className="nh-nav__dropdown">
-            <MenuLinks links={[{ label: "Mantequillas", term: "Mantequilla" }]} onSelect={selectCollection} />
-            {onOpenQuiz && (
-              <button type="button" className="naya-nav__dropdown-link nh-nav__quiz" onClick={() => { setOpenMenu(null); onOpenQuiz(); }}>✨ ¿Qué mantequilla eres?</button>
-            )}
-          </div>
-        )}
-      </div>
-      <button type="button" className="nh-nav__link" onClick={goToKits}>Kits</button>
-      <button type="button" className="nh-nav__link" onClick={() => selectCollection("")}>Todos</button>
-    </>
-  );
+  const columnas = CATEGORIAS_TIENDA.map((cat) => ({
+    cat,
+    items: productos.filter((p) => categoriaTienda(p) === cat),
+  }));
 
   return (
     <>
@@ -176,13 +108,13 @@ export default function Navbar({
         )}
       </div>
 
-      <header className="nh">
+      <header className="nh" onMouseLeave={cerrarComprar}>
         <div className="nh__row">
           <div className="nh__left">
             <button
               type="button"
               className="nh__icon nh__only-mobile"
-              onClick={() => { setMobileMenuOpen((open) => !open); setSearchOpen(false); }}
+              onClick={() => { setMobileMenuOpen((o) => !o); setSearchOpen(false); }}
               aria-label={mobileMenuOpen ? "Cerrar menú" : "Abrir menú"}
               aria-expanded={mobileMenuOpen}
             >
@@ -191,21 +123,34 @@ export default function Navbar({
             <button
               type="button"
               className="nh__icon nh__only-mobile"
-              onClick={() => { setSearchOpen((open) => !open); setMobileMenuOpen(false); }}
+              onClick={() => { setSearchOpen((o) => !o); setMobileMenuOpen(false); }}
               aria-label="Buscar productos"
             >
               <Search size={21} strokeWidth={1.6} />
             </button>
-            <nav className="nh-nav nh__only-desktop" aria-label="Navegación principal">{navLinks}</nav>
+            <nav className="nh-nav nh__only-desktop" aria-label="Navegación principal">
+              <button
+                type="button"
+                className={`nh-nav__link${comprarOpen ? " nh-nav__link--open" : ""}`}
+                aria-expanded={comprarOpen}
+                onMouseEnter={abrirComprar}
+                onClick={() => setComprarOpen((o) => !o)}
+              >
+                Comprar <ChevronDown size={13} aria-hidden="true" />
+              </button>
+              <Link href="/productos?cat=Kits" className="nh-nav__link">Kits</Link>
+              <a href="/test-mantequillas" target="_blank" rel="noopener" className="nh-nav__link nh-nav__link--accent">Test mantequillas</a>
+              <a href={`https://wa.me/${WHATSAPP_NUMBER}`} target="_blank" rel="noreferrer" className="nh-nav__link">Contacto</a>
+            </nav>
           </div>
 
-          <a href="#inicio" className="nh__logo" aria-label="NAYA, ir al inicio">NAYA</a>
+          <Link href="/" className="nh__logo" aria-label="NAYA, ir al inicio">NAYA</Link>
 
           <div className="nh__right">
             <button
               type="button"
               className="nh__icon nh__only-desktop"
-              onClick={() => setSearchOpen((open) => !open)}
+              onClick={() => setSearchOpen((o) => !o)}
               aria-label="Buscar productos"
               aria-expanded={searchOpen}
             >
@@ -215,31 +160,44 @@ export default function Navbar({
               <UserRound size={21} strokeWidth={1.6} aria-hidden="true" />
               {accountName && <span className="nh__dot" aria-hidden="true" />}
             </Link>
-            <button
-              type="button"
-              className="nh__icon"
-              onClick={onOpenCart}
-              aria-label={`Abrir carrito, ${cartCount} productos`}
-            >
+            <button type="button" className="nh__icon" onClick={onOpenCart} aria-label={`Abrir carrito, ${cartCount} productos`}>
               <ShoppingBag size={21} strokeWidth={1.6} aria-hidden="true" />
               {cartCount > 0 && <span className="nh__badge">{cartCount}</span>}
             </button>
           </div>
-          {authError && <p className="naya-header__auth-error" role="alert">{authError}</p>}
         </div>
+
+        {comprarOpen && (
+          <div className="nh-mega nh__only-desktop" onMouseEnter={abrirComprar} onMouseLeave={cerrarComprar}>
+            <div className="nh-mega__inner">
+              {columnas.map(({ cat, items }) => (
+                <div key={cat} className="nh-mega__col">
+                  <Link href={`/productos?cat=${encodeURIComponent(cat)}`} className="nh-mega__title" onClick={() => setComprarOpen(false)}>{cat}</Link>
+                  {items.map((p) => (
+                    <Link key={p.id} href={urlProducto(p)} className="nh-mega__link" onClick={() => setComprarOpen(false)}>
+                      {p.nombre.replace(/\s+/g, " ").trim().replace(/^Mantequilla Corporal /, "Mantequilla ")}
+                    </Link>
+                  ))}
+                </div>
+              ))}
+              <div className="nh-mega__col">
+                <p className="nh-mega__title">Descubre</p>
+                <Link href="/productos" className="nh-mega__link" onClick={() => setComprarOpen(false)}>Todos los productos</Link>
+                <a href="/test-mantequillas" target="_blank" rel="noopener" className="nh-mega__link">¿Qué mantequilla eres?</a>
+              </div>
+            </div>
+          </div>
+        )}
 
         {searchOpen && (
           <div className="nh-search">
-            <form
-              className="nh-search__inner"
-              onSubmit={(event) => { event.preventDefault(); setSearchOpen(false); irAlCatalogo(); }}
-            >
+            <form className="nh-search__inner" onSubmit={buscar}>
               <Search size={18} aria-hidden="true" />
               <input
                 ref={searchRef}
                 type="search"
-                value={searchTerm}
-                onChange={(event) => onSearchChange(event.target.value)}
+                value={busqueda}
+                onChange={(e) => { setBusqueda(e.target.value); onSearchChange?.(e.target.value); }}
                 placeholder="¿Qué estás buscando? Shampoo, ampolleta, mantequilla…"
                 aria-label="Buscar productos"
               />
@@ -252,17 +210,19 @@ export default function Navbar({
 
         {mobileMenuOpen && (
           <nav className="nh-mobile" aria-label="Menú">
-            <p className="nh-mobile__title">Cabello</p>
-            <MenuLinks links={cabelloLinks} onSelect={selectCollection} />
-            <p className="nh-mobile__title">Piel</p>
-            <MenuLinks links={[{ label: "Mantequillas", term: "Mantequilla" }]} onSelect={selectCollection} />
-            {onOpenQuiz && (
-              <button type="button" className="naya-nav__dropdown-link nh-nav__quiz" onClick={() => { setMobileMenuOpen(false); onOpenQuiz(); }}>✨ ¿Qué mantequilla eres? Haz el test</button>
-            )}
-            <p className="nh-mobile__title">Tienda</p>
-            <button type="button" className="naya-nav__dropdown-link" onClick={goToKits}>Kits</button>
-            <button type="button" className="naya-nav__dropdown-link" onClick={() => selectCollection("")}>Todos los productos</button>
-
+            {columnas.map(({ cat, items }) => (
+              <div key={cat}>
+                <Link href={`/productos?cat=${encodeURIComponent(cat)}`} className="nh-mobile__title" onClick={() => setMobileMenuOpen(false)}>{cat}</Link>
+                {items.map((p) => (
+                  <Link key={p.id} href={urlProducto(p)} className="naya-nav__dropdown-link" onClick={() => setMobileMenuOpen(false)}>
+                    {p.nombre.replace(/\s+/g, " ").trim().replace(/^Mantequilla Corporal /, "Mantequilla ")}
+                  </Link>
+                ))}
+              </div>
+            ))}
+            <p className="nh-mobile__title">Más</p>
+            <Link href="/productos" className="naya-nav__dropdown-link" onClick={() => setMobileMenuOpen(false)}>Todos los productos</Link>
+            <a href="/test-mantequillas" target="_blank" rel="noopener" className="naya-nav__dropdown-link nh-nav__quiz">¿Qué mantequilla eres? Haz el test</a>
             <Link href="/cuenta" className="naya-nav__dropdown-link" onClick={() => setMobileMenuOpen(false)}>
               {accountName ? `Mi cuenta (${accountName})` : "Iniciar sesión / Mi cuenta"}
             </Link>
