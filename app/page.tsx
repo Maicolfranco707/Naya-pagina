@@ -9,7 +9,7 @@ import NayaFooter from "@/components/layout/NayaFooter";
 import NayaWhatsAppButton from "@/components/layout/NayaWhatsAppButton";
 import PromoBanner from "@/components/home/PromoBanner";
 import ProductoCard from "@/components/shop/ProductoCard";
-import { IDS_FAVORITOS } from "@/utils/catalogo";
+import { IDS_FAVORITOS, urlProducto } from "@/utils/catalogo";
 import { useRouter } from "next/navigation";
 import MantequillasBanner from "@/components/home/MantequillasBanner";
 import { WHATSAPP_NUMBER } from "@/utils/contacto";
@@ -24,15 +24,25 @@ interface ItemCarrito {
 const mensajeAsesoriaAmpolletas = "Hola NAYA, quiero asesoría sobre las ampolletas.";
 const VIDEO_AMPOLLETAS_TIENE_AUDIO = true;
 
-// TODO: confirmar estos pasos con NAYA antes de publicar.
-const pasosAmpolletas = [
-  "Lava tu cabello con tu shampoo NAYA.",
-  "Aplica la ampolleta sobre el cabello y masajea suavemente.",
-  "Déjala actuar el tiempo indicado en la etiqueta y termina tu rutina.",
+// Textos de las ampolletas (los mismos de su página de producto).
+const AMPOLLETAS = [
+  {
+    id: 6,
+    nombre: "Crecimiento",
+    para: "Caída y cabello débil",
+    foto: "/naya_foto/ampolleta-crecimiento-jardin.jpg",
+    beneficios: ["Ayuda a potenciar el crecimiento", "Ácido hialurónico, biotina y romero"],
+    uso: "Mézclala con tu shampoo o aplícala en la raíz.",
+  },
+  {
+    id: 10,
+    nombre: "Nutrición",
+    para: "Cabello reseco y con frizz",
+    foto: "/naya_foto/ampolleta-nutricion-jardin.jpg",
+    beneficios: ["Hidrata y aporta brillo", "Ayuda a controlar el frizz"],
+    uso: "Mézclala con tu acondicionador, de medios a puntas.",
+  },
 ];
-
-// TODO: agregar descripción real de cada ampolleta.
-const nombresAmpolletas = ["Ampolleta de Crecimiento", "Ampolleta de Nutrición"];
 
 // El primer banner es la oferta (PromoBanner, hecho en código); los demás son imágenes.
 const imagenesHero: Array<{ id: number; promo?: boolean; mantequillas?: boolean; escritorio: string; celular: string; alt: string; busqueda: string }> = [
@@ -635,38 +645,53 @@ export default function Home() {
             <figcaption>Así preparamos nuestras ampolletas</figcaption>
           </figure>
 
-          <div className="naya-brand__copy">
-            <h2>Nutrición o Crecimiento: tu cabello elige</h2>
-            <p>Nuestras ampolletas son el paso extra después del shampoo. Así se usan:</p>
-            <ol className="naya-ampoule-steps">
-              {pasosAmpolletas.map((paso, index) => (
-                <li key={paso}>
-                  <span aria-hidden="true">{index + 1}</span>
-                  <p>{paso}</p>
-                </li>
-              ))}
-            </ol>
-            <div className="naya-ampoule-products">
-              {nombresAmpolletas.map((nombre) => (
-                <div className="naya-ampoule-products__item" key={nombre}>{nombre}</div>
-              ))}
+          <div className="naya-amp">
+            <p className="naya-amp__eyebrow">Tratamiento capilar</p>
+            <h2>Ampolletas NAYA</h2>
+            <p className="naya-amp__text">El paso extra de tu rutina. Elige según lo que necesita tu cabello.</p>
+
+            <div className="naya-amp__cards">
+              {AMPOLLETAS.map((a) => {
+                const producto = productos.find((p) => p.id === a.id);
+                return (
+                  <article className="naya-amp__card" key={a.id}>
+                    <div className="naya-amp__photo">
+                      <Image src={a.foto} alt={`Ampolleta de ${a.nombre} NAYA`} fill sizes="(max-width: 767px) 40vw, 180px" className="object-cover" />
+                    </div>
+                    <div className="naya-amp__info">
+                      <p className="naya-amp__para">{a.para}</p>
+                      <h3>{a.nombre}</h3>
+                      <ul>
+                        {a.beneficios.map((b) => <li key={b}>{b}</li>)}
+                      </ul>
+                      <p className="naya-amp__uso">{a.uso}</p>
+                      <div className="naya-amp__buy">
+                        <strong>{producto ? `$${producto.precio.toLocaleString("es-CO")}` : "$18.000"}</strong>
+                        {producto && (
+                          <button type="button" onClick={() => { agregarAlCarrito(producto, 1); setCarritoAbierto(true); }}>
+                            Agregar
+                          </button>
+                        )}
+                      </div>
+                      {producto && <Link href={urlProducto(producto)} className="naya-amp__more">Ver detalles</Link>}
+                    </div>
+                  </article>
+                );
+              })}
             </div>
-            <div className="naya-brand__actions">
+
+            <div className="naya-amp__footer">
+              <button type="button" className="naya-amp__all" onClick={() => verCategoria("Ampolletas")}>
+                Ver ampolletas y kits <ArrowRight size={15} aria-hidden="true" />
+              </button>
               <a
-                className="naya-button"
+                className="naya-amp__help"
                 href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensajeAsesoriaAmpolletas)}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                Pedir asesoría <ArrowRight size={15} aria-hidden="true" />
+                ¿No sabes cuál elegir? Escríbenos
               </a>
-              <button
-                type="button"
-                className="naya-button naya-button--outline"
-                onClick={() => verCategoria("Ampolletas")}
-              >
-                Ver ampolletas
-              </button>
             </div>
           </div>
         </div>

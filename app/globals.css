@@ -4705,3 +4705,56 @@ a.nh-mega__title:hover { color: #b86b2e; }
 .naya-co-remove { display: inline-flex; align-items: center; gap: 4px; padding: 0; border: 0; background: none; color: #8a5a4a; font-size: 12.5px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .naya-co-remove:hover { color: #a2382b; }
 .naya-co-items li > strong { padding-top: 2px; }
+
+/* ===== Ampolletas en el inicio (rediseño) ===== */
+.naya-brand__inner { background: #f3e9dc; color: #0b3a3c; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); }
+.naya-brand__video-column figcaption { color: #5d6f6c; }
+.naya-amp__eyebrow { margin: 0 0 10px; color: #b86b2e; font-size: clamp(11px, 0.95vw, 14px); font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; }
+.naya-amp h2 {
+  margin: 0;
+  font-family: var(--font-display), serif;
+  font-size: clamp(34px, 3.8vw, 60px);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+}
+.naya-amp__text { max-width: 480px; margin: 12px 0 clamp(18px, 2vw, 28px); color: #3f5856; font-size: clamp(15px, 1.15vw, 17px); line-height: 1.5; }
+.naya-amp__cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.naya-amp__card {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  overflow: hidden;
+  border-radius: 18px;
+  background: #fffaf3;
+  box-shadow: 0 1px 0 rgba(11, 58, 60, 0.06), 0 10px 26px rgba(11, 58, 60, 0.08);
+}
+.naya-amp__photo { position: relative; aspect-ratio: 4 / 3; background: #e8ddd0; }
+.naya-amp__info { display: flex; flex-direction: column; padding: 16px 18px 18px; }
+.naya-amp__para { margin: 0; color: #b86b2e; font-size: 12px; font-weight: 700; letter-spacing: 0.04em; }
+.naya-amp__info h3 { margin: 4px 0 8px; font-family: var(--font-display), serif; font-size: clamp(22px, 1.8vw, 28px); font-weight: 600; line-height: 1.1; }
+.naya-amp__info ul { margin: 0 0 8px; padding-left: 18px; color: #3f5856; font-size: 14px; line-height: 1.5; }
+.naya-amp__uso { margin: 0 0 14px; color: #6b7c79; font-size: 13px; line-height: 1.45; }
+.naya-amp__buy { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; }
+.naya-amp__buy strong { font-size: 18px; }
+.naya-amp__buy button {
+  height: 40px; padding: 0 18px; border: 0; border-radius: 999px;
+  background: #0b3a3c; color: #fbf7ef; font-size: 14px; font-weight: 700; cursor: pointer;
+}
+.naya-amp__buy button:hover { background: #134c4e; }
+.naya-amp__more { margin-top: 10px; color: #0b3a3c; font-size: 13px; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.naya-amp__footer { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: clamp(18px, 2vw, 26px); }
+.naya-amp__all {
+  display: inline-flex; align-items: center; gap: 8px; height: 46px; padding: 0 22px;
+  border: 1.5px solid #0b3a3c; border-radius: 999px; background: transparent; color: #0b3a3c;
+  font-size: 14px; font-weight: 700; cursor: pointer;
+}
+.naya-amp__all:hover { background: rgba(11, 58, 60, 0.06); }
+.naya-amp__help { color: #3f5856; font-size: 14px; text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 900px) {
+  .naya-brand__inner { grid-template-columns: 1fr; }
+}
+@media (max-width: 520px) {
+  .naya-amp__cards { grid-template-columns: 1fr; }
+  .naya-amp__card { grid-template-columns: 120px 1fr; grid-template-rows: none; }
+  .naya-amp__photo { aspect-ratio: auto; min-height: 100%; }
+}
