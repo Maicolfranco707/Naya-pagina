@@ -3773,3 +3773,211 @@ div.naya-co__option { cursor: default; }
   .naya-nl__form { background: transparent; box-shadow: none; }
   .naya-nl__form input { background: #fff; }
 }
+
+/* ── Hero: banners dentro de la página con esquinas redondeadas ── */
+.naya-hero { padding: 14px clamp(12px, 3vw, 32px) 0; }
+.naya-hero > .naya-hero__link { overflow: hidden; border-radius: 18px; }
+.naya-hero__dots { bottom: 14px; }
+
+/* ── Banner de oferta (BIENVENIDA10) ── */
+.naya-promo {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 78% 45%, rgba(227, 178, 122, 0.28), transparent 42%),
+    radial-gradient(circle at 10% 110%, rgba(255, 255, 255, 0.07), transparent 40%),
+    #0b3a3c;
+  color: #fbf7ef;
+}
+.naya-promo__copy {
+  position: relative;
+  z-index: 2;
+  padding: 0 0 0 clamp(28px, 7vw, 120px);
+}
+.naya-promo__eyebrow {
+  margin: 0 0 4px;
+  color: #e3b27a;
+  font-size: clamp(12px, 1vw, 15px);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.naya-promo__title {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.12em;
+  margin: 0;
+  font-family: var(--font-display), serif;
+  line-height: 0.85;
+}
+.naya-promo__title strong {
+  font-size: clamp(88px, 10.5vw, 190px);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+.naya-promo__title span {
+  margin-top: 0.18em;
+  color: #e3b27a;
+  font-size: clamp(38px, 4.4vw, 80px);
+  font-weight: 700;
+}
+.naya-promo__subtitle {
+  margin: 6px 0 clamp(14px, 1.8vw, 26px);
+  font-size: clamp(20px, 2.1vw, 34px);
+  font-weight: 500;
+}
+.naya-promo__code {
+  display: grid;
+  gap: 2px;
+  padding: clamp(10px, 1.1vw, 16px) clamp(16px, 1.8vw, 26px);
+  border: 2px dashed #e3b27a;
+  border-radius: 14px;
+  background: rgba(251, 247, 239, 0.07);
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 200ms ease;
+}
+.naya-promo__code:hover { background: rgba(251, 247, 239, 0.13); }
+.naya-promo__code small { color: rgba(251, 247, 239, 0.75); font-size: clamp(11px, 0.85vw, 13px); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; }
+.naya-promo__code span { display: inline-flex; align-items: center; gap: 12px; font-size: clamp(24px, 2.6vw, 42px); font-weight: 800; letter-spacing: 0.06em; }
+.naya-promo__code em { color: #e3b27a; font-size: 12px; font-style: normal; }
+.naya-promo__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 18px;
+  margin-top: clamp(14px, 1.6vw, 24px);
+}
+.naya-promo__actions p { margin: 0; color: rgba(251, 247, 239, 0.8); font-size: clamp(13px, 1vw, 15px); }
+.naya-promo__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: clamp(44px, 3.6vw, 54px);
+  padding: 0 clamp(20px, 2vw, 30px);
+  border: 0;
+  border-radius: 999px;
+  background: #b86b2e;
+  color: #fff;
+  font-size: clamp(14px, 1.1vw, 17px);
+  font-weight: 700;
+  cursor: pointer;
+}
+.naya-promo__cta:hover { background: #a35d25; }
+
+.naya-promo__products {
+  position: relative;
+  z-index: 1;
+  height: 100%;
+}
+.naya-promo__photo {
+  position: absolute;
+  top: 50%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border: 6px solid #fbf7ef;
+  border-radius: 16px;
+  box-shadow: 0 24px 50px rgba(0, 0, 0, 0.35);
+}
+.naya-promo__photo--back { right: 8%; height: 72%; transform: translateY(-54%) rotate(7deg); }
+.naya-promo__photo--front { right: 34%; height: 80%; transform: translateY(-46%) rotate(-5deg); }
+.naya-promo__sticker {
+  position: absolute;
+  top: 12%;
+  right: 30%;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+  width: clamp(64px, 6.5vw, 110px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #b86b2e;
+  color: #fff;
+  font-size: clamp(18px, 1.9vw, 32px);
+  font-weight: 800;
+  transform: rotate(-12deg);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.25);
+}
+
+.naya-promo__tape {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  gap: 28px;
+  width: 140%;
+  padding: 9px 0;
+  background: #efe2d2;
+  color: #0b3a3c;
+  font-size: clamp(12px, 1vw, 15px);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+}
+.naya-promo__tape span::after { content: "✦"; margin-left: 28px; color: #b86b2e; }
+.naya-promo__tape--top { top: 4%; left: 52%; transform: rotate(-9deg); transform-origin: left center; }
+.naya-promo__tape--bottom { bottom: 3%; left: 40%; transform: rotate(-9deg); transform-origin: left center; }
+
+@media (min-width: 768px) {
+  .naya-promo__photo--back { height: 64%; transform: translateY(-60%) rotate(7deg); }
+  .naya-promo__photo--front { height: 72%; transform: translateY(-56%) rotate(-5deg); }
+  .naya-promo__sticker { top: 7%; }
+  .naya-promo__tape--bottom { bottom: -3%; left: 46%; transform: rotate(-6deg); }
+}
+
+@media (max-width: 767px) {
+  .naya-hero { padding: 10px 10px 0; }
+  .naya-hero > .naya-hero__link { border-radius: 14px; }
+  .naya-promo {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr;
+    align-items: start;
+    text-align: center;
+  }
+  .naya-promo__copy { padding: 34px 20px 0; }
+  .naya-promo__title { justify-content: center; }
+  .naya-promo__title strong { font-size: 92px; }
+  .naya-promo__title span { font-size: 40px; }
+  .naya-promo__subtitle { margin-bottom: 14px; font-size: 21px; }
+  .naya-promo__code { justify-items: center; margin: 0 auto; text-align: center; }
+  .naya-promo__code span { font-size: 25px; }
+  .naya-promo__actions { justify-content: center; margin-top: 14px; }
+  .naya-promo__actions p { width: 100%; font-size: 12.5px; }
+  .naya-promo__photo { top: auto; bottom: 10%; border-width: 4px; }
+  .naya-promo__photo--back { right: 6%; height: 82%; transform: rotate(7deg); }
+  .naya-promo__photo--front { right: auto; left: 8%; height: 90%; transform: rotate(-5deg); }
+  .naya-promo__sticker { top: 0; right: 40%; width: 60px; font-size: 17px; }
+  .naya-promo__tape { font-size: 11px; padding: 7px 0; }
+  .naya-promo__tape--top { top: 2%; left: 55%; }
+  .naya-promo__tape--bottom { bottom: 2%; left: -10%; transform: rotate(-6deg); }
+}
+@media (max-width: 767px) {
+  .naya-promo { grid-template-rows: auto minmax(0, 1fr); }
+  .naya-promo__copy { padding: 26px 18px 0; }
+  .naya-promo__eyebrow { font-size: 11px; }
+  .naya-promo__title strong { font-size: 70px; }
+  .naya-promo__title span { font-size: 30px; }
+  .naya-promo__subtitle { margin: 2px 0 10px; font-size: 17px; }
+  .naya-promo__code { padding: 7px 16px; border-radius: 10px; }
+  .naya-promo__code small { font-size: 10px; }
+  .naya-promo__code span { gap: 8px; font-size: 20px; }
+  .naya-promo__code em { display: none; }
+  .naya-promo__actions { margin-top: 10px; }
+  .naya-promo__actions p { display: none; }
+  .naya-promo__cta { height: 40px; padding: 0 18px; font-size: 14px; }
+  .naya-promo__products { min-height: 0; }
+  .naya-promo__photo { bottom: 12%; height: auto; top: 10%; border-width: 3px; border-radius: 10px; }
+  .naya-promo__photo--front { left: 16%; right: auto; transform: rotate(-5deg); }
+  .naya-promo__photo--back { right: 16%; transform: rotate(6deg); top: 6%; bottom: 16%; }
+  .naya-promo__sticker { top: 2%; right: 9%; width: 52px; font-size: 15px; }
+  .naya-promo__tape--top { top: 1.5%; left: 58%; }
+  .naya-promo__tape--bottom { bottom: 1%; left: -12%; transform: rotate(-4deg); }
+}
+@media (max-width: 767px) { .naya-promo__tape--top { top: 0; left: 66%; } .naya-promo__copy { padding-top: 30px; } }

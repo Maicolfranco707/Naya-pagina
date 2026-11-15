@@ -7,7 +7,7 @@ import { ArrowRight, ChevronLeft, ChevronRight, Leaf, Lock, Minus, Play, Plus, S
 import Navbar from "@/components/layout/Navbar";
 import NayaFooter from "@/components/layout/NayaFooter";
 import NayaWhatsAppButton from "@/components/layout/NayaWhatsAppButton";
-import NewsletterSignup from "@/components/home/NewsletterSignup";
+import PromoBanner from "@/components/home/PromoBanner";
 import { WHATSAPP_NUMBER } from "@/utils/contacto";
 import type { Producto } from "@/utils/productos";
 import { ENVIO_GRATIS_DESDE } from "@/utils/envios";
@@ -31,7 +31,9 @@ const pasosAmpolletas = [
 // TODO: agregar descripción real de cada ampolleta.
 const nombresAmpolletas = ["Ampolleta de Crecimiento", "Ampolleta de Nutrición"];
 
-const imagenesHero = [
+// El primer banner es la oferta (PromoBanner, hecho en código); los demás son imágenes.
+const imagenesHero: Array<{ id: number; promo?: boolean; escritorio: string; celular: string; alt: string; busqueda: string }> = [
+  { id: 0, promo: true, escritorio: "", celular: "", alt: "10% OFF en tu primera compra con BIENVENIDA10", busqueda: "" },
   {
     id: 1,
     escritorio: "/naya_foto/modelo3escritorio.png",
@@ -81,9 +83,10 @@ const kitsPromocionales = [
 ];
 
 const beneficiosFranja = [
+  "10% OFF en tu primera compra: BIENVENIDA10",
+  "Envío gratis desde $150.000",
   "Hecho en Medellín",
   "Extractos botánicos",
-  "Envío gratis desde $150.000",
   "Paga con tarjeta, PSE o Nequi",
   "Asesoría por WhatsApp",
 ];
@@ -439,6 +442,11 @@ export default function Home() {
           );
         }}
       >
+        {imagenesHero[heroIndex].promo ? (
+          <div className="naya-hero__link naya-hero__picture">
+            <PromoBanner onShop={() => verCategoria("Todos")} />
+          </div>
+        ) : (
         <div className="naya-hero__link">
           <picture className="naya-hero__picture">
             <source
@@ -452,7 +460,7 @@ export default function Home() {
               loading={heroIndex === 0 ? "eager" : "lazy"}
             />
           </picture>
-          {heroIndex === 2 ? (
+          {imagenesHero[heroIndex].id === 3 ? (
             <>
               <a
                 className="naya-hero__whatsapp absolute z-10 hidden cursor-pointer md:block"
@@ -473,6 +481,7 @@ export default function Home() {
             </>
           ) : null}
         </div>
+        )}
 
         <div className="naya-hero__arrows" aria-label="Controles del carrusel">
           <button
@@ -803,7 +812,6 @@ export default function Home() {
         </a>
       </section>
 
-      <NewsletterSignup />
       <NayaFooter />
       <NayaWhatsAppButton />
 
