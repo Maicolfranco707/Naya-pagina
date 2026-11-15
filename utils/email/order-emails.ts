@@ -67,7 +67,42 @@ function productImageUrl(imagePath: string | null) {
   return imageUrl.toString();
 }
 
-function orderHtml(order: OrderEmailData, heading: string, intro: string) {
+// Enlace de WhatsApp para que NAYA le envíe al cliente la confirmación con un toque.
+function whatsappClienteUrl(order: OrderEmailData) {
+  let phone = order.customer_phone.replace(/\D/g, "");
+  if (phone.length === 10 && phone.startsWith("3")) phone = `57${phone}`;
+  if (phone.length < 10) return null;
+
+  const firstName = order.customer_name.trim().split(/\s+/)[0] || "";
+  const items = order.order_items
+    .map((item) => `• ${item.product_name} x${item.quantity}: ${formatCop(item.line_total_cop)}`)
+    .join("\n");
+  const message = [
+    `¡Hola ${firstName}! Te escribimos de NAYA Cosmética Natural 🌿`,
+    "",
+    `Confirmamos tu pago del pedido ${orderNumber(order.reference)}:`,
+    items,
+    `Envío: ${order.shipping_cop === 0 ? "Gratis" : formatCop(order.shipping_cop)}`,
+    `Total: ${formatCop(order.total_cop)}`,
+    "",
+    `Lo enviaremos a: ${order.shipping_address}${order.shipping_apartment ? `, ${order.shipping_apartment}` : ""}, ${order.shipping_city}.`,
+    "Te avisaremos cuando salga tu pedido. ¡Gracias por tu compra!",
+  ].join("\n");
+
+  return `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+}
+
+function whatsappBotonHtml(order: OrderEmailData) {
+  const url = whatsappClienteUrl(order);
+  if (!url) return "";
+  return `
+        <div style="margin:0 0 22px;padding:16px;background:#eef6ef;border-radius:8px;text-align:center">
+          <p style="margin:0 0 10px;font-size:13px;color:#213a35">Envíale la confirmación al cliente por WhatsApp (mensaje listo, solo toca enviar):</p>
+          <a href="${escapeHtml(url)}" style="display:inline-block;background:#25d366;color:#fff;text-decoration:none;font-weight:bold;padding:12px 22px;border-radius:999px;font-size:14px">Enviar confirmación por WhatsApp</a>
+        </div>`;
+}
+
+function orderHtml(order: OrderEmailData, heading: string, intro: string, extraHtml = "") {
   const items = order.order_items.map((item) => `
     <tr>
       <td style="padding:10px 0;border-bottom:1px solid #e8e1d8;color:#213a35">
@@ -86,7 +121,7 @@ function orderHtml(order: OrderEmailData, heading: string, intro: string) {
         <h1 style="margin:0;font-size:24px">${heading}</h1>
       </div>
       <div style="background:#fff;padding:28px">
-        <p style="margin-top:0">${intro}</p>
+        <p style="margin-top:0">${intro}</p>${extraHtml}
         <p style="margin-bottom:4px">Pedido <strong style="font-size:18px">${orderNumber(order.reference)}</strong></p>
         <p style="margin-top:0;color:#9aa5a1;font-size:11px">Referencia de pago: ${escapeHtml(order.reference)}</p>
         <table style="width:100%;border-collapse:collapse;font-size:14px">
@@ -255,6 +290,12 @@ export async function sendPaymentApprovedEmails(orderId: string) {
 
   await Promise.all([
     sendOnce(`payment-approved:${order.id}:customer`, order.customer_email, `¡Pago confirmado! Tu pedido ${orderNumber(order.reference)} | NAYA`, html, text),
-    sendOnce(`payment-approved:${order.id}:store`, notificationEmail, `Nueva venta ${orderNumber(order.reference)} · ${formatCop(order.total_cop)} | NAYA`, html, text),
+    sendOnce(
+      `payment-approved:${order.id}:store`,
+      notificationEmail,
+      `Nueva venta ${orderNumber(order.reference)} · ${formatCop(order.total_cop)} | NAYA`,
+      orderHtml(order, "Nueva venta", "Wompi confirmó el pago de este pedido.", whatsappBotonHtml(order)),
+      `${text}${whatsappClienteUrl(order) ? `\n\nEnviar confirmación por WhatsApp: ${whatsappClienteUrl(order)}` : ""}`,
+    ),
   ]);
 }
