@@ -1,6 +1,6 @@
 "use client";
 
-import { startTransition, useCallback, useState, useEffect, useRef } from "react";
+import { startTransition, useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight, Leaf, Lock, Minus, Play, Plus, ShoppingBag, Trash2, Volume2, VolumeX, X } from "lucide-react";
@@ -9,7 +9,6 @@ import NayaFooter from "@/components/layout/NayaFooter";
 import NayaWhatsAppButton from "@/components/layout/NayaWhatsAppButton";
 import PromoBanner from "@/components/home/PromoBanner";
 import MantequillasBanner from "@/components/home/MantequillasBanner";
-import RutinaQuiz from "@/components/home/RutinaQuiz";
 import { WHATSAPP_NUMBER } from "@/utils/contacto";
 import type { Producto } from "@/utils/productos";
 import { ENVIO_GRATIS_DESDE } from "@/utils/envios";
@@ -230,9 +229,8 @@ function acentoProducto(producto: Producto): string {
 
 export default function Home() {
   const [productos, setProductos] = useState<Producto[]>([]);
-  const [quizAbierto, setQuizAbierto] = useState(false);
-  const abrirQuiz = () => setQuizAbierto(true);
-  const cerrarQuiz = useCallback(() => setQuizAbierto(false), []);
+  // El test de mantequillas tiene su propia página y se abre en una pestaña aparte.
+  const abrirQuiz = () => window.open("/test-mantequillas", "_blank", "noopener");
   const [cargandoProductos, setCargandoProductos] = useState(true);
   const [errorProductos, setErrorProductos] = useState("");
   const [categoriaActiva, setCategoriaActiva] = useState("Todos");
@@ -805,23 +803,10 @@ export default function Home() {
         </a>
       </section>
 
-      <RutinaQuiz
-        abierto={quizAbierto}
-        productos={productos}
-        imagen={imagenProducto}
-        onClose={cerrarQuiz}
-        onAgregar={(lista) => {
-          lista.forEach((p) => agregarAlCarrito(p));
-          setQuizAbierto(false);
-          setCarritoAbierto(true);
-        }}
-      />
-      {!quizAbierto && (
-        <button type="button" className="naya-quiz-float" onClick={abrirQuiz} aria-label="Hacer el test: ¿Qué mantequilla eres?">
-          <span className="naya-quiz-float__icon" aria-hidden="true">🧴</span>
-          <span className="naya-quiz-float__text">¿Qué mantequilla eres?</span>
-        </button>
-      )}
+      <a className="naya-quiz-float" href="/test-mantequillas" target="_blank" rel="noopener" aria-label="Hacer el test: ¿Qué mantequilla eres? (se abre en una pestaña nueva)">
+        <span className="naya-quiz-float__icon" aria-hidden="true">🧴</span>
+        <span className="naya-quiz-float__text">¿Qué mantequilla eres?</span>
+      </a>
       <NayaFooter />
       <NayaWhatsAppButton />
 

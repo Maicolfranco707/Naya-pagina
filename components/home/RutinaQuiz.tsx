@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { ArrowLeft, Sparkles, X } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, Check, Sparkles, X } from "lucide-react";
 import type { Producto } from "@/utils/productos";
 
 // Test "¿Qué mantequilla eres?" — IDs de las mantequillas en Supabase.
@@ -54,19 +55,23 @@ interface Props {
   imagen: (p: Producto) => string;
   onClose: () => void;
   onAgregar: (productos: Producto[]) => void;
+  /** "pagina": el test ocupa su propia página (/test-mantequillas), sin la tienda detrás. */
+  modo?: "modal" | "pagina";
+  /** En modo página: ya se agregó al carrito. */
+  agregado?: boolean;
 }
 
-export default function RutinaQuiz({ abierto, productos, imagen, onClose, onAgregar }: Props) {
+export default function RutinaQuiz({ abierto, productos, imagen, onClose, onAgregar, modo = "modal", agregado = false }: Props) {
   const [respuestas, setRespuestas] = useState<Mantequilla[]>([]);
 
   useEffect(() => {
-    if (!abierto) return;
+    if (!abierto || modo === "pagina") return;
     setRespuestas([]);
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
     document.addEventListener("keydown", onKey);
     document.body.style.overflow = "hidden";
     return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
-  }, [abierto, onClose]);
+  }, [abierto, onClose, modo]);
 
   if (!abierto) return null;
 
@@ -85,14 +90,22 @@ export default function RutinaQuiz({ abierto, productos, imagen, onClose, onAgre
   const pregunta = PREGUNTAS[Math.min(paso, PREGUNTAS.length - 1)];
 
   return (
-    <div className="nq" role="dialog" aria-modal="true" aria-labelledby="nq-title" onClick={onClose}>
+    <div
+      className={modo === "pagina" ? "nq-page" : "nq"}
+      role={modo === "pagina" ? undefined : "dialog"}
+      aria-modal={modo === "pagina" ? undefined : true}
+      aria-labelledby="nq-title"
+      onClick={modo === "pagina" ? undefined : onClose}
+    >
       <div className="nq__panel" onClick={(e) => e.stopPropagation()}>
         <div className="nq__top">
           {paso > 0 && !terminado ? (
             <button type="button" className="nq__icon" onClick={() => setRespuestas((r) => r.slice(0, -1))} aria-label="Pregunta anterior"><ArrowLeft size={20} /></button>
           ) : <span />}
           <p className="nq__brand">¿Qué mantequilla eres?</p>
-          <button type="button" className="nq__icon" onClick={onClose} aria-label="Cerrar test"><X size={20} /></button>
+          {modo === "pagina" ? <span /> : (
+            <button type="button" className="nq__icon" onClick={onClose} aria-label="Cerrar test"><X size={20} /></button>
+          )}
         </div>
         {!terminado && (
           <div className="nq__progress" aria-hidden="true"><span style={{ width: `${((paso + 1) / PREGUNTAS.length) * 100}%` }} /></div>
@@ -128,9 +141,17 @@ export default function RutinaQuiz({ abierto, productos, imagen, onClose, onAgre
                       <b>${producto.precio.toLocaleString("es-CO")}</b>
                     </div>
                   </div>
-                  <button type="button" className="nq__cta" onClick={() => onAgregar([producto])}>
-                    Agregar al carrito
-                  </button>
+                  {agregado ? (
+                    <div className="nq__added">
+                      <p><Check size={16} aria-hidden="true" /> ¡Listo! La agregamos a tu carrito.</p>
+                      <Link href="/checkout" className="nq__cta nq__cta--link">Ir a pagar</Link>
+                      <Link href="/" className="nq__secondary">Seguir comprando</Link>
+                    </div>
+                  ) : (
+                    <button type="button" className="nq__cta" onClick={() => onAgregar([producto])}>
+                      Agregar al carrito
+                    </button>
+                  )}
                   <p className="nq__coupon">Usa <strong>BIENVENIDA10</strong> y obtén 10% OFF en tu primera compra.</p>
                 </>
               ) : (

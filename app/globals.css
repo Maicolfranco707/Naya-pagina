@@ -4444,3 +4444,18 @@ div.naya-co__option { cursor: default; }
   .nq__panel { width: 100%; max-height: calc(100vh - 28px); border-radius: 20px; padding: 14px 16px 20px; }
 }
 .nq__after { justify-content: center; }
+
+/* ── Página propia del test (/test-mantequillas) ── */
+.nq-shell { min-height: 100vh; background: #f3e9dc; }
+.nq-shell__header {
+  display: flex; align-items: center; justify-content: space-between;
+  width: min(100%, 1100px); margin: 0 auto; padding: 18px clamp(16px, 4vw, 32px);
+}
+.nq-shell__logo { color: #0b3a3c; font-family: var(--font-display), serif; font-size: 28px; font-weight: 600; letter-spacing: 0.22em; text-decoration: none; }
+.nq-shell__back { color: #0b3a3c; font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
+.nq-page { display: grid; place-items: start center; padding: 10px 16px 48px; }
+.nq-page .nq__panel { max-height: none; overflow: visible; animation: nq-up 400ms cubic-bezier(.2,.7,.2,1); }
+.nq__added { display: grid; gap: 10px; margin-top: 16px; text-align: center; }
+.nq__added p { display: flex; justify-content: center; align-items: center; gap: 6px; margin: 0; color: #2f6b45; font-weight: 700; }
+.nq__cta--link { display: grid; place-items: center; text-decoration: none; margin-top: 0; }
+.nq__secondary { color: #0b3a3c; font-size: 14px; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; }
