@@ -10,7 +10,7 @@ import type { Producto } from "@/utils/productos";
 type Mantequilla = "coco" | "uva" | "kiwi" | "cherry";
 
 const MANTEQUILLAS: Record<Mantequilla, { id: number; nombre: string; titulo: string; texto: string; aroma: string; img: string; color: string }> = {
-  kiwi: { id: 7, nombre: "Kiwi", titulo: "Mantequilla de Kiwi", texto: "Eres alegre y espontánea. Te va un aroma fresco y frutal para el día a día.", aroma: "Fresco, verde y frutal", img: "/naya_foto/kiwi.png", color: "#dfe8c9" },
+  kiwi: { id: 7, nombre: "Kiwi", titulo: "Mantequilla de Kiwi", texto: "Tienes mucha energía y espontaneidad. Te va un aroma fresco y frutal para el día a día.", aroma: "Fresco, verde y frutal", img: "/naya_foto/kiwi.png", color: "#dfe8c9" },
   uva: { id: 8, nombre: "Uva", titulo: "Mantequilla de Uva", texto: "Te gustan los detalles y los planes tranquilos. Te va un aroma intenso y especial.", aroma: "Intenso, profundo y especial", img: "/naya_foto/uva.png", color: "#e3dcef" },
   cherry: { id: 9, nombre: "Cherry", titulo: "Mantequilla Cherry", texto: "Te encanta consentirte. Te va un aroma dulce que deja la piel suave y perfumada.", aroma: "Dulce, a frutos rojos y cereza", img: "/naya_foto/cherry.png", color: "#f4dbdf" },
   coco: { id: 5, nombre: "Coco Festival", titulo: "Mantequilla Coco Festival", texto: "Vas a tu ritmo y te encanta el calor. Te va un aroma tropical y cremoso.", aroma: "Tropical, cremoso, a coco", img: "/naya_foto/coco_festival.png", color: "#efe6d6" },
@@ -19,19 +19,19 @@ const MANTEQUILLAS: Record<Mantequilla, { id: number; nombre: string; titulo: st
 interface Opcion { valor: Mantequilla; texto: string }
 const PREGUNTAS: Array<{ titulo: string; opciones: Opcion[] }> = [
   {
-    titulo: "¿Cómo te describirían tus amigas?",
+    titulo: "¿Qué te describe mejor?",
     opciones: [
-      { valor: "kiwi", texto: "Divertida y espontánea" },
-      { valor: "uva", texto: "Elegante y segura de sí misma" },
-      { valor: "cherry", texto: "Dulce y romántica" },
-      { valor: "coco", texto: "Tranquila y relajada" },
+      { valor: "kiwi", texto: "Energía y buen humor" },
+      { valor: "uva", texto: "Estilo y seguridad" },
+      { valor: "cherry", texto: "Un lado dulce y detallista" },
+      { valor: "coco", texto: "Calma: voy a mi propio ritmo" },
     ],
   },
   {
     titulo: "¿Cuál es tu plan ideal de fin de semana?",
     opciones: [
       { valor: "coco", texto: "Playa, sol y piscina" },
-      { valor: "kiwi", texto: "Salir con mis amigas" },
+      { valor: "kiwi", texto: "Salir con mis amigos" },
       { valor: "uva", texto: "Una cena especial con una copa de vino" },
       { valor: "cherry", texto: "Spa en casa: velas, música y skincare" },
     ],
