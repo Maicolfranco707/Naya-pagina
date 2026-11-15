@@ -1,7 +1,7 @@
 import { createSupabaseAdminClient } from "@/utils/supabase/server";
 import { deliverEmail } from "@/utils/email/order-emails";
 import { instruccionesAsistente } from "@/utils/whatsapp/conocimiento";
-import { enviarTexto, marcarLeidoEscribiendo } from "@/utils/whatsapp/meta";
+import { descargarImagen, enviarTexto, marcarLeidoEscribiendo } from "@/utils/whatsapp/meta";
 
 const HISTORIAL = 16;                         // mensajes previos que ve la IA
 const PAUSA_SI_RESPONDE_PERSONA_H = 12;       // si alguien de NAYA escribe desde el celular, el bot se calla
@@ -14,13 +14,26 @@ export interface MensajeEntrante {
   mensajeId: string;
   tipo: string;
   texto: string | null;
+  imagenId?: string | null;
+}
+
+type BloqueContenido =
+  | { type: "text"; text: string }
+  | { type: "image"; source: { type: "base64"; media_type: string; data: string } };
+type Turno = { role: "user" | "assistant"; content: string | BloqueContenido[] };
+
+/** Interruptor general del bot (pestaña "Bot WhatsApp" del admin). */
+async function botEncendido() {
+  const { data } = await createSupabaseAdminClient()
+    .from("store_settings").select("value").eq("key", "whatsapp_bot_enabled").maybeSingle();
+  return data ? data.value === true : true;
 }
 
 function horasDesdeAhora(horas: number) {
   return new Date(Date.now() + horas * 3600_000).toISOString();
 }
 
-async function preguntarIA(sistema: string, historial: Array<{ role: "user" | "assistant"; content: string }>) {
+async function preguntarIA(sistema: string, historial: Turno[]) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) throw new Error("Falta configurar ANTHROPIC_API_KEY.");
 
@@ -102,9 +115,11 @@ export async function atenderMensaje(entrante: MensajeEntrante) {
     .select("bot_paused_until")
     .single();
 
-  const texto = entrante.texto?.trim()
-    || (entrante.tipo === "audio" ? "(El cliente envió una nota de voz)"
-      : entrante.tipo === "image" ? "(El cliente envió una imagen)"
+  const esImagen = entrante.tipo === "image" && !!entrante.imagenId;
+  const texto = esImagen
+    ? `(El cliente envió una foto)${entrante.texto?.trim() ? ` ${entrante.texto.trim()}` : ""}`
+    : entrante.texto?.trim()
+      || (entrante.tipo === "audio" ? "(El cliente envió una nota de voz)"
         : `(El cliente envió un mensaje de tipo ${entrante.tipo})`);
 
   // Guardar el mensaje; si ya existía (Meta reintenta), no responder dos veces
@@ -114,13 +129,14 @@ export async function atenderMensaje(entrante: MensajeEntrante) {
   if (errorGuardar?.code === "23505") return;
   if (errorGuardar) throw new Error(`No se pudo guardar el mensaje: ${errorGuardar.message}`);
 
-  // Una persona de NAYA está atendiendo esta conversación
+  // Bot apagado desde el admin, o una persona de NAYA está atendiendo esta conversación
+  if (!(await botEncendido())) return;
   if (conversacion?.bot_paused_until && new Date(conversacion.bot_paused_until) > new Date()) return;
 
   await marcarLeidoEscribiendo(entrante.mensajeId);
 
   let respuesta: string;
-  if (!entrante.texto?.trim()) {
+  if (!entrante.texto?.trim() && !esImagen) {
     respuesta = entrante.tipo === "audio"
       ? "¡Gracias por tu mensaje! 🌿 Por ahora no puedo escuchar notas de voz. ¿Me lo escribes y te ayudo enseguida?"
       : "¡Gracias! Por ahora solo puedo leer mensajes de texto. ¿Me cuentas por escrito en qué te puedo ayudar?";
@@ -131,7 +147,23 @@ export async function atenderMensaje(entrante: MensajeEntrante) {
       .eq("wa_id", entrante.waId)
       .order("created_at", { ascending: false })
       .limit(HISTORIAL);
-    const historial = ordenarTurnos((filas ?? []).reverse());
+    const historial: Turno[] = ordenarTurnos((filas ?? []).reverse());
+
+    // Si mandó una foto, la IA la ve en el último turno del cliente
+    if (esImagen && entrante.imagenId) {
+      try {
+        const imagen = await descargarImagen(entrante.imagenId);
+        const ultimo = historial[historial.length - 1];
+        if (imagen && ultimo?.role === "user") {
+          ultimo.content = [
+            { type: "image", source: { type: "base64", media_type: imagen.mediaType, data: imagen.base64 } },
+            { type: "text", text: `${typeof ultimo.content === "string" ? ultimo.content : ""}\n(Mira la foto: si es un producto o publicación de NAYA, reconócelo y responde con su precio y link; si es su cabello o piel, orienta sin diagnosticar.)` },
+          ];
+        }
+      } catch (error) {
+        console.error("No se pudo procesar la foto:", error instanceof Error ? error.message : error);
+      }
+    }
 
     try {
       respuesta = await preguntarIA(await instruccionesAsistente(), historial);

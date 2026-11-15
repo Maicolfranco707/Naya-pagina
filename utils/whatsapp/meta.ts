@@ -38,6 +38,27 @@ export async function enviarTexto(para: string, texto: string) {
   return result.messages?.[0]?.id ?? null;
 }
 
+/** Descarga una imagen que mandó el cliente (máx. 4 MB) y la devuelve en base64. */
+export async function descargarImagen(mediaId: string) {
+  const token = process.env.WHATSAPP_TOKEN;
+  if (!token) throw new Error("Falta configurar WHATSAPP_TOKEN.");
+
+  const info = await fetch(`${GRAPH}/${mediaId}`, { headers: { Authorization: `Bearer ${token}` } });
+  if (!info.ok) throw new Error(`No se pudo consultar la imagen (${info.status}).`);
+  const { url, mime_type: mimeType, file_size: tamano } = await info.json() as { url?: string; mime_type?: string; file_size?: number };
+  if (!url) throw new Error("La imagen no tiene URL.");
+  if (tamano && tamano > 4_000_000) return null;
+
+  const tipo = (mimeType ?? "").split(";")[0].trim();
+  if (!["image/jpeg", "image/png", "image/webp", "image/gif"].includes(tipo)) return null;
+
+  const archivo = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+  if (!archivo.ok) throw new Error(`No se pudo descargar la imagen (${archivo.status}).`);
+  const bytes = Buffer.from(await archivo.arrayBuffer());
+  if (bytes.length > 4_000_000) return null;
+  return { base64: bytes.toString("base64"), mediaType: tipo as "image/jpeg" | "image/png" | "image/webp" | "image/gif" };
+}
+
 /** Marca el mensaje como leído y muestra "escribiendo…" mientras el bot responde. */
 export async function marcarLeidoEscribiendo(mensajeId: string) {
   try {

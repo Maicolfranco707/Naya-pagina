@@ -23,7 +23,7 @@ interface CambioWhatsApp {
   field?: string;
   value?: {
     contacts?: Array<{ wa_id?: string; profile?: { name?: string } }>;
-    messages?: Array<{ from?: string; id?: string; type?: string; text?: { body?: string }; button?: { text?: string }; interactive?: { button_reply?: { title?: string }; list_reply?: { title?: string } } }>;
+    messages?: Array<{ from?: string; id?: string; type?: string; text?: { body?: string }; image?: { id?: string; caption?: string }; button?: { text?: string }; interactive?: { button_reply?: { title?: string }; list_reply?: { title?: string } } }>;
     message_echoes?: Array<{ to?: string; id?: string; type?: string; text?: { body?: string } }>;
   };
 }
@@ -54,11 +54,12 @@ export async function POST(request: Request) {
         for (const m of value.messages ?? []) {
           if (!m.from || !m.id) continue;
           const texto = m.text?.body
+            ?? m.image?.caption
             ?? m.button?.text
             ?? m.interactive?.button_reply?.title
             ?? m.interactive?.list_reply?.title
             ?? null;
-          entrantes.push({ waId: m.from, nombre, mensajeId: m.id, tipo: m.type ?? "desconocido", texto });
+          entrantes.push({ waId: m.from, nombre, mensajeId: m.id, tipo: m.type ?? "desconocido", texto, imagenId: m.image?.id ?? null });
         }
       }
 

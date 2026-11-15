@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import {
+  Bot,
   Box,
   Check,
   ChevronDown,
@@ -19,6 +20,7 @@ import {
   X,
 } from "lucide-react";
 import CouponsPanel from "@/components/admin/CouponsPanel";
+import WhatsAppBotPanel from "@/components/admin/WhatsAppBotPanel";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
 
 interface Producto {
@@ -112,7 +114,7 @@ export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [cargando, setCargando] = useState(false);
   const [cargandoDatos, setCargandoDatos] = useState(false);
-  const [pestana, setPestana] = useState<"pedidos" | "productos" | "cupones">("pedidos");
+  const [pestana, setPestana] = useState<"pedidos" | "productos" | "cupones" | "whatsapp">("pedidos");
   const [productos, setProductos] = useState<Producto[]>([]);
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [busqueda, setBusqueda] = useState("");
@@ -399,7 +401,7 @@ export default function AdminPage() {
         </div>
 
         <div className="mt-8 flex flex-col gap-4 border-b border-stone-300 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex gap-1" role="tablist" aria-label="Secciones administrativas">
+          <div className="flex gap-1 overflow-x-auto" role="tablist" aria-label="Secciones administrativas">
             <button type="button" role="tab" aria-selected={pestana === "pedidos"} onClick={() => { setPestana("pedidos"); setBusqueda(""); }} className={`inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium ${pestana === "pedidos" ? "border-emerald-900 text-emerald-950" : "border-transparent text-stone-500 hover:text-stone-900"}`}>
               <ShoppingBag size={16} /> Pedidos
             </button>
@@ -408,6 +410,9 @@ export default function AdminPage() {
             </button>
             <button type="button" role="tab" aria-selected={pestana === "cupones"} onClick={() => { setPestana("cupones"); setBusqueda(""); }} className={`inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium ${pestana === "cupones" ? "border-emerald-900 text-emerald-950" : "border-transparent text-stone-500 hover:text-stone-900"}`}>
               <Tag size={16} /> Cupones
+            </button>
+            <button type="button" role="tab" aria-selected={pestana === "whatsapp"} onClick={() => { setPestana("whatsapp"); setBusqueda(""); }} className={`inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium ${pestana === "whatsapp" ? "border-emerald-900 text-emerald-950" : "border-transparent text-stone-500 hover:text-stone-900"}`}>
+              <Bot size={16} /> Bot WhatsApp
             </button>
           </div>
           <label className="mb-3 flex items-center gap-2 border border-stone-300 bg-white px-3 py-2 sm:mb-2 sm:w-72">
@@ -427,6 +432,8 @@ export default function AdminPage() {
           <p className="py-16 text-center text-sm text-stone-500">Cargando datos...</p>
         ) : pestana === "cupones" ? (
           <CouponsPanel />
+        ) : pestana === "whatsapp" ? (
+          <WhatsAppBotPanel />
         ) : pestana === "productos" ? (
           <section className="mt-5">
             <div className="mb-4 flex items-center justify-between gap-3">
