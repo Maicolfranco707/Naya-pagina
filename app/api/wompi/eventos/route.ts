@@ -1,12 +1,50 @@
+import { createHash, timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/utils/supabase/server";
 import { sendPaymentApprovedEmails } from "@/utils/email/order-emails";
 
 export const runtime = "nodejs";
 
+// Wompi firma cada evento: SHA256(valores de signature.properties + timestamp + secreto de eventos).
+// Si la firma no coincide, el evento no viene de Wompi y se rechaza.
+function eventoFirmadoPorWompi(event: Record<string, unknown>) {
+  const secret = process.env.WOMPI_EVENTS_SECRET;
+  if (!secret) throw new Error("Falta configurar WOMPI_EVENTS_SECRET.");
+
+  const signature = event.signature as { properties?: unknown; checksum?: unknown } | undefined;
+  const properties = signature?.properties;
+  const checksum = signature?.checksum;
+  if (!Array.isArray(properties) || typeof checksum !== "string" || event.timestamp === undefined) {
+    return false;
+  }
+
+  const data = event.data as Record<string, unknown> | undefined;
+  let concatenated = "";
+  for (const property of properties) {
+    if (typeof property !== "string") return false;
+    let value: unknown = data;
+    for (const key of property.split(".")) {
+      value = value && typeof value === "object" ? (value as Record<string, unknown>)[key] : undefined;
+    }
+    if (value === undefined || value === null) return false;
+    concatenated += String(value);
+  }
+  concatenated += String(event.timestamp) + secret;
+
+  const expected = createHash("sha256").update(concatenated).digest("hex");
+  const received = checksum.toLowerCase();
+  return expected.length === received.length
+    && timingSafeEqual(Buffer.from(expected), Buffer.from(received));
+}
+
 export async function POST(request: Request) {
   try {
     const event = await request.json();
+
+    if (!eventoFirmadoPorWompi(event)) {
+      console.warn("Evento de Wompi con firma inválida, se ignora.");
+      return NextResponse.json({ error: "Firma inválida." }, { status: 401 });
+    }
     
     // Verificamos que sea un evento de transacción actualizada
     if (event.event !== "transaction.updated") {
@@ -32,6 +70,20 @@ export async function POST(request: Request) {
     }
 
     const supabase = createSupabaseAdminClient();
+
+    // El monto cobrado debe coincidir con el total del pedido
+    if (status === "APPROVED") {
+      const { data: order } = await supabase
+        .from("orders")
+        .select("total_cop")
+        .eq("reference", reference)
+        .eq("payment_provider", "wompi")
+        .maybeSingle();
+      if (order && Number(amountInCents) !== Number(order.total_cop) * 100) {
+        console.error(`Monto no coincide en ${reference}: ${amountInCents} vs ${order.total_cop * 100}`);
+        return NextResponse.json({ error: "El monto no coincide con el pedido." }, { status: 400 });
+      }
+    }
     
     // Actualizamos el estado en la base de datos de Supabase
     const { data, error } = await supabase
