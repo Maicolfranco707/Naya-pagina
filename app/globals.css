@@ -4938,3 +4938,11 @@ a.nh-mega__title:hover { color: #b86b2e; }
 @media (prefers-reduced-motion: reduce) {
   .naya-rz *, .naya-rt * { animation: none !important; }
 }
+@media (max-width: 767px) {
+  .naya-rz { grid-template-rows: 50% 1fr; }
+  .naya-rz__chips { display: none; }
+  .naya-rz__text { margin-bottom: 16px; }
+}
+@media (max-width: 767px) {
+  .naya-rt__list { display: none; }
+}
