@@ -815,8 +815,13 @@ export default function Home() {
           setQuizAbierto(false);
           setCarritoAbierto(true);
         }}
-        whatsappHref={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hola NAYA, hice el test de las mantequillas y quiero asesoría.")}`}
       />
+      {!quizAbierto && (
+        <button type="button" className="naya-quiz-float" onClick={abrirQuiz} aria-label="Hacer el test: ¿Qué mantequilla eres?">
+          <span className="naya-quiz-float__icon" aria-hidden="true">🧴</span>
+          <span className="naya-quiz-float__text">¿Qué mantequilla eres?</span>
+        </button>
+      )}
       <NayaFooter />
       <NayaWhatsAppButton />
 

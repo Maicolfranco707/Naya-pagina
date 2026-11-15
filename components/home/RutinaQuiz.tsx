@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { ArrowLeft, MessageCircle, Sparkles, X } from "lucide-react";
+import { ArrowLeft, Sparkles, X } from "lucide-react";
 import type { Producto } from "@/utils/productos";
 
 // Test "¿Qué mantequilla eres?" — IDs de las mantequillas en Supabase.
@@ -54,10 +54,9 @@ interface Props {
   imagen: (p: Producto) => string;
   onClose: () => void;
   onAgregar: (productos: Producto[]) => void;
-  whatsappHref: string;
 }
 
-export default function RutinaQuiz({ abierto, productos, imagen, onClose, onAgregar, whatsappHref }: Props) {
+export default function RutinaQuiz({ abierto, productos, imagen, onClose, onAgregar }: Props) {
   const [respuestas, setRespuestas] = useState<Mantequilla[]>([]);
 
   useEffect(() => {
@@ -139,7 +138,6 @@ export default function RutinaQuiz({ abierto, productos, imagen, onClose, onAgre
               )}
               <div className="nq__after">
                 <button type="button" onClick={() => setRespuestas([])}>Repetir el test</button>
-                <a href={whatsappHref} target="_blank" rel="noopener noreferrer"><MessageCircle size={15} aria-hidden="true" /> ¿Dudas? Habla con una asesora</a>
               </div>
             </>
           )}

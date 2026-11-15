@@ -4399,3 +4399,48 @@ div.naya-co__option { cursor: default; }
 .nq__result small { display: block; margin: 6px 0 8px; color: #3f5856; font-size: 13.5px; }
 .nq__result b { font-size: 18px; }
 @media (max-width: 520px) { .nq__result { grid-template-columns: 120px 1fr; } }
+
+/* ── Botón flotante del test (abajo a la izquierda, como en Fauno) ── */
+.naya-quiz-float {
+  position: fixed;
+  left: 22px;
+  bottom: 22px;
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 50px;
+  padding: 0 18px 0 8px;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  background: #b86b2e;
+  box-shadow: 0 8px 24px rgba(184, 107, 46, 0.35);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: transform 200ms ease, background 200ms ease;
+  animation: naya-quiz-float-in 600ms cubic-bezier(.2,.7,.2,1) 1.2s both;
+}
+.naya-quiz-float:hover { transform: translateY(-2px); background: #a35d25; }
+.naya-quiz-float__icon {
+  display: grid; place-items: center; width: 36px; height: 36px;
+  border-radius: 50%; background: rgba(255, 255, 255, 0.2); font-size: 19px;
+  animation: naya-quiz-wiggle 4s ease-in-out 3s infinite;
+}
+@keyframes naya-quiz-float-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+@keyframes naya-quiz-wiggle { 0%, 88%, 100% { transform: rotate(0); } 91% { transform: rotate(-14deg); } 94% { transform: rotate(12deg); } 97% { transform: rotate(-6deg); } }
+@media (max-width: 767px) {
+  .naya-quiz-float { left: 14px; bottom: 14px; width: 50px; padding: 0; justify-content: center; }
+  .naya-quiz-float__text { display: none; }
+  .naya-quiz-float__icon { background: transparent; font-size: 22px; }
+}
+@media (prefers-reduced-motion: reduce) { .naya-quiz-float, .naya-quiz-float__icon { animation: none; } }
+
+/* El test se abre siempre como ventana centrada (también en celular) */
+@media (max-width: 520px) {
+  .nq { align-items: center; padding: 14px; }
+  .nq__panel { width: 100%; max-height: calc(100vh - 28px); border-radius: 20px; padding: 14px 16px 20px; }
+}
+.nq__after { justify-content: center; }
