@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 };
 
 const WHATSAPP = "https://wa.me/573042051221?text=Hola%20NAYA%2C%20quiero%20hacer%20un%20pedido";
-const INSTAGRAM = "https://www.instagram.com/naya_renovacion/";
+const FACEBOOK = "https://www.facebook.com/share/1CJUGboHRu/";
 const TIKTOK = "https://www.tiktok.com/@nayarenovacion";
 
 function IconoWhatsApp() {
@@ -18,10 +18,10 @@ function IconoWhatsApp() {
     </svg>
   );
 }
-function IconoInstagram() {
+function IconoFacebook() {
   return (
-    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-      <rect x="3" y="3" width="18" height="18" rx="5" /><circle cx="12" cy="12" r="4" /><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" aria-hidden="true">
+      <path d="M13.5 21v-7.5h2.5l.4-3h-2.9V8.6c0-.9.3-1.5 1.5-1.5h1.6V4.4c-.3 0-1.2-.1-2.3-.1-2.3 0-3.8 1.4-3.8 3.9v2.3H8v3h2.5V21h3z" />
     </svg>
   );
 }
@@ -36,7 +36,7 @@ function IconoTikTok() {
 const ENLACES = [
   { titulo: "Tienda online", href: "/" },
   { titulo: "Pedidos por WhatsApp", href: WHATSAPP, externo: true },
-  { titulo: "Instagram", href: INSTAGRAM, externo: true },
+  { titulo: "Facebook", href: FACEBOOK, externo: true },
   { titulo: "TikTok", href: TIKTOK, externo: true },
 ];
 
@@ -52,7 +52,7 @@ export default function LinksPage() {
 
         <div className="nl__social">
           <a href={WHATSAPP} target="_blank" rel="noreferrer" aria-label="WhatsApp de NAYA"><IconoWhatsApp /></a>
-          <a href={INSTAGRAM} target="_blank" rel="noreferrer" aria-label="Instagram de NAYA"><IconoInstagram /></a>
+          <a href={FACEBOOK} target="_blank" rel="noreferrer" aria-label="Facebook de NAYA"><IconoFacebook /></a>
           <a href={TIKTOK} target="_blank" rel="noreferrer" aria-label="TikTok de NAYA"><IconoTikTok /></a>
         </div>
 
