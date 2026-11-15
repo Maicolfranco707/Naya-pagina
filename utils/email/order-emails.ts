@@ -185,7 +185,7 @@ async function claimEmailEvent(eventKey: string) {
 
 // Si hay credenciales de Gmail (correo + contraseña de aplicación), los correos
 // salen desde ese Gmail y llegan a cualquier destinatario. Si no, se usa Resend.
-async function deliverEmail(to: string, subject: string, html: string, text: string) {
+export async function deliverEmail(to: string, subject: string, html: string, text: string) {
   const gmailUser = process.env.GMAIL_USER;
   const gmailPassword = process.env.GMAIL_APP_PASSWORD?.replace(/\s+/g, "");
 
