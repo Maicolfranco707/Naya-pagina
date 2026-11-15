@@ -104,9 +104,9 @@ export const INFO_PRODUCTOS: Record<number, InfoProducto> = {
     galeria: ["/naya_foto/mantequilla-mano.jpg"],
   },
   10: { // Ampolleta de Nutrición
-    beneficios: ["Nutrición e hidratación profunda", "Aporta suavidad y brillo", "Ayuda a controlar el frizz"],
-    modoUso: "Mezcla la ampolleta con tu acondicionador o mascarilla y aplica de medios a puntas. Deja actuar unos minutos y enjuaga.",
-    idealPara: "Cabello reseco, opaco o maltratado.",
+    beneficios: ["Nutrición e hidratación profunda al instante"],
+    modoUso: "Mezcla el contenido de la ampolleta con la misma cantidad de agua y revuelve hasta formar una crema. Aplica de medios a puntas con el cabello previamente limpio y deja actuar 20 minutos (lo ideal es ponerte un gorrito para generar calor). Enjuaga y sella con acondicionador.",
+    idealPara: "Cabellos porosos, maltratados, con procesos químicos o expuestos a piscina, sol y mar.",
   },
   11: { // Kit de Romero
     beneficios: ["Rutina completa en 3 pasos", "Fortalece y ayuda a frenar la caída", "Ahorras frente a comprar por separado"],
@@ -116,7 +116,7 @@ export const INFO_PRODUCTOS: Record<number, InfoProducto> = {
   },
   12: { // Kit de Cayena
     beneficios: ["Rutina completa en 3 pasos", "Hidrata, da brillo y controla el frizz", "Ahorras frente a comprar por separado"],
-    modoUso: "1. Lava con el Shampoo de Cayena. 2. Aplica el Acondicionador de Cayena de medios a puntas y enjuaga. 3. Complementa con la ampolleta, mezclada con tu acondicionador o mascarilla.",
+    modoUso: "1. Lava con el Shampoo de Cayena. 2. Mezcla la Ampolleta de Nutrición con la misma cantidad de agua, aplícala de medios a puntas y deja actuar 20 minutos. 3. Enjuaga y sella con el Acondicionador de Cayena.",
     idealPara: "Cabello seco, opaco o con frizz.",
     galeria: ["/naya_foto/ig/cayena-flor.jpg"],
   },
