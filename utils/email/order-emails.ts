@@ -1,3 +1,4 @@
+import nodemailer from "nodemailer";
 import { Resend } from "resend";
 import { createSupabaseAdminClient } from "@/utils/supabase/server";
 
@@ -147,20 +148,45 @@ async function claimEmailEvent(eventKey: string) {
   return true;
 }
 
-async function sendOnce(eventKey: string, to: string, subject: string, html: string, text: string) {
+// Si hay credenciales de Gmail (correo + contraseña de aplicación), los correos
+// salen desde ese Gmail y llegan a cualquier destinatario. Si no, se usa Resend.
+async function deliverEmail(to: string, subject: string, html: string, text: string) {
+  const gmailUser = process.env.GMAIL_USER;
+  const gmailPassword = process.env.GMAIL_APP_PASSWORD?.replace(/\s+/g, "");
+
+  if (gmailUser && gmailPassword) {
+    const transporter = nodemailer.createTransport({
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: { user: gmailUser, pass: gmailPassword },
+    });
+    await transporter.sendMail({
+      from: `"NAYA Cosmética Natural" <${gmailUser}>`,
+      to,
+      subject,
+      html,
+      text,
+    });
+    return;
+  }
+
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.RESEND_FROM_EMAIL;
   if (!apiKey || !from) {
-    throw new Error("Falta configurar RESEND_API_KEY o RESEND_FROM_EMAIL.");
+    throw new Error("Falta configurar GMAIL_USER y GMAIL_APP_PASSWORD (o RESEND_API_KEY y RESEND_FROM_EMAIL).");
   }
+  const resend = new Resend(apiKey);
+  const { error } = await resend.emails.send({ from, to, subject, html, text });
+  if (error) throw new Error(error.message);
+}
 
+async function sendOnce(eventKey: string, to: string, subject: string, html: string, text: string) {
   const claimed = await claimEmailEvent(eventKey);
   if (!claimed) return false;
 
   try {
-    const resend = new Resend(apiKey);
-    const { error } = await resend.emails.send({ from, to, subject, html, text });
-    if (error) throw new Error(error.message);
+    await deliverEmail(to, subject, html, text);
     return true;
   } catch (error) {
     const supabase = createSupabaseAdminClient();
