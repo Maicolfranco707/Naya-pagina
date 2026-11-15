@@ -1,12 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { ArrowRight, Check, Copy } from "lucide-react";
 
 // Banner de oferta (estilo campaña). Para cambiar la oferta, edita estas constantes.
 const CODIGO = "BIENVENIDA10";
 const CINTA = ["10% OFF", CODIGO, "ENVÍO GRATIS DESDE $150.000"];
+
+// Productos que van rotando en el banner (fotos en public/naya_foto).
+const PRODUCTOS = [
+  { nombre: "Shampoo de Romero", src: "/naya_foto/shampoo-romero-espuma.jpg" },
+  { nombre: "Ampolleta de Nutrición", src: "/naya_foto/ampolleta-nutricion-jardin.jpg" },
+  { nombre: "Mantequilla Cherry", src: "/naya_foto/cherry.png" },
+  { nombre: "Kit de Cayena", src: "/naya_foto/kit-cayena.png" },
+  { nombre: "Ampolleta de Crecimiento", src: "/naya_foto/ampolleta-crecimiento-jardin.jpg" },
+  { nombre: "Mantequilla Kiwi", src: "/naya_foto/kiwi.png" },
+  { nombre: "Shampoo de Cayena", src: "/naya_foto/shampoocayena.png" },
+  { nombre: "Kit de Romero", src: "/naya_foto/kit-romero.png" },
+];
+
+function posicion(i: number, actual: number) {
+  const n = PRODUCTOS.length;
+  const d = (i - actual + n) % n;
+  if (d === 0) return "front";
+  if (d === 1) return "right";
+  if (d === n - 1) return "left";
+  if (d === 2) return "next";
+  return "hidden";
+}
 
 function Cinta({ className }: { className: string }) {
   const texto = Array.from({ length: 4 }, () => CINTA).flat();
@@ -26,6 +48,13 @@ function Cinta({ className }: { className: string }) {
 
 export default function PromoBanner({ onShop }: { onShop: () => void }) {
   const [copiado, setCopiado] = useState(false);
+  const [actual, setActual] = useState(0);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const id = window.setInterval(() => setActual((a) => (a + 1) % PRODUCTOS.length), 2600);
+    return () => window.clearInterval(id);
+  }, []);
 
   const copiar = async () => {
     try {
@@ -68,12 +97,12 @@ export default function PromoBanner({ onShop }: { onShop: () => void }) {
       </div>
 
       <div className="naya-promo__products" aria-hidden="true">
-        <div className="naya-promo__photo naya-promo__photo--back">
-          <Image src="/naya_foto/kit-romero.png" alt="" fill sizes="(max-width: 767px) 45vw, 22vw" className="object-cover" priority />
-        </div>
-        <div className="naya-promo__photo naya-promo__photo--front">
-          <Image src="/naya_foto/kit-cayena.png" alt="" fill sizes="(max-width: 767px) 50vw, 25vw" className="object-cover" priority />
-        </div>
+        {PRODUCTOS.map((p, i) => (
+          <figure key={p.src} className="naya-promo__card" data-pos={posicion(i, actual)}>
+            <Image src={p.src} alt="" fill sizes="(max-width: 767px) 40vw, 20vw" className="object-cover" priority={i < 3} />
+            <figcaption>{p.nombre}</figcaption>
+          </figure>
+        ))}
         <span className="naya-promo__sticker">-10%</span>
       </div>
     </div>

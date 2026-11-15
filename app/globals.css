@@ -4036,3 +4036,51 @@ div.naya-co__option { cursor: default; }
   .naya-promo *, .naya-promo *::after { animation: none !important; }
 }
 @media (min-width: 768px) { .naya-promo__tape--top { top: 8%; } }
+
+/* ── Banner de oferta: carrusel de productos ── */
+.naya-promo__card {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 78%;
+  aspect-ratio: 4 / 5;
+  margin: 0;
+  overflow: hidden;
+  border: 5px solid #fbf7ef;
+  border-radius: 16px;
+  background: #fbf7ef;
+  box-shadow: 0 22px 48px rgba(0, 0, 0, 0.35);
+  transition: transform 800ms cubic-bezier(.3,.7,.2,1), opacity 800ms ease, filter 800ms ease;
+  will-change: transform;
+}
+.naya-promo__card figcaption {
+  position: absolute;
+  inset: auto 0 0;
+  padding: 26px 12px 10px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.55), transparent);
+  color: #fff;
+  font-size: clamp(11px, 1vw, 15px);
+  font-weight: 700;
+  text-align: center;
+  transition: opacity 400ms ease;
+}
+.naya-promo__card[data-pos="front"] { z-index: 3; transform: translate(-50%, -50%) rotate(-2deg); }
+.naya-promo__card[data-pos="left"] { z-index: 2; transform: translate(-112%, -46%) rotate(-9deg) scale(.8); filter: brightness(.82); }
+.naya-promo__card[data-pos="right"] { z-index: 2; transform: translate(12%, -46%) rotate(9deg) scale(.8); filter: brightness(.82); }
+.naya-promo__card[data-pos="next"] { z-index: 1; opacity: 0; transform: translate(40%, -46%) rotate(14deg) scale(.7); }
+.naya-promo__card[data-pos="hidden"] { z-index: 0; opacity: 0; transform: translate(-140%, -46%) rotate(-14deg) scale(.7); }
+.naya-promo__card:not([data-pos="front"]) figcaption { opacity: 0; }
+.naya-promo__products { overflow: visible; }
+.naya-promo__sticker { top: 6%; right: 18%; }
+
+@media (max-width: 767px) {
+  .naya-promo__card { height: 86%; border-width: 3px; border-radius: 10px; }
+  .naya-promo__card figcaption { padding: 18px 6px 6px; font-size: 10.5px; }
+  .naya-promo__card[data-pos="left"] { transform: translate(-118%, -48%) rotate(-9deg) scale(.82); }
+  .naya-promo__card[data-pos="right"] { transform: translate(18%, -48%) rotate(9deg) scale(.82); }
+  .naya-promo__sticker { top: 0; right: 10%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .naya-promo__card { transition: none; }
+}
+@media (min-width: 768px) { .naya-promo__card { left: 45%; height: 76%; } }
