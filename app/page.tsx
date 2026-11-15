@@ -8,6 +8,7 @@ import Navbar from "@/components/layout/Navbar";
 import NayaFooter from "@/components/layout/NayaFooter";
 import NayaWhatsAppButton from "@/components/layout/NayaWhatsAppButton";
 import PromoBanner from "@/components/home/PromoBanner";
+import MantequillasBanner from "@/components/home/MantequillasBanner";
 import { WHATSAPP_NUMBER } from "@/utils/contacto";
 import type { Producto } from "@/utils/productos";
 import { ENVIO_GRATIS_DESDE } from "@/utils/envios";
@@ -32,7 +33,7 @@ const pasosAmpolletas = [
 const nombresAmpolletas = ["Ampolleta de Crecimiento", "Ampolleta de Nutrición"];
 
 // El primer banner es la oferta (PromoBanner, hecho en código); los demás son imágenes.
-const imagenesHero: Array<{ id: number; promo?: boolean; escritorio: string; celular: string; alt: string; busqueda: string }> = [
+const imagenesHero: Array<{ id: number; promo?: boolean; mantequillas?: boolean; escritorio: string; celular: string; alt: string; busqueda: string }> = [
   { id: 0, promo: true, escritorio: "", celular: "", alt: "10% OFF en tu primera compra con BIENVENIDA10", busqueda: "" },
   {
     id: 1,
@@ -50,6 +51,7 @@ const imagenesHero: Array<{ id: number; promo?: boolean; escritorio: string; cel
   },
   {
     id: 3,
+    mantequillas: true,
     escritorio: "/naya_foto/naya-banner-mantequillas-1920x800.webp",
     celular: "/naya_foto/naya-banner-mantequillas-1080x1350.webp",
     alt: "Mantequillas corporales NAYA",
@@ -446,6 +448,13 @@ export default function Home() {
           <div className="naya-hero__link naya-hero__picture">
             <PromoBanner onShop={() => verCategoria("Todos")} />
           </div>
+        ) : imagenesHero[heroIndex].mantequillas ? (
+          <div className="naya-hero__link naya-hero__picture">
+            <MantequillasBanner
+              onShop={() => verCategoria("Línea Frutal")}
+              whatsappHref={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensajeAsesoriaMantequillas)}`}
+            />
+          </div>
         ) : (
         <div className="naya-hero__link">
           <picture className="naya-hero__picture">
@@ -460,26 +469,6 @@ export default function Home() {
               loading={heroIndex === 0 ? "eager" : "lazy"}
             />
           </picture>
-          {imagenesHero[heroIndex].id === 3 ? (
-            <>
-              <a
-                className="naya-hero__whatsapp absolute z-10 hidden cursor-pointer md:block"
-                style={{ left: "9.5%", top: "76%", width: "21.5%", height: "11%" }}
-                href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensajeAsesoriaMantequillas)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Recibe asesoría por WhatsApp"
-              />
-              <a
-                className="naya-hero__whatsapp absolute z-10 block cursor-pointer md:hidden"
-                style={{ left: "22%", top: "52%", width: "56%", height: "6.5%" }}
-                href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensajeAsesoriaMantequillas)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Recibe asesoría por WhatsApp"
-              />
-            </>
-          ) : null}
         </div>
         )}
 
