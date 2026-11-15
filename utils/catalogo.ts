@@ -108,13 +108,11 @@ export const INFO_PRODUCTOS: Record<number, InfoProducto> = {
     beneficios: ["Rutina completa en 3 pasos", "Fortalece y ayuda a frenar la caída", "Ahorras frente a comprar por separado"],
     modoUso: "1. Lava con el Shampoo de Romero. 2. Aplica el Acondicionador de Romero de medios a puntas y enjuaga. 3. Complementa con la ampolleta, mezclada con tu shampoo o directamente en la raíz.",
     idealPara: "Cabello débil, quebradizo, con caída o graso en la raíz.",
-    galeria: ["/naya_foto/shampoo-romero-espuma.jpg"],
   },
   12: { // Kit de Cayena
     beneficios: ["Rutina completa en 3 pasos", "Hidrata, da brillo y controla el frizz", "Ahorras frente a comprar por separado"],
-    modoUso: "1. Lava con el Shampoo de Cayena. 2. Mezcla la Ampolleta de Nutrición con la misma cantidad de agua, aplícala de medios a puntas y deja actuar 20 minutos. 3. Enjuaga y sella con el Acondicionador de Cayena.",
+    modoUso: "1. Lava con el Shampoo de Cayena. 2. Aplica el Acondicionador de Cayena de medios a puntas y enjuaga. 3. Complementa con la ampolleta, mezclada con tu shampoo o directamente en la raíz.",
     idealPara: "Cabello seco, opaco o con frizz.",
-    galeria: ["/naya_foto/ig/cayena-flor.jpg"],
   },
 };
 
