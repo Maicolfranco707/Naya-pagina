@@ -200,10 +200,10 @@ function imagenProducto(producto: Producto): string {
     [producto.nombre, producto.categoria, producto.descripcion, producto.detalles].join(" ")
   );
   if (/ampollet.*crecimiento|crecimiento.*ampollet|tonico.*crecimiento|crecimiento.*tonico/.test(texto)) {
-    return "/naya_foto/ampolletaverde.png";
+    return "/naya_foto/ampolleta-crecimiento-jardin.jpg";
   }
   if (/ampollet.*nutricion|nutricion.*ampollet|crema.*nutricion|nutricion.*profund/.test(texto)) {
-    return "/naya_foto/ampolletarosa.png";
+    return "/naya_foto/ampolleta-nutricion-jardin.jpg";
   }
   if (texto.includes("shampoo") && texto.includes("cayena")) return "/naya_foto/shampoocayena.png";
   if (texto.includes("shampoo") && texto.includes("romero")) return "/naya_foto/shampooromero.png";
@@ -730,7 +730,7 @@ export default function Home() {
                     alt={producto.nombre}
                     fill
                     sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 22vw"
-                    className={esAmpolleta(producto) ? "object-contain" : "object-cover"}
+                    className="object-cover"
                   />
                 </button>
                 <div className="naya-card__info">
