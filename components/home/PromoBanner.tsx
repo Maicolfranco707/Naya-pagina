@@ -9,10 +9,17 @@ const CODIGO = "BIENVENIDA10";
 const CINTA = ["10% OFF", CODIGO, "ENVÍO GRATIS DESDE $150.000"];
 
 function Cinta({ className }: { className: string }) {
-  const texto = Array.from({ length: 6 }, () => CINTA).flat();
+  const texto = Array.from({ length: 4 }, () => CINTA).flat();
   return (
     <div className={`naya-promo__tape ${className}`} aria-hidden="true">
-      {texto.map((t, i) => <span key={i}>{t}</span>)}
+      {/* dos copias iguales para que la cinta corra sin saltos */}
+      <div className="naya-promo__tape-track">
+        {[0, 1].map((copia) => (
+          <div key={copia} className="naya-promo__tape-group">
+            {texto.map((t, i) => <span key={i}>{t}</span>)}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

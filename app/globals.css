@@ -3981,3 +3981,58 @@ div.naya-co__option { cursor: default; }
   .naya-promo__tape--bottom { bottom: 1%; left: -12%; transform: rotate(-4deg); }
 }
 @media (max-width: 767px) { .naya-promo__tape--top { top: 0; left: 66%; } .naya-promo__copy { padding-top: 30px; } }
+
+/* ── Banner de oferta: animación (como el video de L'amour, pero en código) ── */
+.naya-promo__tape { display: block; gap: 0; width: 160%; overflow: hidden; }
+.naya-promo__tape-track { display: flex; width: max-content; animation: naya-tape 22s linear infinite; }
+.naya-promo__tape--bottom .naya-promo__tape-track { animation-direction: reverse; animation-duration: 26s; }
+.naya-promo__tape-group { display: flex; gap: 28px; padding-right: 28px; }
+@keyframes naya-tape { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+.naya-promo__photo--front { animation: naya-float-front 6s ease-in-out infinite; }
+.naya-promo__photo--back { animation: naya-float-back 7s ease-in-out infinite; }
+@keyframes naya-float-front {
+  0%, 100% { transform: translateY(-56%) rotate(-5deg); }
+  50% { transform: translateY(-60%) rotate(-3deg); }
+}
+@keyframes naya-float-back {
+  0%, 100% { transform: translateY(-60%) rotate(7deg); }
+  50% { transform: translateY(-55%) rotate(9deg); }
+}
+.naya-promo__sticker { animation: naya-sticker 3.2s ease-in-out infinite; }
+@keyframes naya-sticker {
+  0%, 100% { transform: rotate(-12deg) scale(1); }
+  50% { transform: rotate(-4deg) scale(1.08); }
+}
+
+/* Entrada del texto cada vez que aparece el banner */
+.naya-promo__copy > * { animation: naya-promo-in 700ms cubic-bezier(.2,.7,.2,1) both; }
+.naya-promo__copy > :nth-child(2) { animation-delay: 80ms; }
+.naya-promo__copy > :nth-child(3) { animation-delay: 160ms; }
+.naya-promo__copy > :nth-child(4) { animation-delay: 240ms; }
+.naya-promo__copy > :nth-child(5) { animation-delay: 320ms; }
+@keyframes naya-promo-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+.naya-promo__title strong { display: inline-block; animation: naya-pop 900ms cubic-bezier(.2,1.4,.4,1) 150ms both; }
+@keyframes naya-pop { from { opacity: 0; transform: scale(.6); } to { opacity: 1; transform: scale(1); } }
+.naya-promo__products { animation: naya-promo-in 900ms cubic-bezier(.2,.7,.2,1) 200ms both; }
+/* brillo que recorre el recuadro del código */
+.naya-promo__code { position: relative; overflow: hidden; }
+.naya-promo__code::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 35%, rgba(255, 255, 255, 0.18) 50%, transparent 65%);
+  transform: translateX(-120%);
+  animation: naya-shine 3.5s ease-in-out 1s infinite;
+  pointer-events: none;
+}
+@keyframes naya-shine { 0% { transform: translateX(-120%); } 45%, 100% { transform: translateX(120%); } }
+
+@media (max-width: 767px) {
+  @keyframes naya-float-front { 0%, 100% { transform: rotate(-5deg) translateY(0); } 50% { transform: rotate(-3deg) translateY(-6px); } }
+  @keyframes naya-float-back { 0%, 100% { transform: rotate(6deg) translateY(0); } 50% { transform: rotate(8deg) translateY(5px); } }
+}
+@media (prefers-reduced-motion: reduce) {
+  .naya-promo *, .naya-promo *::after { animation: none !important; }
+}
+@media (min-width: 768px) { .naya-promo__tape--top { top: 8%; } }
