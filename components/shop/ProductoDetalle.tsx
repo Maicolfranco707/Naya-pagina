@@ -9,7 +9,6 @@ import ProductoCard from "@/components/shop/ProductoCard";
 import { agregarAlCarritoGuardado, categoriaTienda, imagenDe, INFO_PRODUCTOS } from "@/utils/catalogo";
 import type { Producto } from "@/utils/productos";
 import { medirVerProducto } from "@/utils/analytics";
-import ResenasProducto from "@/components/shop/ResenasProducto";
 import Estrellas from "@/components/shop/Estrellas";
 import { promedio, type Resena } from "@/utils/resenas";
 
@@ -103,7 +102,6 @@ export default function ProductoDetalle({ producto, relacionados, resenas = [] }
         </div>
       </div>
 
-      <ResenasProducto productoId={producto.id} resenas={resenas} />
 
       {relacionados.length > 0 && (
         <section className="pd__related" aria-labelledby="pd-related-title">

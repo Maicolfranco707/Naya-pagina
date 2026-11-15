@@ -12,7 +12,6 @@ import ProductoCard from "@/components/shop/ProductoCard";
 import { IDS_FAVORITOS, urlProducto } from "@/utils/catalogo";
 import { useRouter } from "next/navigation";
 import MantequillasBanner from "@/components/home/MantequillasBanner";
-import ResenasInicio from "@/components/home/ResenasInicio";
 import { WHATSAPP_NUMBER } from "@/utils/contacto";
 import type { Producto } from "@/utils/productos";
 import { ENVIO_GRATIS_DESDE } from "@/utils/envios";
@@ -777,8 +776,6 @@ export default function Home() {
           Síguenos en Instagram @naya_renovacion <ArrowRight size={15} aria-hidden="true" />
         </a>
       </section>
-
-      <ResenasInicio />
 
       <a className="naya-quiz-float" href="/test-mantequillas" target="_blank" rel="noopener" aria-label="Hacer el test: ¿Qué mantequilla eres? (se abre en una pestaña nueva)">
         <span className="naya-quiz-float__icon" aria-hidden="true">🧴</span>
