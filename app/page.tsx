@@ -656,7 +656,7 @@ export default function Home() {
                 return (
                   <article className="naya-amp__card" key={a.id}>
                     <div className="naya-amp__photo">
-                      <Image src={a.foto} alt={`Ampolleta de ${a.nombre} NAYA`} fill sizes="(max-width: 767px) 40vw, 180px" className="object-cover" />
+                      <Image src={a.foto} alt={`Ampolleta de ${a.nombre} NAYA`} fill sizes="(max-width: 767px) 90vw, 360px" className="object-cover" style={{ objectPosition: "center 35%" }} />
                     </div>
                     <div className="naya-amp__info">
                       <p className="naya-amp__para">{a.para}</p>

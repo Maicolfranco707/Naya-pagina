@@ -4758,3 +4758,11 @@ a.nh-mega__title:hover { color: #b86b2e; }
   .naya-amp__card { grid-template-columns: 120px 1fr; grid-template-rows: none; }
   .naya-amp__photo { aspect-ratio: auto; min-height: 100%; }
 }
+@media (max-width: 520px) {
+  .naya-brand__inner { padding: 28px 16px; }
+  .naya-amp__card { grid-template-columns: 104px minmax(0, 1fr); }
+  .naya-amp__info { padding: 14px; min-width: 0; }
+  .naya-amp__info ul { padding-left: 16px; font-size: 13px; }
+  .naya-amp__buy button { height: 36px; padding: 0 14px; font-size: 13px; }
+  .naya-amp__buy strong { font-size: 16px; }
+}
