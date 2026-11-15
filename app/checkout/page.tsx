@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronDown, Lock, MessageCircle, ShoppingBag, Tag, Truck, X } from "lucide-react";
+import { ChevronDown, Lock, MessageCircle, Minus, Plus, ShoppingBag, Tag, Trash2, Truck, X } from "lucide-react";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
 import { WHATSAPP_NUMBER } from "@/utils/contacto";
 import { COLUMNAS_PERFIL, DEPARTAMENTOS, type PerfilCliente } from "@/utils/cuenta-cliente";
@@ -49,6 +49,19 @@ function leerCarrito(): CartItem[] {
   } catch (error) {
     console.error("Error al leer el carrito:", error);
     return [];
+  }
+}
+
+/** Cambia la cantidad (o quita con 0) de un producto en el carrito guardado. */
+function actualizarCarritoGuardado(id: number, cantidad: number) {
+  try {
+    const guardado = JSON.parse(localStorage.getItem("carrito_naya") ?? "[]") as StoredCartItem[];
+    const nuevo = guardado
+      .map((item) => ((item.producto?.id ?? item.id) === id ? { ...item, cantidad } : item))
+      .filter((item) => item.cantidad > 0);
+    localStorage.setItem("carrito_naya", JSON.stringify(nuevo));
+  } catch (error) {
+    console.error("No se pudo actualizar el carrito:", error);
   }
 }
 
@@ -347,6 +360,14 @@ export default function CheckoutPage() {
     }
   };
 
+  const cambiarCantidad = (id: number, cantidad: number) => {
+    const nueva = Math.max(0, Math.min(99, cantidad));
+    actualizarCarritoGuardado(id, nueva);
+    setItems((actual) => actual
+      .map((item) => (item.id === id ? { ...item, cantidad: nueva } : item))
+      .filter((item) => item.cantidad > 0));
+  };
+
   const resumen = (
     <>
       <ul className="naya-co-items">
@@ -356,7 +377,19 @@ export default function CheckoutPage() {
               {item.imagen && <Image src={item.imagen} alt="" fill sizes="64px" className="object-cover" />}
               <span>{item.cantidad}</span>
             </div>
-            <p>{item.nombre}</p>
+            <div className="naya-co-items__info">
+              <p>{item.nombre}</p>
+              <div className="naya-co-items__controls">
+                <div className="naya-co-qty" aria-label={`Cantidad de ${item.nombre}`}>
+                  <button type="button" onClick={() => cambiarCantidad(item.id, item.cantidad - 1)} aria-label="Quitar una unidad" disabled={enviando}><Minus size={13} /></button>
+                  <span>{item.cantidad}</span>
+                  <button type="button" onClick={() => cambiarCantidad(item.id, item.cantidad + 1)} aria-label="Agregar una unidad" disabled={enviando}><Plus size={13} /></button>
+                </div>
+                <button type="button" className="naya-co-remove" onClick={() => cambiarCantidad(item.id, 0)} disabled={enviando} aria-label={`Eliminar ${item.nombre} del pedido`}>
+                  <Trash2 size={14} aria-hidden="true" /> Eliminar
+                </button>
+              </div>
+            </div>
             <strong>{pesos(item.precio * item.cantidad)}</strong>
           </li>
         ))}
