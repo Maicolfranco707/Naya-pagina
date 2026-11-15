@@ -26,7 +26,7 @@ export default function ProductoDetalle({ producto, relacionados, resenas = [] }
   const secciones = [
     { id: "descripcion", titulo: "Descripción", contenido: <p>{producto.detalles || producto.descripcion}</p> },
     info && { id: "beneficios", titulo: "Beneficios", contenido: <ul>{info.beneficios.map((b) => <li key={b}>{b}</li>)}</ul> },
-    info && { id: "uso", titulo: "Modo de uso", contenido: <p>{info.modoUso}</p> },
+    info && { id: "uso", titulo: "Modo de uso", contenido: <p style={{ whiteSpace: "pre-line" }}>{info.modoUso}</p> },
     info && { id: "ideal", titulo: "Ideal para", contenido: <p>{info.idealPara}</p> },
   ].filter(Boolean) as Array<{ id: string; titulo: string; contenido: React.ReactNode }>;
 

@@ -54,9 +54,9 @@ const MANTEQUILLA = "Aplica sobre la piel limpia y seca, idealmente después de 
 
 export const INFO_PRODUCTOS: Record<number, InfoProducto> = {
   1: { // Shampoo de Cayena
-    beneficios: ["Limpia sin resecar", "Aporta brillo y suavidad", "Ayuda a controlar el frizz"],
+    beneficios: ["Favorece el crecimiento del cabello", "Nutre el folículo piloso"],
     modoUso: `${SHAMPOO} Complementa con el Acondicionador de Cayena.`,
-    idealPara: "Cabello seco, opaco o con frizz.",
+    idealPara: "Cabello normal, seco, opaco o con frizz.",
   },
   2: { // Acondicionador de Cayena
     beneficios: ["Desenreda al instante", "Deja el cabello suave y manejable", "Ayuda a controlar el frizz"],
@@ -82,7 +82,7 @@ export const INFO_PRODUCTOS: Record<number, InfoProducto> = {
   },
   6: { // Ampolleta de Crecimiento
     beneficios: ["Ayuda a potenciar el crecimiento", "A base de ácido hialurónico, biotina y romero", "Deja el cabello suave y con brillo"],
-    modoUso: "Mezcla la ampolleta con tu shampoo o tu mascarilla capilar favorita y aplica como de costumbre, masajeando el cuero cabelludo. También puedes aplicarla directamente en la raíz.",
+    modoUso: "Uso 1: mezcla la ampolleta con la misma cantidad de agua hasta formar una crema. Aplica y deja actuar mínimo 20 minutos (lo ideal es ponerte un gorrito para generar calor). Enjuaga y aplica el acondicionador para sellar.\nUso 2: agrega el contenido de la ampolleta a tu Shampoo de Romero NAYA, deja reposar 12 horas y listo.",
     idealPara: "Cabello débil, con caída o que quieres que crezca más.",
   },
   7: { // Mantequilla Kiwi
@@ -105,7 +105,7 @@ export const INFO_PRODUCTOS: Record<number, InfoProducto> = {
   },
   10: { // Ampolleta de Nutrición
     beneficios: ["Nutrición e hidratación profunda al instante"],
-    modoUso: "Mezcla el contenido de la ampolleta con la misma cantidad de agua y revuelve hasta formar una crema. Aplica de medios a puntas con el cabello previamente limpio y deja actuar 20 minutos (lo ideal es ponerte un gorrito para generar calor). Enjuaga y sella con acondicionador.",
+    modoUso: "Uso 1: mezcla la ampolleta con la misma cantidad de agua hasta formar una crema. Aplica de medios a puntas con el cabello limpio y deja actuar mínimo 20 minutos (lo ideal es ponerte un gorrito para generar calor). Enjuaga y aplica el acondicionador para sellar.\nUso 2: agrega el contenido de la ampolleta a tu Shampoo de Romero NAYA, deja reposar 12 horas y listo.",
     idealPara: "Cabellos porosos, maltratados, con procesos químicos o expuestos a piscina, sol y mar.",
   },
   11: { // Kit de Romero
