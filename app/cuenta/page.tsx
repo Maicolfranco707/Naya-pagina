@@ -52,6 +52,11 @@ export default function CuentaPage() {
     };
   }, []);
 
+  // Sin sesión: se entra con el correo y un código de 6 dígitos (sin contraseña), como en Shopify.
+  useEffect(() => {
+    if (!cargando && !user) router.replace("/cuenta/ingresar");
+  }, [cargando, user, router]);
+
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setEnviando(true);
@@ -113,7 +118,7 @@ export default function CuentaPage() {
     }
   };
 
-  if (cargando) {
+  if (cargando || !user) {
     return (
       <main className="storefront account-page">
         <p className="account-loading" role="status">Comprobando tu sesión...</p>
