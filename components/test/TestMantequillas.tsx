@@ -3,46 +3,46 @@
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Check, Droplets, Leaf, ShoppingBag, Sparkles, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, ShoppingBag, X } from "lucide-react";
 import type { Producto } from "@/utils/productos";
 
 // Test "¿Qué mantequilla eres?" a pantalla completa (estilo Fauno).
 type Mantequilla = "coco" | "uva" | "kiwi" | "cherry";
 
 const MANTEQUILLAS: Record<Mantequilla, { id: number; nombre: string; titulo: string; texto: string; aroma: string; img: string; color: string }> = {
-  kiwi: { id: 7, nombre: "Kiwi", titulo: "Eres Kiwi", texto: "Divertida, fresca y llena de energía. Contagias buena vibra a donde llegas, y tu piel también merece ese brillo.", aroma: "Fresco, verde y frutal", img: "/naya_foto/kiwi.png", color: "#dfe8c9" },
-  uva: { id: 8, nombre: "Uva", titulo: "Eres Uva", texto: "Sofisticada y segura de ti. Disfrutas los detalles y los momentos especiales, y buscas un aroma que esté a tu altura.", aroma: "Intenso, profundo y especial", img: "/naya_foto/uva.png", color: "#e3dcef" },
-  cherry: { id: 9, nombre: "Cherry", titulo: "Eres Cherry", texto: "Dulce y romántica. Te encanta consentirte y que tu piel quede suave y perfumada todo el día.", aroma: "Dulce, a frutos rojos y cereza", img: "/naya_foto/cherry.png", color: "#f4dbdf" },
-  coco: { id: 5, nombre: "Coco Festival", titulo: "Eres Coco Festival", texto: "Relajada y con alma de playa. Vives a tu ritmo y amas ese aroma tropical que te lleva de vacaciones.", aroma: "Tropical, cremoso, a coco", img: "/naya_foto/coco_festival.png", color: "#efe6d6" },
+  kiwi: { id: 7, nombre: "Kiwi", titulo: "Mantequilla de Kiwi", texto: "Eres alegre y espontánea. Te va un aroma fresco y frutal para el día a día.", aroma: "Fresco, verde y frutal", img: "/naya_foto/kiwi.png", color: "#dfe8c9" },
+  uva: { id: 8, nombre: "Uva", titulo: "Mantequilla de Uva", texto: "Te gustan los detalles y los planes tranquilos. Te va un aroma intenso y especial.", aroma: "Intenso, profundo y especial", img: "/naya_foto/uva.png", color: "#e3dcef" },
+  cherry: { id: 9, nombre: "Cherry", titulo: "Mantequilla Cherry", texto: "Te encanta consentirte. Te va un aroma dulce que deja la piel suave y perfumada.", aroma: "Dulce, a frutos rojos y cereza", img: "/naya_foto/cherry.png", color: "#f4dbdf" },
+  coco: { id: 5, nombre: "Coco Festival", titulo: "Mantequilla Coco Festival", texto: "Vas a tu ritmo y te encanta el calor. Te va un aroma tropical y cremoso.", aroma: "Tropical, cremoso, a coco", img: "/naya_foto/coco_festival.png", color: "#efe6d6" },
 };
 
-interface Opcion { valor: Mantequilla; texto: string; emoji: string }
+interface Opcion { valor: Mantequilla; texto: string }
 const PREGUNTAS: Array<{ titulo: string; opciones: Opcion[] }> = [
   {
     titulo: "¿Cómo te describirían tus amigas?",
     opciones: [
-      { valor: "kiwi", texto: "Divertida y espontánea", emoji: "😄" },
-      { valor: "uva", texto: "Elegante y segura de sí misma", emoji: "💅" },
-      { valor: "cherry", texto: "Dulce y romántica", emoji: "💗" },
-      { valor: "coco", texto: "Tranquila y relajada", emoji: "🌴" },
+      { valor: "kiwi", texto: "Divertida y espontánea" },
+      { valor: "uva", texto: "Elegante y segura de sí misma" },
+      { valor: "cherry", texto: "Dulce y romántica" },
+      { valor: "coco", texto: "Tranquila y relajada" },
     ],
   },
   {
     titulo: "¿Cuál es tu plan ideal de fin de semana?",
     opciones: [
-      { valor: "coco", texto: "Playa, sol y piscina", emoji: "🏖️" },
-      { valor: "kiwi", texto: "Salir con mis amigas", emoji: "🎉" },
-      { valor: "uva", texto: "Una cena especial con una copa de vino", emoji: "🍷" },
-      { valor: "cherry", texto: "Spa en casa: velas, música y skincare", emoji: "🛁" },
+      { valor: "coco", texto: "Playa, sol y piscina" },
+      { valor: "kiwi", texto: "Salir con mis amigas" },
+      { valor: "uva", texto: "Una cena especial con una copa de vino" },
+      { valor: "cherry", texto: "Spa en casa: velas, música y skincare" },
     ],
   },
   {
     titulo: "¿Qué aroma te enamora?",
     opciones: [
-      { valor: "cherry", texto: "Dulce, a frutos rojos", emoji: "🍒" },
-      { valor: "coco", texto: "Tropical, a coco", emoji: "🥥" },
-      { valor: "kiwi", texto: "Fresco y frutal", emoji: "🥝" },
-      { valor: "uva", texto: "Intenso y profundo", emoji: "🍇" },
+      { valor: "cherry", texto: "Dulce, a frutos rojos" },
+      { valor: "coco", texto: "Tropical, a coco" },
+      { valor: "kiwi", texto: "Fresco y frutal" },
+      { valor: "uva", texto: "Intenso y profundo" },
     ],
   },
 ];
@@ -66,7 +66,7 @@ function agregarAlCarrito(producto: Producto) {
 
 export default function TestMantequillas() {
   const [productos, setProductos] = useState<Producto[]>([]);
-  const [etapa, setEtapa] = useState<"bienvenida" | "preguntas" | "calculando" | "resultado">("bienvenida");
+  const [etapa, setEtapa] = useState<"bienvenida" | "preguntas" | "resultado">("bienvenida");
   const [respuestas, setRespuestas] = useState<Mantequilla[]>([]);
   const [elegida, setElegida] = useState<Mantequilla | null>(null);
   const [agregados, setAgregados] = useState<number[]>([]);
@@ -92,8 +92,8 @@ export default function TestMantequillas() {
     setRespuestas(nuevas);
     if (nuevas.length === PREGUNTAS.length) {
       setElegida(calcular(nuevas));
-      setEtapa("calculando");
-      window.setTimeout(() => setEtapa("resultado"), 1400);
+      setEtapa("resultado");
+      window.scrollTo(0, 0);
     }
   };
 
@@ -107,7 +107,7 @@ export default function TestMantequillas() {
   const otras = (Object.keys(MANTEQUILLAS) as Mantequilla[]).filter((m) => m !== elegida);
 
   return (
-    <div className="tm" style={elegida && etapa === "resultado" ? { background: MANTEQUILLAS[elegida].color } : undefined}>
+    <div className="tm">
       <header className="tm__header">
         <Link href="/" className="tm__logo" aria-label="NAYA, ir a la tienda">NAYA</Link>
         <div className="tm__header-actions">
@@ -123,20 +123,18 @@ export default function TestMantequillas() {
       <main className="tm__main">
         {etapa === "bienvenida" && (
           <section className="tm__welcome tm__fade">
-            <div className="tm__jars" aria-hidden="true">
-              {(Object.keys(MANTEQUILLAS) as Mantequilla[]).map((m, i) => (
-                <span key={m} className="tm__jar" style={{ animationDelay: `${i * 120}ms` }}>
-                  <Image src={MANTEQUILLAS[m].img} alt="" fill sizes="120px" className="object-cover" />
-                </span>
-              ))}
+            <div className="tm__welcome-photo">
+              <Image src="/naya_foto/mantequilla-mano.jpg" alt="Clienta con la Mantequilla Corporal NAYA" fill sizes="(max-width: 860px) 100vw, 50vw" className="object-cover" priority />
             </div>
-            <p className="tm__eyebrow">Test NAYA</p>
-            <h1>¿Qué mantequilla NAYA eres?</h1>
-            <p className="tm__lead">Cada una de nuestras mantequillas corporales tiene su propia personalidad. Responde 3 preguntas rápidas y descubre cuál va contigo.</p>
-            <p className="tm__time">⏱ Solo te tomará un minuto</p>
-            <button type="button" className="tm__start" onClick={() => setEtapa("preguntas")}>
-              Empezar el test <ArrowRight size={18} aria-hidden="true" />
-            </button>
+            <div className="tm__welcome-copy">
+              <p className="tm__eyebrow">Test de mantequillas</p>
+              <h1>¿Qué mantequilla NAYA es para ti?</h1>
+              <p className="tm__lead">Tenemos cuatro aromas: Coco, Uva, Kiwi y Cherry. Responde 3 preguntas rápidas y te decimos cuál va contigo.</p>
+              <button type="button" className="tm__start" onClick={() => setEtapa("preguntas")}>
+                Empezar <ArrowRight size={18} aria-hidden="true" />
+              </button>
+              <p className="tm__time">Toma menos de un minuto.</p>
+            </div>
           </section>
         )}
 
@@ -148,7 +146,6 @@ export default function TestMantequillas() {
               {PREGUNTAS[paso].opciones.map((o, i) => (
                 <button key={o.texto} type="button" className="tm__option" style={{ animationDelay: `${i * 60}ms` }} onClick={() => responder(o.valor)}>
                   <span className="tm__radio" aria-hidden="true" />
-                  <span className="tm__option-emoji" aria-hidden="true">{o.emoji}</span>
                   <span>{o.texto}</span>
                 </button>
               ))}
@@ -156,28 +153,21 @@ export default function TestMantequillas() {
           </section>
         )}
 
-        {etapa === "calculando" && (
-          <section className="tm__loading tm__fade" role="status">
-            <span className="tm__spinner" aria-hidden="true" />
-            <p>Buscando tu mantequilla ideal…</p>
-          </section>
-        )}
 
         {etapa === "resultado" && elegida && (
           <section className="tm__result tm__fade">
             <div className="tm__result-photo">
               <Image src={MANTEQUILLAS[elegida].img} alt={`Mantequilla corporal ${MANTEQUILLAS[elegida].nombre}`} fill sizes="(max-width: 860px) 90vw, 440px" className="object-cover" priority />
-              <span className="tm__badge"><Sparkles size={14} aria-hidden="true" /> Tu match</span>
             </div>
             <div className="tm__result-copy">
-              <p className="tm__eyebrow">Tu mantequilla NAYA es</p>
+              <p className="tm__eyebrow">Tu resultado</p>
               <h1>{MANTEQUILLAS[elegida].titulo}</h1>
               <p className="tm__lead">{MANTEQUILLAS[elegida].texto}</p>
-              <ul className="tm__benefits">
-                <li><Droplets size={17} aria-hidden="true" /> Hidratación profunda para piel seca o áspera</li>
-                <li><Leaf size={17} aria-hidden="true" /> Con vitamina E</li>
-                <li><Sparkles size={17} aria-hidden="true" /> Aroma: {MANTEQUILLAS[elegida].aroma}</li>
-              </ul>
+              <dl className="tm__specs">
+                <div><dt>Aroma</dt><dd>{MANTEQUILLAS[elegida].aroma}</dd></div>
+                <div><dt>Para</dt><dd>Piel seca o áspera</dd></div>
+                <div><dt>Con</dt><dd>Vitamina E</dd></div>
+              </dl>
               {principal ? (
                 <div className="tm__buy">
                   <p className="tm__price">${principal.precio.toLocaleString("es-CO")} <small>COP</small></p>
@@ -192,7 +182,7 @@ export default function TestMantequillas() {
                       <ShoppingBag size={18} aria-hidden="true" /> Agregar al carrito
                     </button>
                   )}
-                  <p className="tm__coupon">🎁 Usa <strong>BIENVENIDA10</strong> y obtén 10% OFF en tu primera compra.</p>
+                  <p className="tm__coupon">10% OFF en tu primera compra con el código <strong>BIENVENIDA10</strong>.</p>
                 </div>
               ) : (
                 <p className="tm__lead">Cargando el producto…</p>
@@ -201,7 +191,7 @@ export default function TestMantequillas() {
             </div>
 
             <div className="tm__others">
-              <h3>¿Quieres probar otros aromas?</h3>
+              <h3>Los otros aromas</h3>
               <ul>
                 {otras.map((m) => {
                   const p = producto(m);
@@ -224,13 +214,12 @@ export default function TestMantequillas() {
         )}
       </main>
 
-      {(etapa === "preguntas" || etapa === "calculando") && (
+      {etapa === "preguntas" && (
         <footer className="tm__progress">
           <button
             type="button"
             className="tm__back"
             onClick={() => (paso === 0 ? setEtapa("bienvenida") : setRespuestas((r) => r.slice(0, -1)))}
-            disabled={etapa === "calculando"}
             aria-label="Pregunta anterior"
           >
             <ArrowLeft size={18} />
