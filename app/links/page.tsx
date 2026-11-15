@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { ArrowUpRight, Gift, ShoppingBag, Sparkles, Truck } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "NAYA · Links",
@@ -35,12 +34,10 @@ function IconoTikTok() {
 }
 
 const ENLACES = [
-  { titulo: "Tienda online", texto: "Compra con tarjeta, PSE o Nequi", href: "/", icono: ShoppingBag, destacado: true },
-  { titulo: "Comprar por WhatsApp", texto: "Te asesoramos y hacemos tu pedido", href: WHATSAPP, icono: IconoWhatsApp, externo: true },
-  { titulo: "Todos los productos", texto: "Capilar, ampolletas, kits y mantequillas", href: "/productos", icono: Sparkles },
-  { titulo: "¿Qué mantequilla eres?", texto: "Haz el test y descubre tu aroma", href: "/test-mantequillas", icono: Gift },
-  { titulo: "Instagram", texto: "@naya_renovacion", href: INSTAGRAM, icono: IconoInstagram, externo: true },
-  { titulo: "TikTok", texto: "Videos, tips y ofertas", href: TIKTOK, icono: IconoTikTok, externo: true },
+  { titulo: "Tienda online", href: "/" },
+  { titulo: "Pedidos por WhatsApp", href: WHATSAPP, externo: true },
+  { titulo: "Instagram", href: INSTAGRAM, externo: true },
+  { titulo: "TikTok", href: TIKTOK, externo: true },
 ];
 
 export default function LinksPage() {
@@ -48,10 +45,10 @@ export default function LinksPage() {
     <main className="nl">
       <div className="nl__card">
         <div className="nl__avatar">
-          <Image src="/naya_foto/kit-romero.png" alt="" fill sizes="96px" className="object-cover" priority />
+          <Image src="/naya_foto/naya-logo.png" alt="Logo de NAYA" fill sizes="110px" className="object-cover" priority />
         </div>
-        <h1 className="nl__name">NAYA</h1>
-        <p className="nl__tag">Cosmética natural para tu cabello y tu piel · Hecho en Medellín</p>
+        <h1 className="nl__name">NAYA Renovación</h1>
+        <p className="nl__tag">Cuidado natural para tu cabello y tu piel. Medellín, Colombia.</p>
 
         <div className="nl__social">
           <a href={WHATSAPP} target="_blank" rel="noreferrer" aria-label="WhatsApp de NAYA"><IconoWhatsApp /></a>
@@ -59,28 +56,17 @@ export default function LinksPage() {
           <a href={TIKTOK} target="_blank" rel="noreferrer" aria-label="TikTok de NAYA"><IconoTikTok /></a>
         </div>
 
-        <div className="nl__promo">
-          <span>10% OFF en tu primera compra</span>
-          <strong>BIENVENIDA10</strong>
-        </div>
-
         <ul className="nl__links">
-          {ENLACES.map(({ titulo, texto, href, icono: Icono, externo, destacado }) => (
+          {ENLACES.map(({ titulo, href, externo }) => (
             <li key={titulo}>
-              <a
-                href={href}
-                className={destacado ? "nl__link nl__link--main" : "nl__link"}
-                {...(externo ? { target: "_blank", rel: "noreferrer" } : {})}
-              >
-                <span className="nl__icon"><Icono /></span>
-                <span className="nl__text"><b>{titulo}</b><small>{texto}</small></span>
-                <ArrowUpRight size={18} aria-hidden="true" className="nl__arrow" />
+              <a href={href} className="nl__link" {...(externo ? { target: "_blank", rel: "noreferrer" } : {})}>
+                {titulo}
               </a>
             </li>
           ))}
         </ul>
 
-        <p className="nl__foot"><Truck size={15} aria-hidden="true" /> Envíos a toda Colombia · Gratis desde $150.000</p>
+        <p className="nl__foot">Envíos a toda Colombia</p>
       </div>
     </main>
   );

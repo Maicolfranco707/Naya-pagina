@@ -4822,48 +4822,18 @@ a.nh-mega__title:hover { color: #b86b2e; }
 }
 
 /* ── Página de links (para la bio de Instagram) ── */
-.nl {
-  min-height: 100vh;
-  display: flex; justify-content: center;
-  padding: 32px 16px 48px;
-  background: radial-gradient(120% 70% at 50% 0%, #134c4e 0%, #0b3a3c 60%, #082d2f 100%);
-  color: #0b3a3c;
-}
-.nl__card { width: min(100%, 520px); display: flex; flex-direction: column; align-items: center; text-align: center; }
-.nl__avatar {
-  position: relative; width: 96px; aspect-ratio: 1; overflow: hidden;
-  border: 3px solid #f3e9dc; border-radius: 50%; box-shadow: 0 10px 30px rgba(0,0,0,.35);
-  animation: naya-promo-in 600ms cubic-bezier(.2,.7,.2,1) both;
-}
-.nl__name { margin: 14px 0 4px; color: #fbf7ef; font-family: var(--font-display), serif; font-size: 34px; font-weight: 600; letter-spacing: .14em; }
-.nl__tag { margin: 0 0 16px; max-width: 360px; color: rgb(251 247 239 / 78%); font-size: 14.5px; line-height: 1.45; }
-.nl__social { display: flex; gap: 12px; margin-bottom: 20px; }
-.nl__social a {
-  display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%;
-  background: rgb(255 255 255 / 10%); color: #fbf7ef; transition: background-color 160ms ease, transform 160ms ease;
-}
-.nl__social a:hover { background: rgb(255 255 255 / 20%); transform: translateY(-2px); }
-.nl__promo {
-  display: flex; flex-direction: column; gap: 2px; width: 100%; margin-bottom: 14px; padding: 12px 16px;
-  border: 1.5px dashed #d9a466; border-radius: 16px; color: #f3e9dc; font-size: 13px;
-}
-.nl__promo strong { color: #fbf7ef; font-size: 20px; letter-spacing: .12em; }
-.nl__links { display: grid; gap: 10px; width: 100%; margin: 0; padding: 0; list-style: none; }
-.nl__links li { animation: naya-promo-in 600ms cubic-bezier(.2,.7,.2,1) both; }
-.nl__links li:nth-child(2) { animation-delay: 60ms; } .nl__links li:nth-child(3) { animation-delay: 120ms; }
-.nl__links li:nth-child(4) { animation-delay: 180ms; } .nl__links li:nth-child(5) { animation-delay: 240ms; }
-.nl__links li:nth-child(6) { animation-delay: 300ms; }
+.nl { min-height: 100vh; display: flex; justify-content: center; padding: 40px 18px 40px; background: #1f3b36; }
+.nl__card { width: min(100%, 480px); display: flex; flex-direction: column; align-items: center; text-align: center; }
+.nl__avatar { position: relative; width: 104px; aspect-ratio: 1; overflow: hidden; border-radius: 50%; }
+.nl__name { margin: 14px 0 4px; color: #f3e9dc; font-size: 18px; font-weight: 700; }
+.nl__tag { margin: 0 0 14px; color: rgb(243 233 220 / 75%); font-size: 14px; }
+.nl__social { display: flex; gap: 18px; margin-bottom: 24px; color: #f3e9dc; }
+.nl__social a { color: inherit; }
+.nl__social a:hover { opacity: .75; }
+.nl__links { display: grid; gap: 12px; width: 100%; margin: 0; padding: 0; list-style: none; }
 .nl__link {
-  display: flex; align-items: center; gap: 14px; padding: 14px 16px;
-  border-radius: 16px; background: #fbf7ef; color: #0b3a3c; text-align: left; text-decoration: none;
-  box-shadow: 0 6px 18px rgba(0,0,0,.18); transition: transform 160ms ease, box-shadow 160ms ease;
+  display: block; padding: 16px 20px; border-radius: 10px; background: #f3e9dc;
+  color: #1f3b36; font-size: 15px; font-weight: 600; text-decoration: none; transition: background-color 150ms ease;
 }
-.nl__link:hover { transform: translateY(-2px); box-shadow: 0 12px 26px rgba(0,0,0,.25); }
-.nl__link--main { background: #b86b2e; color: #fff; }
-.nl__icon { display: grid; place-items: center; flex: none; width: 42px; height: 42px; border-radius: 12px; background: rgb(11 58 60 / 8%); }
-.nl__link--main .nl__icon { background: rgb(255 255 255 / 18%); }
-.nl__text { display: flex; flex-direction: column; flex: 1; min-width: 0; }
-.nl__text b { font-size: 15.5px; }
-.nl__text small { margin-top: 2px; font-size: 13px; opacity: .75; }
-.nl__arrow { flex: none; opacity: .55; }
-.nl__foot { display: flex; align-items: center; gap: 6px; margin: 22px 0 0; color: rgb(251 247 239 / 70%); font-size: 13px; }
+.nl__link:hover { background: #fff; }
+.nl__foot { margin: 28px 0 0; color: rgb(243 233 220 / 55%); font-size: 12.5px; }
