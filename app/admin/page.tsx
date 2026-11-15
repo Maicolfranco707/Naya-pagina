@@ -15,12 +15,14 @@ import {
   Plus,
   RefreshCw,
   Search,
+  Star,
   ShoppingBag,
   Tag,
   X,
 } from "lucide-react";
 import CouponsPanel from "@/components/admin/CouponsPanel";
 import WhatsAppBotPanel from "@/components/admin/WhatsAppBotPanel";
+import ReviewsPanel from "@/components/admin/ReviewsPanel";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
 
 interface Producto {
@@ -114,7 +116,7 @@ export default function AdminPage() {
   const [password, setPassword] = useState("");
   const [cargando, setCargando] = useState(false);
   const [cargandoDatos, setCargandoDatos] = useState(false);
-  const [pestana, setPestana] = useState<"pedidos" | "productos" | "cupones" | "whatsapp">("pedidos");
+  const [pestana, setPestana] = useState<"pedidos" | "productos" | "cupones" | "resenas" | "whatsapp">("pedidos");
   const [productos, setProductos] = useState<Producto[]>([]);
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [busqueda, setBusqueda] = useState("");
@@ -411,6 +413,9 @@ export default function AdminPage() {
             <button type="button" role="tab" aria-selected={pestana === "cupones"} onClick={() => { setPestana("cupones"); setBusqueda(""); }} className={`inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium ${pestana === "cupones" ? "border-emerald-900 text-emerald-950" : "border-transparent text-stone-500 hover:text-stone-900"}`}>
               <Tag size={16} /> Cupones
             </button>
+            <button type="button" role="tab" aria-selected={pestana === "resenas"} onClick={() => { setPestana("resenas"); setBusqueda(""); }} className={`inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium ${pestana === "resenas" ? "border-emerald-900 text-emerald-950" : "border-transparent text-stone-500 hover:text-stone-900"}`}>
+              <Star size={16} /> Reseñas
+            </button>
             <button type="button" role="tab" aria-selected={pestana === "whatsapp"} onClick={() => { setPestana("whatsapp"); setBusqueda(""); }} className={`inline-flex items-center gap-2 border-b-2 px-4 py-3 text-sm font-medium ${pestana === "whatsapp" ? "border-emerald-900 text-emerald-950" : "border-transparent text-stone-500 hover:text-stone-900"}`}>
               <Bot size={16} /> Bot WhatsApp
             </button>
@@ -432,6 +437,8 @@ export default function AdminPage() {
           <p className="py-16 text-center text-sm text-stone-500">Cargando datos...</p>
         ) : pestana === "cupones" ? (
           <CouponsPanel />
+        ) : pestana === "resenas" ? (
+          <ReviewsPanel />
         ) : pestana === "whatsapp" ? (
           <WhatsAppBotPanel />
         ) : pestana === "productos" ? (

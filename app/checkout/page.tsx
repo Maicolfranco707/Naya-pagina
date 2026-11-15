@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { guardarCompraPendiente, medirInicioCheckout } from "@/utils/analytics";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -169,6 +170,12 @@ export default function CheckoutPage() {
       if (!activo) return;
       if (metodo === "whatsapp") setMetodoPago("whatsapp");
       setItems(actualizados);
+      if (actualizados.length > 0) {
+        medirInicioCheckout(
+          actualizados.map((item) => ({ id: item.id, nombre: item.nombre, precio: item.precio, cantidad: item.cantidad })),
+          actualizados.reduce((suma, item) => suma + item.precio * item.cantidad, 0),
+        );
+      }
       setCargado(true);
     };
 
@@ -346,6 +353,12 @@ export default function CheckoutPage() {
         window.location.assign(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`);
         return;
       }
+
+      guardarCompraPendiente(
+        result.reference,
+        Number(result.total),
+        items.map((item) => ({ id: item.id, nombre: item.nombre, precio: item.precio, cantidad: item.cantidad })),
+      );
 
       try {
         await irAWompi(result.id, formData.email);

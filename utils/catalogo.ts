@@ -1,4 +1,5 @@
 import type { Producto } from "@/utils/productos";
+import { medirAgregarAlCarrito } from "@/utils/analytics";
 
 /** Categorías de la tienda (menú COMPRAR, filtros y "productos relacionados"). */
 export type CategoriaTienda = "Capilar" | "Ampolletas" | "Corporal" | "Kits";
@@ -165,5 +166,6 @@ export function agregarAlCarritoGuardado(producto: Producto, cantidad = 1): numb
   else carrito.push({ producto, cantidad });
   localStorage.setItem(CLAVE_CARRITO, JSON.stringify(carrito));
   window.dispatchEvent(new Event("naya-carrito"));
+  medirAgregarAlCarrito({ id: producto.id, nombre: producto.nombre, precio: producto.precio, cantidad });
   return carrito.reduce((s, i) => s + i.cantidad, 0);
 }

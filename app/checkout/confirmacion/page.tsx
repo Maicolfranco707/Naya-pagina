@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { startTransition, useEffect, useMemo, useState } from "react";
+import { medirCompraAprobada } from "@/utils/analytics";
 
 export default function ConfirmacionPage() {
   const [transactionId, setTransactionId] = useState<string | null>(null);
@@ -55,6 +56,10 @@ export default function ConfirmacionPage() {
       window.clearInterval(intervalo);
     };
   }, []);
+
+  useEffect(() => {
+    if (paymentStatus === "approved" && reference) medirCompraAprobada(reference);
+  }, [paymentStatus, reference]);
 
   const mensaje = useMemo(() => {
     if (paymentStatus === "approved") {

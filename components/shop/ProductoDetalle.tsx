@@ -3,13 +3,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, ChevronRight, Minus, Plus, Truck } from "lucide-react";
 import ProductoCard from "@/components/shop/ProductoCard";
 import { agregarAlCarritoGuardado, categoriaTienda, imagenDe, INFO_PRODUCTOS } from "@/utils/catalogo";
 import type { Producto } from "@/utils/productos";
+import { medirVerProducto } from "@/utils/analytics";
+import ResenasProducto from "@/components/shop/ResenasProducto";
+import Estrellas from "@/components/shop/Estrellas";
+import { promedio, type Resena } from "@/utils/resenas";
 
-export default function ProductoDetalle({ producto, relacionados }: { producto: Producto; relacionados: Producto[] }) {
+export default function ProductoDetalle({ producto, relacionados, resenas = [] }: { producto: Producto; relacionados: Producto[]; resenas?: Resena[] }) {
   const router = useRouter();
   const info = INFO_PRODUCTOS[producto.id];
   const fotos = [imagenDe(producto), ...(info?.galeria ?? [])];
@@ -26,6 +30,10 @@ export default function ProductoDetalle({ producto, relacionados }: { producto: 
     info && { id: "uso", titulo: "Modo de uso", contenido: <p>{info.modoUso}</p> },
     info && { id: "ideal", titulo: "Ideal para", contenido: <p>{info.idealPara}</p> },
   ].filter(Boolean) as Array<{ id: string; titulo: string; contenido: React.ReactNode }>;
+
+  useEffect(() => {
+    medirVerProducto({ id: producto.id, nombre: producto.nombre, precio: producto.precio });
+  }, [producto.id, producto.nombre, producto.precio]);
 
   const agregar = () => {
     agregarAlCarritoGuardado(producto, cantidad);
@@ -59,6 +67,9 @@ export default function ProductoDetalle({ producto, relacionados }: { producto: 
         <div className="pd__info">
           <p className="pd__cat">{categoria}</p>
           <h1>{nombre}</h1>
+          {resenas.length > 0 && (
+            <a href="#rv-title" className="pd__rating"><Estrellas valor={promedio(resenas)} tamano={15} /> {resenas.length} {resenas.length === 1 ? "opinión" : "opiniones"}</a>
+          )}
           <p className="pd__price">${producto.precio.toLocaleString("es-CO")} <small>COP</small></p>
           <p className="pd__short">{producto.descripcion}</p>
           <p className="pd__ship"><Truck size={16} aria-hidden="true" /> Envío gratis en compras desde $150.000</p>
@@ -91,6 +102,8 @@ export default function ProductoDetalle({ producto, relacionados }: { producto: 
           </div>
         </div>
       </div>
+
+      <ResenasProducto productoId={producto.id} resenas={resenas} />
 
       {relacionados.length > 0 && (
         <section className="pd__related" aria-labelledby="pd-related-title">
