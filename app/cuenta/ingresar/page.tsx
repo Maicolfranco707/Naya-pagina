@@ -158,7 +158,7 @@ export default function IngresarPage() {
             <div className="account-confirm-icon"><CheckCircle2 size={26} aria-hidden="true" /></div>
             <p className="account-eyebrow">REVISA TU CORREO</p>
             <h1 id="account-title">Ingresa tu código</h1>
-            <p className="account-subtitle">Enviamos un código de 6 dígitos a <strong>{email.trim()}</strong>.</p>
+            <p className="account-subtitle">Enviamos un código de 6 dígitos a <strong>{email.trim()}</strong>. Si no lo ves, revisa la carpeta de Spam o Promociones.</p>
 
             <form onSubmit={verificarCodigo} className="account-form">
               <label htmlFor="account-code">Código de verificación</label>

@@ -76,6 +76,11 @@ export default function ConfirmacionPage() {
       <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-sm border border-stone-200 text-center">
         <h1 className="text-2xl font-bold text-stone-900 mb-3">{paymentStatus === "approved" ? "Pago aprobado" : "Pago en validación"}</h1>
         <p className="text-sm text-stone-600 mb-2">{mensaje}</p>
+        {paymentStatus === "approved" && (
+          <p className="text-sm text-stone-600 mb-4 rounded-xl bg-amber-50 border border-amber-200 px-4 py-3">
+            Te enviamos la confirmación de tu pedido a tu correo. Si no la ves en unos minutos, revisa la carpeta de <strong>Spam</strong> o <strong>Promociones</strong>.
+          </p>
+        )}
         {transactionId && (
           <p className="text-xs text-stone-500 mb-6">ID de transacción: {transactionId}</p>
         )}
