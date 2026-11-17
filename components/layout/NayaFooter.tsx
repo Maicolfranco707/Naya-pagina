@@ -19,6 +19,7 @@ export default function NayaFooter() {
           </div>
           <div>
             <h2>Información</h2>
+            <a href="/envios">Envíos, cambios y devoluciones</a>
             <a href="/terminos">Términos y condiciones</a>
             <a href="/privacidad">Política de privacidad</a>
           </div>

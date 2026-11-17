@@ -4843,3 +4843,38 @@ a.nh-mega__title:hover { color: #b86b2e; }
 .naya-hero__fade img { animation: naya-mb-zoom 9s ease-out both; }
 @keyframes naya-hero-fade { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .naya-hero__fade, .naya-hero__fade img { animation: none; } }
+
+/* ── Páginas legales (envíos y devoluciones) ── */
+.legal-page { max-width: 760px; text-align: left; }
+.legal-page h1 { margin-bottom: 18px; }
+.legal-page h2 { margin: 26px 0 8px; font-size: 18px; color: #0b3a3c; }
+.legal-page p { margin: 0 0 10px; color: #3f5856; font-size: 15px; line-height: 1.6; }
+.legal-page a { color: #b86b2e; text-decoration: underline; text-underline-offset: 3px; }
+.legal-page .account-logo { text-decoration: none; color: inherit; }
+.legal-table { width: 100%; margin: 4px 0 12px; border-collapse: collapse; font-size: 14px; }
+.legal-table th, .legal-table td { padding: 9px 10px; border-bottom: 1px solid #e6dccd; text-align: left; vertical-align: top; color: #24403e; }
+.legal-table th { color: #0b3a3c; font-weight: 700; background: #fbf6ee; }
+@media (max-width: 520px) { .legal-table { font-size: 13px; } .legal-table th, .legal-table td { padding: 7px 6px; } }
+.account-order__tracking { margin: 10px 0 0; padding-top: 10px; border-top: 1px dashed #e2d6c5; color: #3f5856; font-size: 14px; }
+.account-order__tracking a { color: #b86b2e; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+
+/* ── Barra fija de compra en celular (página de producto) ── */
+.pd-sticky { display: none; }
+@media (max-width: 860px) {
+  .pd-sticky {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+    background: #fbf7ef; border-top: 1px solid #e6dccd; box-shadow: 0 -8px 24px rgba(11, 58, 60, 0.12);
+    transform: translateY(110%); transition: transform 260ms ease;
+  }
+  .pd-sticky--visible { transform: translateY(0); }
+  .pd-sticky__info { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+  .pd-sticky__name { overflow: hidden; color: #0b3a3c; font-size: 13.5px; font-weight: 700; white-space: nowrap; text-overflow: ellipsis; }
+  .pd-sticky__price { color: #3f5856; font-size: 13px; }
+  .pd-sticky__btn {
+    display: inline-flex; align-items: center; gap: 6px; flex: none; height: 44px; padding: 0 18px;
+    border: 0; border-radius: 999px; background: #0b3a3c; color: #fbf7ef; font-size: 14px; font-weight: 700; cursor: pointer;
+  }
+  body:has(.pd-sticky--visible) .naya-whatsapp { bottom: 84px; transition: bottom 260ms ease; }
+}

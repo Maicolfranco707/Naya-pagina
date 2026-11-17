@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, ChevronRight, Minus, Plus, Truck } from "lucide-react";
 import ProductoCard from "@/components/shop/ProductoCard";
 import { agregarAlCarritoGuardado, categoriaTienda, imagenDe, INFO_PRODUCTOS } from "@/utils/catalogo";
@@ -20,6 +20,8 @@ export default function ProductoDetalle({ producto, relacionados, resenas = [] }
   const [cantidad, setCantidad] = useState(1);
   const [agregado, setAgregado] = useState(false);
   const [abierta, setAbierta] = useState<string>("descripcion");
+  const [barraVisible, setBarraVisible] = useState(false);
+  const zonaCompra = useRef<HTMLDivElement>(null);
   const categoria = categoriaTienda(producto);
   const nombre = producto.nombre.replace(/\s+/g, " ").trim();
 
@@ -33,6 +35,17 @@ export default function ProductoDetalle({ producto, relacionados, resenas = [] }
   useEffect(() => {
     medirVerProducto({ id: producto.id, nombre: producto.nombre, precio: producto.precio });
   }, [producto.id, producto.nombre, producto.precio]);
+
+  // Barra fija de compra en celular: aparece cuando el botón principal sale de la pantalla.
+  useEffect(() => {
+    const zona = zonaCompra.current;
+    if (!zona || typeof IntersectionObserver === "undefined") return;
+    const observer = new IntersectionObserver(([entrada]) => {
+      setBarraVisible(!entrada.isIntersecting && entrada.boundingClientRect.top < 0);
+    });
+    observer.observe(zona);
+    return () => observer.disconnect();
+  }, []);
 
   const agregar = () => {
     agregarAlCarritoGuardado(producto, cantidad);
@@ -73,7 +86,7 @@ export default function ProductoDetalle({ producto, relacionados, resenas = [] }
           <p className="pd__short">{producto.descripcion}</p>
           <p className="pd__ship"><Truck size={16} aria-hidden="true" /> Envío gratis en compras desde $150.000</p>
 
-          <div className="pd__buy">
+          <div className="pd__buy" ref={zonaCompra}>
             <div className="pd__qty" aria-label="Cantidad">
               <button type="button" onClick={() => setCantidad((c) => Math.max(1, c - 1))} aria-label="Reducir cantidad"><Minus size={16} /></button>
               <span>{cantidad}</span>
@@ -102,6 +115,16 @@ export default function ProductoDetalle({ producto, relacionados, resenas = [] }
         </div>
       </div>
 
+
+      <div className={barraVisible ? "pd-sticky pd-sticky--visible" : "pd-sticky"} aria-hidden={!barraVisible}>
+        <div className="pd-sticky__info">
+          <span className="pd-sticky__name">{nombre}</span>
+          <span className="pd-sticky__price">${(producto.precio * cantidad).toLocaleString("es-CO")}</span>
+        </div>
+        <button type="button" className="pd-sticky__btn" onClick={agregar} tabIndex={barraVisible ? 0 : -1}>
+          {agregado ? <><Check size={16} aria-hidden="true" /> Agregado</> : "Agregar al carrito"}
+        </button>
+      </div>
 
       {relacionados.length > 0 && (
         <section className="pd__related" aria-labelledby="pd-related-title">

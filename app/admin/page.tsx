@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import GuiaEnvio from "@/components/admin/GuiaEnvio";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import {
@@ -69,6 +70,8 @@ interface Pedido {
   payment_status: string;
   payment_provider: string;
   created_at: string;
+  tracking_carrier?: string | null;
+  tracking_number?: string | null;
   order_items: PedidoItem[];
 }
 
@@ -536,6 +539,12 @@ export default function AdminPage() {
                     <p className="mt-1 text-sm text-stone-600">{pedido.customer_email} · {pedido.customer_phone}</p>
                     <p className="mt-1 text-sm text-stone-600">{pedido.shipping_address}{pedido.shipping_apartment ? `, ${pedido.shipping_apartment}` : ""}, {pedido.shipping_city}, {pedido.shipping_region}</p>
                     {pedido.customer_notes && <p className="mt-2 text-xs text-stone-500">Nota: {pedido.customer_notes}</p>}
+                    {pedido.payment_status === "approved" || pedido.payment_provider === "whatsapp" ? (
+                      <GuiaEnvio
+                        pedido={pedido}
+                        onGuardado={(cambios) => setPedidos((actuales) => actuales.map((item) => item.id === pedido.id ? { ...item, ...cambios } : item))}
+                      />
+                    ) : null}
                   </div>
                   <div>
                     <h3 className="text-xs font-semibold uppercase text-stone-500">Detalle</h3>

@@ -4,6 +4,7 @@ import { type FormEvent, useEffect, useState } from "react";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
+import { paginaRastreo } from "@/utils/transportadoras";
 import {
   COLUMNAS_PERFIL,
   DEPARTAMENTOS,
@@ -23,6 +24,8 @@ interface PedidoCliente {
   order_status: string;
   payment_status: string;
   payment_provider: string;
+  tracking_carrier: string | null;
+  tracking_number: string | null;
   order_items: Array<{ product_name: string; quantity: number }>;
 }
 
@@ -62,7 +65,7 @@ export default function AccountDashboard({ user, onLogout }: AccountDashboardPro
       const [pedidosResult, perfilResult] = await Promise.all([
         supabase
           .from("orders")
-          .select("id, reference, created_at, total_cop, order_status, payment_status, payment_provider, order_items(product_name, quantity)")
+          .select("id, reference, created_at, total_cop, order_status, payment_status, payment_provider, tracking_carrier, tracking_number, order_items(product_name, quantity)")
           .eq("user_id", user.id)
           .order("created_at", { ascending: false })
           .limit(30),
@@ -169,6 +172,14 @@ export default function AccountDashboard({ user, onLogout }: AccountDashboardPro
                       </span>
                     )}
                   </div>
+                  {pedido.tracking_number && (
+                    <p className="account-order__tracking">
+                      Guía {pedido.tracking_carrier && pedido.tracking_carrier !== "Otra" ? `${pedido.tracking_carrier} ` : ""}<strong>{pedido.tracking_number}</strong>
+                      {paginaRastreo(pedido.tracking_carrier) && (
+                        <> · <a href={paginaRastreo(pedido.tracking_carrier)} target="_blank" rel="noreferrer">Rastrear envío</a></>
+                      )}
+                    </p>
+                  )}
                 </li>
               );
             })}
