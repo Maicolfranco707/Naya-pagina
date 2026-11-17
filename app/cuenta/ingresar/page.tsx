@@ -60,7 +60,7 @@ export default function IngresarPage() {
     setError("");
     try {
       const { error: loginError } = await createSupabaseBrowserClient().auth.signInWithPassword({
-        email: email.trim(),
+        email: email.trim().toLowerCase(),
         password,
       });
       if (loginError) throw loginError;
@@ -83,7 +83,7 @@ export default function IngresarPage() {
     setError("");
     try {
       const { data, error: signUpError } = await createSupabaseBrowserClient().auth.signUp({
-        email: email.trim(),
+        email: email.trim().toLowerCase(),
         password,
         options: { data: { full_name: nombre.trim(), marketing_opt_in: marketingOptIn } },
       });
@@ -113,7 +113,7 @@ export default function IngresarPage() {
     setError("");
     try {
       const { error: otpError } = await createSupabaseBrowserClient().auth.signInWithOtp({
-        email: email.trim(),
+        email: email.trim().toLowerCase(),
         options: { shouldCreateUser: true, data: { marketing_opt_in: marketingOptIn } },
       });
       if (otpError) throw otpError;
@@ -137,7 +137,7 @@ export default function IngresarPage() {
     setError("");
     try {
       const { error: verifyError } = await createSupabaseBrowserClient().auth.verifyOtp({
-        email: email.trim(),
+        email: email.trim().toLowerCase(),
         token: code,
         type: "email",
       });

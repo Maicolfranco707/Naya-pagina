@@ -217,7 +217,7 @@ export default function AdminPage() {
 
     try {
       const supabase = createSupabaseBrowserClient();
-      const { data, error: loginError } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error: loginError } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
       if (loginError) throw loginError;
       if (!data.user) throw new Error("No se pudo iniciar sesión.");
 
