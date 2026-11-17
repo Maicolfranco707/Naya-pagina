@@ -4921,3 +4921,20 @@ a.nh-mega__title:hover { color: #b86b2e; }
 .rv__verified { display: inline-flex; align-items: center; gap: 3px; color: #2f7a4f; font-size: 12px; font-weight: 600; }
 .rv__comment { margin: 6px 0 0; }
 .rv__none { color: #6b7c79; font-size: 14px; }
+.rv__gallery { display: grid; grid-template-columns: repeat(3, 92px); gap: 4px; }
+.rv__gallery button, .rv__thumbs button { padding: 0; border: 0; background: #ece4d8; cursor: zoom-in; }
+.rv__gallery img { display: block; width: 92px; height: 92px; object-fit: cover; }
+.rv__thumbs { display: flex; gap: 6px; margin-top: 10px; }
+.rv__thumbs button { border-radius: 8px; overflow: hidden; }
+.rv__thumbs img { display: block; width: 72px; height: 72px; object-fit: cover; }
+.rv__label small { color: #8a948f; font-weight: 400; }
+.rv__pics { display: flex; flex-wrap: wrap; gap: 8px; }
+.rv__pic { position: relative; width: 76px; height: 76px; overflow: hidden; border-radius: 10px; }
+.rv__pic img { width: 100%; height: 100%; object-fit: cover; }
+.rv__pic button { position: absolute; top: 4px; right: 4px; display: grid; place-items: center; width: 22px; height: 22px; border: 0; border-radius: 50%; background: rgba(0,0,0,.6); color: #fff; cursor: pointer; }
+.rv__addpic { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 76px; height: 76px; border: 1.5px dashed #c9bba8; border-radius: 10px; color: #3f5856; font-size: 12px; cursor: pointer; }
+.rv__addpic input { display: none; }
+.rv__lightbox { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; padding: 20px; background: rgba(0,0,0,.82); }
+.rv__lightbox img { max-width: min(92vw, 900px); max-height: 86vh; border-radius: 12px; object-fit: contain; }
+.rv__lightbox button { position: absolute; top: 16px; right: 16px; display: grid; place-items: center; width: 42px; height: 42px; border: 0; border-radius: 50%; background: rgba(255,255,255,.15); color: #fff; cursor: pointer; }
+@media (max-width: 520px) { .rv__gallery { grid-template-columns: repeat(3, 1fr); width: 100%; } .rv__gallery img { width: 100%; height: auto; aspect-ratio: 1; } }

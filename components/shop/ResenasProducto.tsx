@@ -3,12 +3,28 @@
 import { type FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BadgeCheck, Star } from "lucide-react";
+import { BadgeCheck, Camera, Star, X } from "lucide-react";
 import Estrellas from "@/components/shop/Estrellas";
 import { promedio, type Resena } from "@/utils/resenas";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
 
 type Orden = "recientes" | "mayor" | "menor";
+
+// Achica la foto en el celular antes de subirla (máx. 1600 px, JPG), para que suba rápido.
+async function achicarFoto(archivo: File): Promise<File> {
+  try {
+    const bitmap = await createImageBitmap(archivo);
+    const escala = Math.min(1, 1600 / Math.max(bitmap.width, bitmap.height));
+    const canvas = document.createElement("canvas");
+    canvas.width = Math.round(bitmap.width * escala);
+    canvas.height = Math.round(bitmap.height * escala);
+    canvas.getContext("2d")?.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    const blob = await new Promise<Blob | null>((ok) => canvas.toBlob(ok, "image/jpeg", 0.82));
+    return blob ? new File([blob], "foto.jpg", { type: "image/jpeg" }) : archivo;
+  } catch {
+    return archivo;
+  }
+}
 
 function haceCuanto(iso: string) {
   const dias = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
@@ -32,6 +48,22 @@ export default function ResenasProducto({ productoId, resenas }: { productoId: n
   const [enviado, setEnviado] = useState(false);
   const [orden, setOrden] = useState<Orden>("recientes");
   const [filtro, setFiltro] = useState(0);
+  const [fotos, setFotos] = useState<File[]>([]);
+  const [vistaPrevia, setVistaPrevia] = useState<string[]>([]);
+  const [fotoGrande, setFotoGrande] = useState<string | null>(null);
+
+  useEffect(() => {
+    const urls = fotos.map((f) => URL.createObjectURL(f));
+    setVistaPrevia(urls);
+    return () => urls.forEach((u) => URL.revokeObjectURL(u));
+  }, [fotos]);
+
+  const elegirFotos = async (lista: FileList | null) => {
+    if (!lista) return;
+    const nuevas = Array.from(lista).filter((f) => f.type.startsWith("image/")).slice(0, 3 - fotos.length);
+    const achicadas = await Promise.all(nuevas.map(achicarFoto));
+    setFotos((actuales) => [...actuales, ...achicadas].slice(0, 3));
+  };
 
   useEffect(() => {
     createSupabaseBrowserClient().auth.getSession()
@@ -54,10 +86,15 @@ export default function ResenasProducto({ productoId, resenas }: { productoId: n
         setConSesion(false);
         throw new Error("Tu sesión se cerró. Inicia sesión otra vez para escribir la reseña.");
       }
+      const datos = new FormData();
+      datos.append("productoId", String(productoId));
+      datos.append("comentario", comentario);
+      datos.append("calificacion", String(calificacion));
+      fotos.forEach((f) => datos.append("fotos", f));
       const response = await fetch("/api/resenas", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ productoId, comentario, calificacion }),
+        headers: { Authorization: `Bearer ${token}` },
+        body: datos,
       });
       const respuesta = await response.json().catch(() => ({})) as { error?: string };
       if (!response.ok) throw new Error(respuesta.error || "No pudimos guardar tu reseña.");
@@ -71,6 +108,7 @@ export default function ResenasProducto({ productoId, resenas }: { productoId: n
   };
 
   const prom = promedio(resenas);
+  const todasLasFotos = resenas.flatMap((r) => r.photos ?? []).slice(0, 6);
   const conteo = [5, 4, 3, 2, 1].map((n) => ({ n, total: resenas.filter((r) => r.rating === n).length }));
   const lista = useMemo(() => {
     const filtradas = filtro ? resenas.filter((r) => r.rating === filtro) : resenas;
@@ -97,6 +135,16 @@ export default function ResenasProducto({ productoId, resenas }: { productoId: n
             </li>
           ))}
         </ul>
+        {todasLasFotos.length > 0 && (
+          <div className="rv__gallery">
+            {todasLasFotos.map((url) => (
+              <button key={url} type="button" onClick={() => setFotoGrande(url)} aria-label="Ver foto de cliente">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt="" loading="lazy" />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="rv__cta">
@@ -123,6 +171,23 @@ export default function ResenasProducto({ productoId, resenas }: { productoId: n
           </div>
           <label className="rv__label" htmlFor="rv-comentario">Tu reseña</label>
           <textarea id="rv-comentario" value={comentario} onChange={(e) => setComentario(e.target.value)} placeholder="¿Cómo te fue con el producto?" rows={4} minLength={5} maxLength={800} required disabled={enviando} />
+          <p className="rv__label">Fotos <small>(opcional, hasta 3)</small></p>
+          <div className="rv__pics">
+            {vistaPrevia.map((url, i) => (
+              <span key={url} className="rv__pic">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={url} alt="" />
+                <button type="button" onClick={() => setFotos((a) => a.filter((_, j) => j !== i))} aria-label="Quitar foto"><X size={14} /></button>
+              </span>
+            ))}
+            {fotos.length < 3 && (
+              <label className="rv__addpic">
+                <Camera size={20} aria-hidden="true" />
+                <span>Agregar</span>
+                <input type="file" accept="image/*" multiple onChange={(e) => { void elegirFotos(e.target.files); e.target.value = ""; }} disabled={enviando} />
+              </label>
+            )}
+          </div>
           {error && <p className="rv__error" role="alert">{error}</p>}
           <div className="rv__actions">
             <button type="submit" className="rv__send" disabled={enviando}>{enviando ? "Enviando..." : "Publicar reseña"}</button>
@@ -159,11 +224,28 @@ export default function ResenasProducto({ productoId, resenas }: { productoId: n
                   {r.verified_purchase && <span className="rv__verified"><BadgeCheck size={14} aria-hidden="true" /> Compra verificada</span>}
                 </p>
                 <p className="rv__comment">{r.comment}</p>
+                {!!r.photos?.length && (
+                  <div className="rv__thumbs">
+                    {r.photos.map((url) => (
+                      <button key={url} type="button" onClick={() => setFotoGrande(url)} aria-label="Ver foto">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={url} alt="" loading="lazy" />
+                      </button>
+                    ))}
+                  </div>
+                )}
               </li>
             ))}
             {lista.length === 0 && <li className="rv__none">No hay reseñas con esa calificación.</li>}
           </ul>
         </>
+      )}
+      {fotoGrande && (
+        <div className="rv__lightbox" role="dialog" aria-label="Foto de cliente" onClick={() => setFotoGrande(null)}>
+          <button type="button" aria-label="Cerrar" onClick={() => setFotoGrande(null)}><X size={22} /></button>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={fotoGrande} alt="Foto de cliente" onClick={(e) => e.stopPropagation()} />
+        </div>
       )}
     </section>
   );

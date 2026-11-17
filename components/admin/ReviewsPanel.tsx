@@ -12,6 +12,8 @@ interface ResenaAdmin {
   city: string | null;
   rating: number;
   comment: string;
+  photos?: string[] | null;
+  verified_purchase?: boolean | null;
   approved: boolean;
   created_at: string;
   products: { name: string } | null;
@@ -28,7 +30,7 @@ export default function ReviewsPanel() {
     setCargando(true);
     const { data, error: errorCarga } = await createSupabaseBrowserClient()
       .from("product_reviews")
-      .select("id, product_id, author_name, city, rating, comment, approved, created_at, products(name)")
+      .select("id, product_id, author_name, city, rating, comment, approved, created_at, photos, verified_purchase, products(name)")
       .order("approved", { ascending: true })
       .order("created_at", { ascending: false })
       .limit(200);
@@ -80,6 +82,17 @@ export default function ReviewsPanel() {
                   <span className="text-stone-500">{r.products?.name?.trim() || "Tienda en general"}</span>
                 </div>
                 <p className="mt-2 text-sm text-stone-800">“{r.comment}”</p>
+                {!!r.photos?.length && (
+                  <div className="mt-2 flex gap-2">
+                    {r.photos.map((url) => (
+                      <a key={url} href={url} target="_blank" rel="noreferrer">
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={url} alt="Foto de la reseña" className="h-16 w-16 rounded object-cover" />
+                      </a>
+                    ))}
+                  </div>
+                )}
+                {r.verified_purchase && <p className="mt-1 text-xs font-semibold text-emerald-700">Compra verificada</p>}
                 <p className="mt-1 text-xs text-stone-500">{r.author_name}{r.city ? ` · ${r.city}` : ""} · {fecha(r.created_at)}</p>
               </div>
               <div className="flex shrink-0 gap-2">

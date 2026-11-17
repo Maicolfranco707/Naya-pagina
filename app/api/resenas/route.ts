@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   try {
     let consulta = createSupabaseServerClient()
       .from("product_reviews")
-      .select("id, product_id, author_name, city, rating, comment, created_at, verified_purchase")
+      .select("id, product_id, author_name, city, rating, comment, created_at, verified_purchase, photos")
       .eq("approved", true)
       .order("created_at", { ascending: false })
       .limit(productoId ? 100 : 6);
@@ -45,10 +45,19 @@ export async function POST(request: Request) {
   const usuario = sesion?.user;
   if (sesionError || !usuario) return NextResponse.json({ error: "Inicia sesión para escribir una reseña." }, { status: 401 });
 
-  const body = await request.json().catch(() => null) as Record<string, unknown> | null;
-  const comentario = typeof body?.comentario === "string" ? body.comentario.trim() : "";
-  const calificacion = Number(body?.calificacion);
-  const productoId = typeof body?.productoId === "number" && Number.isInteger(body.productoId) ? body.productoId : null;
+  // Llega como formulario (multipart) para poder traer fotos
+  const form = await request.formData().catch(() => null);
+  const comentario = String(form?.get("comentario") ?? "").trim();
+  const calificacion = Number(form?.get("calificacion"));
+  const productoTexto = String(form?.get("productoId") ?? "");
+  const productoId = /^\d+$/.test(productoTexto) ? Number(productoTexto) : null;
+  const fotos = (form?.getAll("fotos") ?? []).filter((f): f is File => f instanceof File && f.size > 0);
+  if (fotos.length > 3) return NextResponse.json({ error: "Puedes subir hasta 3 fotos." }, { status: 400 });
+  for (const foto of fotos) {
+    if (!["image/jpeg", "image/png", "image/webp"].includes(foto.type) || foto.size > 2 * 1024 * 1024) {
+      return NextResponse.json({ error: "Las fotos deben ser JPG, PNG o WEBP de menos de 2 MB." }, { status: 400 });
+    }
+  }
   if (!productoId || comentario.length < 5 || comentario.length > 800
     || !Number.isInteger(calificacion) || calificacion < 1 || calificacion > 5) {
     return NextResponse.json({ error: "Elige las estrellas y escribe al menos unas palabras." }, { status: 400 });
@@ -73,6 +82,19 @@ export async function POST(request: Request) {
       .limit(1);
     const verificada = (compras ?? []).length > 0;
 
+    // ¿Ya tiene reseña de este producto? (antes de subir fotos)
+    const { data: existente } = await admin.from("product_reviews").select("id").eq("product_id", productoId).eq("user_id", usuario.id).maybeSingle();
+    if (existente) return NextResponse.json({ error: "Ya escribiste una reseña de este producto. ¡Gracias!" }, { status: 409 });
+
+    const urls: string[] = [];
+    for (const foto of fotos) {
+      const extension = foto.type === "image/png" ? "png" : foto.type === "image/webp" ? "webp" : "jpg";
+      const ruta = `${usuario.id}/${crypto.randomUUID()}.${extension}`;
+      const { error: subidaError } = await admin.storage.from("review-photos").upload(ruta, Buffer.from(await foto.arrayBuffer()), { contentType: foto.type });
+      if (subidaError) throw subidaError;
+      urls.push(admin.storage.from("review-photos").getPublicUrl(ruta).data.publicUrl);
+    }
+
     const { error } = await admin.from("product_reviews").insert({
       product_id: productoId,
       user_id: usuario.id,
@@ -81,6 +103,7 @@ export async function POST(request: Request) {
       rating: calificacion,
       comment: comentario,
       verified_purchase: verificada,
+      photos: urls,
     });
     if (error) {
       if (error.code === "23505") return NextResponse.json({ error: "Ya escribiste una reseña de este producto. ¡Gracias!" }, { status: 409 });
@@ -94,7 +117,7 @@ export async function POST(request: Request) {
       await deliverEmail(
         correo,
         `Nueva reseña por aprobar (${estrellas}) | NAYA`,
-        `<p><strong>${limpio(autor)}</strong>${verificada ? " (compra verificada)" : ""} dejó una reseña:</p><p style="font-size:18px;color:#b86b2e">${estrellas}</p><p>“${limpio(comentario)}”</p><p>Apruébala o descártala en el admin, pestaña <strong>Reseñas</strong>.</p>`,
+        `<p><strong>${limpio(autor)}</strong>${verificada ? " (compra verificada)" : ""} dejó una reseña:</p><p style="font-size:18px;color:#b86b2e">${estrellas}</p><p>“${limpio(comentario)}”</p>${urls.map((u) => `<img src="${u}" alt="" width="120" style="border-radius:8px;margin:0 6px 6px 0" />`).join("")}<p>Apruébala o descártala en el admin, pestaña <strong>Reseñas</strong>.</p>`,
         `${autor}${verificada ? " (compra verificada)" : ""} dejó una reseña: ${estrellas}\n\n"${comentario}"\n\nApruébala o descártala en el admin, pestaña Reseñas.`,
       ).catch((e) => console.error("No se pudo avisar de la reseña:", e));
     }

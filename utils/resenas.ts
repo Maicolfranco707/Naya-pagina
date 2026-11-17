@@ -7,6 +7,7 @@ export interface Resena {
   comment: string;
   created_at: string;
   verified_purchase?: boolean;
+  photos?: string[];
 }
 
 export const promedio = (resenas: Resena[]) =>
