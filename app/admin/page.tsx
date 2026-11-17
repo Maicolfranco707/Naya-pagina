@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import GuiaEnvio from "@/components/admin/GuiaEnvio";
+import { ESTADO_PEDIDO } from "@/utils/cuenta-cliente";
 import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import {
@@ -528,7 +529,7 @@ export default function AdminPage() {
                       Pedido
                       <span className="relative">
                         <select value={pedido.order_status} onChange={(event) => void actualizarEstadoPedido(pedido, event.target.value)} className="appearance-none border border-stone-300 bg-white py-1.5 pl-2 pr-7 text-xs text-stone-800">
-                          {ESTADOS_PEDIDO.map((estado) => <option key={estado} value={estado}>{etiquetaEstado(estado)}</option>)}
+                          {ESTADOS_PEDIDO.map((estado) => <option key={estado} value={estado}>{ESTADO_PEDIDO[estado] ?? etiquetaEstado(estado)}</option>)}
                         </select>
                         <ChevronDown size={13} className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2" />
                       </span>
