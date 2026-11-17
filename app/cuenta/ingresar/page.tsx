@@ -6,6 +6,12 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
 
+// Después de entrar vuelve a /cuenta, o al admin si se llegó desde allá.
+function destinoDespuesDeEntrar() {
+  if (typeof window === "undefined") return "/cuenta";
+  return new URLSearchParams(window.location.search).get("volver") === "/admin" ? "/admin" : "/cuenta";
+}
+
 export default function IngresarPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -26,7 +32,7 @@ export default function IngresarPage() {
           console.error("No se pudo comprobar la sesión de Supabase:", sessionError.message);
           return;
         }
-        if (activo && data.session) router.replace("/cuenta");
+        if (activo && data.session) router.replace(destinoDespuesDeEntrar());
       })
       .catch((sessionError: unknown) => {
         console.error("No se pudo comprobar la sesión de Supabase:", sessionError);
@@ -94,7 +100,7 @@ export default function IngresarPage() {
       });
 
       if (verifyError) throw verifyError;
-      router.replace("/cuenta");
+      router.replace(destinoDespuesDeEntrar());
     } catch (verifyError) {
       console.error("No se pudo verificar el código de acceso:", verifyError);
       setError("El código no es válido o venció. Revísalo o solicita uno nuevo.");
