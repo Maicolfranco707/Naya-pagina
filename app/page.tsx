@@ -353,6 +353,15 @@ export default function Home() {
     return () => clearInterval(timer);
   }, [heroPausado]);
 
+  // Precarga las fotos de los banners para que el cambio no se vea brusco.
+  useEffect(() => {
+    const ancho = window.matchMedia("(min-width: 768px)").matches;
+    imagenesHero.forEach((b) => {
+      const src = ancho ? b.escritorio : b.celular;
+      if (src) { const img = new window.Image(); img.src = src; }
+    });
+  }, []);
+
   const agregarAlCarrito = (producto: Producto, cant: number = 1) => {
     medirAgregarAlCarrito({ id: producto.id, nombre: producto.nombre, precio: producto.precio, cantidad: cant });
     setCarrito((prevCarrito) => {
@@ -473,7 +482,7 @@ export default function Home() {
             />
           </div>
         ) : (
-        <div className="naya-hero__link">
+        <div className="naya-hero__link naya-hero__fade" key={imagenesHero[heroIndex].id}>
           <picture className="naya-hero__picture">
             <source
               media="(min-width: 768px)"
@@ -483,7 +492,7 @@ export default function Home() {
               src={imagenesHero[heroIndex].celular}
               alt={imagenesHero[heroIndex].alt}
               fetchPriority={heroIndex === 0 ? "high" : "auto"}
-              loading={heroIndex === 0 ? "eager" : "lazy"}
+              loading="eager"
             />
           </picture>
         </div>

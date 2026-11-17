@@ -4837,3 +4837,9 @@ a.nh-mega__title:hover { color: #b86b2e; }
 }
 .nl__link:hover { background: #fff; }
 .nl__foot { margin: 28px 0 0; color: rgb(243 233 220 / 55%); font-size: 12.5px; }
+
+/* ── Banners de imagen: entrada suave como los banners animados ── */
+.naya-hero__fade { animation: naya-hero-fade 700ms ease both; }
+.naya-hero__fade img { animation: naya-mb-zoom 9s ease-out both; }
+@keyframes naya-hero-fade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .naya-hero__fade, .naya-hero__fade img { animation: none; } }
