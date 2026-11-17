@@ -31,10 +31,22 @@ export default function GuiaEnvio({ pedido, onGuardado }: Props) {
       };
       // Al poner la guía, el pedido pasa a "Enviado".
       if (guia.trim()) cambios.order_status = "shipped";
-      const { error } = await createSupabaseBrowserClient().from("orders").update(cambios).eq("id", pedido.id);
+      const supabase = createSupabaseBrowserClient();
+      const { error } = await supabase.from("orders").update(cambios).eq("id", pedido.id);
       if (error) throw error;
+      const guiaNueva = guia.trim() && guia.trim() !== (pedido.tracking_number ?? "");
       onGuardado({ tracking_carrier: cambios.tracking_carrier, tracking_number: cambios.tracking_number, ...(guia.trim() ? { order_status: "shipped" } : {}) });
       setEstado("Guardado");
+      // Si la guía es nueva, también le llega por correo al cliente.
+      if (guiaNueva) {
+        const { data } = await supabase.auth.getSession();
+        const respuesta = await fetch("/api/admin/notificar-envio", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${data.session?.access_token ?? ""}` },
+          body: JSON.stringify({ orderId: pedido.id }),
+        }).catch(() => null);
+        setEstado(respuesta?.ok ? "Guardado. Le enviamos la guía al cliente por correo." : "Guardado, pero no se pudo enviar el correo al cliente.");
+      }
     } catch (reason) {
       setEstado(reason instanceof Error ? reason.message : "No se pudo guardar la guía.");
     } finally {
