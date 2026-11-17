@@ -218,7 +218,7 @@ export default function AdminPage() {
     try {
       const supabase = createSupabaseBrowserClient();
       const { data, error: loginError } = await supabase.auth.signInWithPassword({ email: email.trim().toLowerCase(), password });
-      if (loginError) throw loginError;
+      if (loginError) throw new Error(/invalid login credentials/i.test(loginError.message) ? "Correo o contraseña incorrectos. Si no la recuerdas, entra con un código a tu correo." : loginError.message);
       if (!data.user) throw new Error("No se pudo iniciar sesión.");
 
       const { data: membership, error: membershipError } = await supabase
