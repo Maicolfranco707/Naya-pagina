@@ -11,13 +11,13 @@ export default function ProductoCard({ producto, onAgregar }: { producto: Produc
   const [agregado, setAgregado] = useState(false);
   const url = urlProducto(producto);
   return (
-    <article className="naya-card product-card--hair">
-      <Link href={url} className="naya-card__media" aria-label={`Ver ${producto.nombre}`}>
+    <article className="naya-card product-card--hair tarjeta-clic">
+      <Link href={url} className="naya-card__media" aria-hidden="true" tabIndex={-1}>
         <Image src={imagenDe(producto)} alt={producto.nombre} fill sizes="(max-width: 640px) 46vw, (max-width: 1024px) 30vw, 22vw" className="object-cover" />
       </Link>
       <div className="naya-card__info">
         <p className="naya-card__line">{categoriaTienda(producto)}</p>
-        <h3><Link href={url}>{producto.nombre.replace(/\s+/g, " ").trim()}</Link></h3>
+        <h3><Link href={url} className="tarjeta-link">{producto.nombre.replace(/\s+/g, " ").trim()}</Link></h3>
         <p className="naya-card__price">${producto.precio.toLocaleString("es-CO")}</p>
       </div>
       <button

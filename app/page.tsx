@@ -555,8 +555,9 @@ export default function Home() {
           {lineasCapilares.map((linea) => {
             const kit = kitsPromocionales.find((item) => item.id === linea.kitId);
             if (!kit) return null;
+            const productoKit = productos.find((producto) => producto.id === kit.id);
             return (
-              <article key={linea.id} className={`naya-line naya-line--${linea.id}`}>
+              <article key={linea.id} className={`naya-line naya-line--${linea.id} tarjeta-clic`}>
                 <div className="naya-line__media">
                   <Image
                     src={kit.imagen}
@@ -569,7 +570,7 @@ export default function Home() {
                 </div>
                 <div className="naya-line__body">
                   <p className="naya-line__name">{linea.nombre}</p>
-                  <h3>{linea.titular}</h3>
+                  <h3>{productoKit ? <Link href={urlProducto(productoKit)} className="tarjeta-link">{linea.titular}</Link> : linea.titular}</h3>
                   <p className="naya-line__text">{linea.texto}</p>
                   <ul className="naya-line__benefits">
                     {linea.beneficios.map((beneficio) => <li key={beneficio}>{beneficio}</li>)}
@@ -665,13 +666,13 @@ export default function Home() {
               {AMPOLLETAS.map((a) => {
                 const producto = productos.find((p) => p.id === a.id);
                 return (
-                  <article className="naya-amp__card" key={a.id}>
+                  <article className="naya-amp__card tarjeta-clic" key={a.id}>
                     <div className="naya-amp__photo">
                       <Image src={a.foto} alt={`Ampolleta de ${a.nombre} NAYA`} fill sizes="(max-width: 767px) 90vw, 360px" className="object-cover" style={{ objectPosition: "center 35%" }} />
                     </div>
                     <div className="naya-amp__info">
                       <p className="naya-amp__para">{a.para}</p>
-                      <h3>{a.nombre}</h3>
+                      <h3>{producto ? <Link href={urlProducto(producto)} className="tarjeta-link">{a.nombre}</Link> : a.nombre}</h3>
                       <ul>
                         {a.beneficios.map((b) => <li key={b}>{b}</li>)}
                       </ul>
@@ -684,7 +685,6 @@ export default function Home() {
                           </button>
                         )}
                       </div>
-                      {producto && <Link href={urlProducto(producto)} className="naya-amp__more">Ver detalles</Link>}
                     </div>
                   </article>
                 );

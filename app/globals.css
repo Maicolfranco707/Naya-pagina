@@ -4938,3 +4938,12 @@ a.nh-mega__title:hover { color: #b86b2e; }
 .rv__lightbox img { max-width: min(92vw, 900px); max-height: 86vh; border-radius: 12px; object-fit: contain; }
 .rv__lightbox button { position: absolute; top: 16px; right: 16px; display: grid; place-items: center; width: 42px; height: 42px; border: 0; border-radius: 50%; background: rgba(255,255,255,.15); color: #fff; cursor: pointer; }
 @media (max-width: 520px) { .rv__gallery { grid-template-columns: repeat(3, 1fr); width: 100%; } .rv__gallery img { width: 100%; height: auto; aspect-ratio: 1; } }
+
+/* ── Toda la tarjeta del producto lleva a su página (los botones siguen funcionando) ── */
+.tarjeta-clic { position: relative; cursor: pointer; }
+.tarjeta-clic .tarjeta-link { color: inherit; text-decoration: none; }
+.tarjeta-clic .tarjeta-link::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+.tarjeta-clic button, .tarjeta-clic a:not(.tarjeta-link), .tarjeta-clic select { position: relative; z-index: 2; }
+.tarjeta-clic:hover .tarjeta-link { text-decoration: underline; text-underline-offset: 3px; }
+.tarjeta-clic .tarjeta-link:focus-visible { outline: none; }
+.tarjeta-clic:has(.tarjeta-link:focus-visible) { outline: 2px solid #b86b2e; outline-offset: 3px; }
