@@ -12,7 +12,7 @@ function destinoDespuesDeEntrar() {
   return new URLSearchParams(window.location.search).get("volver") === "/admin" ? "/admin" : "/cuenta";
 }
 
-type Vista = "login" | "registro" | "pedirCodigo" | "codigo";
+type Vista = "login" | "registro" | "pedirCodigo" | "codigo" | "nuevaClave";
 
 export default function IngresarPage() {
   const router = useRouter();
@@ -26,6 +26,15 @@ export default function IngresarPage() {
   const [esperaReenvio, setEsperaReenvio] = useState(0);
   const [cargando, setCargando] = useState(false);
   const [error, setError] = useState("");
+  // true cuando la persona entra por "Olvidé mi contraseña": después del código crea una nueva.
+  const [olvido, setOlvido] = useState(false);
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("olvide") === "1") {
+      setOlvido(true);
+      setVista("pedirCodigo");
+    }
+  }, []);
 
   useEffect(() => {
     let activo = true;
@@ -142,10 +151,35 @@ export default function IngresarPage() {
         type: "email",
       });
       if (verifyError) throw verifyError;
+      if (olvido) {
+        setPassword("");
+        setVista("nuevaClave");
+        return;
+      }
       router.replace(destinoDespuesDeEntrar());
     } catch (verifyError) {
       console.error("No se pudo verificar el código:", verifyError);
       setError("El código no es válido o venció. Revísalo o solicita uno nuevo.");
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  const guardarNuevaClave = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (password.length < 6) {
+      setError("La contraseña debe tener al menos 6 caracteres.");
+      return;
+    }
+    setCargando(true);
+    setError("");
+    try {
+      const { error: updateError } = await createSupabaseBrowserClient().auth.updateUser({ password });
+      if (updateError) throw updateError;
+      router.replace(destinoDespuesDeEntrar());
+    } catch (updateError) {
+      console.error("No se pudo guardar la nueva contraseña:", updateError);
+      setError("No pudimos guardar la contraseña. Prueba con otra.");
     } finally {
       setCargando(false);
     }
@@ -215,8 +249,11 @@ export default function IngresarPage() {
             <button className="account-submit" type="submit" disabled={cargando}>
               {cargando ? "Entrando..." : "Iniciar sesión"} <ArrowRight size={17} aria-hidden="true" />
             </button>
-            <button type="button" className="account-link" onClick={() => cambiarVista("pedirCodigo")}>
-              ¿Olvidaste tu contraseña? Entra con un código a tu correo
+            <button type="button" className="account-link" onClick={() => { setOlvido(true); cambiarVista("pedirCodigo"); }}>
+              ¿Olvidaste tu contraseña?
+            </button>
+            <button type="button" className="account-link" onClick={() => { setOlvido(false); cambiarVista("pedirCodigo"); }}>
+              Entrar con un código a mi correo
             </button>
           </form>
         )}
@@ -240,8 +277,8 @@ export default function IngresarPage() {
 
         {vista === "pedirCodigo" && (
           <>
-            <h1 id="account-title" className="account-title-sm">Entrar con un código</h1>
-            <p className="account-subtitle">Te enviamos un código de 6 dígitos a tu correo para que entres sin contraseña.</p>
+            <h1 id="account-title" className="account-title-sm">{olvido ? "Recuperar contraseña" : "Entrar con un código"}</h1>
+            <p className="account-subtitle">{olvido ? "Te enviamos un código de 6 dígitos a tu correo y luego creas tu nueva contraseña." : "Te enviamos un código de 6 dígitos a tu correo para que entres sin contraseña."}</p>
             <form onSubmit={(event) => { event.preventDefault(); void solicitarCodigo(); }} className="account-form">
               {campoCorreo}
               <button className="account-submit" type="submit" disabled={cargando}>
@@ -287,6 +324,20 @@ export default function IngresarPage() {
             <button type="button" className="account-back" onClick={() => cambiarVista("login")}>
               <ArrowLeft size={15} aria-hidden="true" /> Volver
             </button>
+          </>
+        )}
+
+        {vista === "nuevaClave" && (
+          <>
+            <h1 id="account-title" className="account-title-sm">Crea tu nueva contraseña</h1>
+            <p className="account-subtitle">Mínimo 6 caracteres. Usa el ojito para revisar lo que escribes.</p>
+            <form onSubmit={guardarNuevaClave} className="account-form">
+              <label htmlFor="account-password">Nueva contraseña</label>
+              {campoPassword("new-password")}
+              <button className="account-submit" type="submit" disabled={cargando}>
+                {cargando ? "Guardando..." : "Guardar y entrar"} <ArrowRight size={17} aria-hidden="true" />
+              </button>
+            </form>
           </>
         )}
 

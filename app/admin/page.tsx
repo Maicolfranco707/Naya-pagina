@@ -357,6 +357,9 @@ export default function AdminPage() {
           <Link href="/cuenta/ingresar?volver=/admin" className="mt-4 block w-full border border-emerald-950 px-4 py-3 text-center text-sm font-semibold text-emerald-950 hover:bg-emerald-50">
             Entrar con un código a mi correo
           </Link>
+          <Link href="/cuenta/ingresar?volver=/admin&olvide=1" className="mt-3 inline-block text-sm text-emerald-900 underline underline-offset-4">
+            ¿Olvidaste tu contraseña?
+          </Link>
           <Link href="/" className="mt-5 inline-block text-sm text-stone-500 hover:text-emerald-900">Volver a la tienda</Link>
         </section>
       </main>
