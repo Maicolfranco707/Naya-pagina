@@ -6,10 +6,13 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
 
-// Después de entrar vuelve a /cuenta, o al admin si se llegó desde allá.
+// Después de entrar vuelve a /cuenta, o al admin o al producto desde donde se llegó.
 function destinoDespuesDeEntrar() {
   if (typeof window === "undefined") return "/cuenta";
-  return new URLSearchParams(window.location.search).get("volver") === "/admin" ? "/admin" : "/cuenta";
+  const volver = new URLSearchParams(window.location.search).get("volver") ?? "";
+  // Solo rutas de esta tienda: el admin o la página de un producto.
+  if (volver === "/admin" || /^\/producto\/[a-z0-9-]+$/.test(volver)) return volver;
+  return "/cuenta";
 }
 
 type Vista = "login" | "registro" | "pedirCodigo" | "codigo" | "nuevaClave";

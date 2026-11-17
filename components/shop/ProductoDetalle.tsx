@@ -10,6 +10,7 @@ import { agregarAlCarritoGuardado, categoriaTienda, imagenDe, INFO_PRODUCTOS } f
 import type { Producto } from "@/utils/productos";
 import { medirVerProducto } from "@/utils/analytics";
 import Estrellas from "@/components/shop/Estrellas";
+import ResenasProducto from "@/components/shop/ResenasProducto";
 import { promedio, type Resena } from "@/utils/resenas";
 
 export default function ProductoDetalle({ producto, relacionados, resenas = [] }: { producto: Producto; relacionados: Producto[]; resenas?: Resena[] }) {
@@ -80,7 +81,7 @@ export default function ProductoDetalle({ producto, relacionados, resenas = [] }
           <p className="pd__cat">{categoria}</p>
           <h1>{nombre}</h1>
           {resenas.length > 0 && (
-            <a href="#rv-title" className="pd__rating"><Estrellas valor={promedio(resenas)} tamano={15} /> {resenas.length} {resenas.length === 1 ? "opinión" : "opiniones"}</a>
+            <a href="#rv-title" className="pd__rating"><Estrellas valor={promedio(resenas)} tamano={15} /> {resenas.length} {resenas.length === 1 ? "reseña" : "reseñas"}</a>
           )}
           <p className="pd__price">${producto.precio.toLocaleString("es-CO")} <small>COP</small></p>
           <p className="pd__short">{producto.descripcion}</p>
@@ -115,6 +116,8 @@ export default function ProductoDetalle({ producto, relacionados, resenas = [] }
         </div>
       </div>
 
+
+      <ResenasProducto productoId={producto.id} resenas={resenas} />
 
       <div className={barraVisible ? "pd-sticky pd-sticky--visible" : "pd-sticky"} aria-hidden={!barraVisible}>
         <div className="pd-sticky__info">

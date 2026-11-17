@@ -6,6 +6,7 @@ export interface Resena {
   rating: number;
   comment: string;
   created_at: string;
+  verified_purchase?: boolean;
 }
 
 export const promedio = (resenas: Resena[]) =>

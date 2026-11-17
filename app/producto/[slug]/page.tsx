@@ -45,7 +45,7 @@ export default async function ProductoPage({ params }: { params: Promise<{ slug:
   try {
     const { data } = await createSupabaseServerClient()
       .from("product_reviews")
-      .select("id, product_id, author_name, city, rating, comment, created_at")
+      .select("id, product_id, author_name, city, rating, comment, created_at, verified_purchase")
       .eq("product_id", producto.id)
       .eq("approved", true)
       .order("created_at", { ascending: false })
