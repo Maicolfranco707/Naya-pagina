@@ -121,6 +121,7 @@ export default function CheckoutPage() {
   const [clienteEmail, setClienteEmail] = useState("");
   const [guardarDatos, setGuardarDatos] = useState(true);
   const [resumenAbierto, setResumenAbierto] = useState(false);
+  const [finalAbierto, setFinalAbierto] = useState(false);
   const [codigoCupon, setCodigoCupon] = useState("");
   const [cupon, setCupon] = useState<{ code: string; discount: number } | null>(null);
   const [mensajeCupon, setMensajeCupon] = useState("");
@@ -587,6 +588,52 @@ export default function CheckoutPage() {
                 <MessageCircle size={20} aria-hidden="true" />
               </label>
             </div>
+          </section>
+
+          <section className="naya-co__final" aria-label="Resumen del pedido">
+            {finalAbierto ? (
+              <>
+                <button type="button" className="naya-co__final-head" onClick={() => setFinalAbierto(false)} aria-expanded="true">
+                  <span>Resumen del pedido</span>
+                  <ChevronDown size={20} aria-hidden="true" className="naya-co__chev naya-co__chev--open" />
+                </button>
+                {resumen}
+              </>
+            ) : (
+              <>
+                {cupon ? (
+                  <span className="naya-co__final-discount naya-co__final-discount--on">
+                    <Tag size={16} aria-hidden="true" /> {cupon.code} · −{pesos(descuento)}
+                    <button type="button" aria-label="Quitar código" onClick={() => setCupon(null)}><X size={14} /></button>
+                  </span>
+                ) : (
+                  <button
+                    type="button"
+                    className="naya-co__final-discount"
+                    onClick={() => {
+                      setFinalAbierto(true);
+                      requestAnimationFrame(() => document.querySelector<HTMLInputElement>(".naya-co__final .naya-co-coupon input")?.focus());
+                    }}
+                  >
+                    <Tag size={16} aria-hidden="true" /> Agregar descuento
+                  </button>
+                )}
+                <button type="button" className="naya-co__final-row" onClick={() => setFinalAbierto(true)} aria-expanded="false" aria-label="Ver resumen del pedido">
+                  <span className="naya-co__final-thumb">
+                    {items[0]?.imagen && <Image src={items[0].imagen} alt="" fill sizes="56px" className="object-cover" />}
+                  </span>
+                  <span className="naya-co__final-text">
+                    <strong>Total</strong>
+                    <small>{unidades} {unidades === 1 ? "artículo" : "artículos"}</small>
+                  </span>
+                  <span className="naya-co__final-total">
+                    <small>COP</small>
+                    <strong>{pesos(total)}</strong>
+                    <ChevronDown size={18} aria-hidden="true" />
+                  </span>
+                </button>
+              </>
+            )}
           </section>
 
           {aviso && <p className="naya-co__notice">{aviso}</p>}

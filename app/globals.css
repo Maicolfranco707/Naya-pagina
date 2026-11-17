@@ -3408,6 +3408,109 @@ body {
   display: none;
 }
 
+/* Resumen final del pedido (solo celular) */
+.naya-co__final { display: none; }
+
+@media (max-width: 899px) {
+  .naya-co__final {
+    display: block;
+    margin: 6px 0 16px;
+    padding-top: 18px;
+    border-top: 1px solid #e3dccf;
+  }
+  .naya-co__final-discount {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding: 11px 18px;
+    border: 1px solid #d9d2c5;
+    border-radius: 14px;
+    background: #fff;
+    color: #0b3a3c;
+    font: inherit;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .naya-co__final-discount--on {
+    background: #eef5ef;
+    border-color: #b9d4bf;
+    color: #2f6b45;
+    cursor: default;
+  }
+  .naya-co__final-discount--on button {
+    display: grid;
+    place-items: center;
+    border: 0;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+    padding: 2px;
+  }
+  .naya-co__final-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    margin-bottom: 14px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #0b3a3c;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+  .naya-co__final-thumb {
+    position: relative;
+    flex: none;
+    width: 56px;
+    height: 56px;
+    overflow: hidden;
+    border: 1px solid #e3dccf;
+    border-radius: 12px;
+    background: #f6f2ec;
+  }
+  .naya-co__final-text {
+    display: grid;
+    gap: 2px;
+    flex: 1;
+    min-width: 0;
+  }
+  .naya-co__final-text strong { font-size: 19px; }
+  .naya-co__final-text small { color: #7a7469; font-size: 14px; }
+  .naya-co__final-total {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .naya-co__final-total small {
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: #f1ede6;
+    color: #6f695f;
+    font-size: 11.5px;
+    font-weight: 700;
+  }
+  .naya-co__final-total strong { font-size: 19px; }
+  .naya-co__final-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-bottom: 14px;
+    padding: 0;
+    border: 0;
+    background: none;
+    color: #0b3a3c;
+    font: inherit;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+}
+
 .naya-co--empty {
   display: grid;
   place-content: center;
