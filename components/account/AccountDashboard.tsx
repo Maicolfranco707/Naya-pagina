@@ -5,6 +5,7 @@ import Link from "next/link";
 import type { User } from "@supabase/supabase-js";
 import { createSupabaseBrowserClient } from "@/utils/supabase/browser";
 import { paginaRastreo } from "@/utils/transportadoras";
+import CambiarContrasena from "@/components/account/CambiarContrasena";
 import {
   COLUMNAS_PERFIL,
   DEPARTAMENTOS,
@@ -234,6 +235,8 @@ export default function AccountDashboard({ user, onLogout }: AccountDashboardPro
           {errorPerfil && <p className="account-message account-message--error" role="alert">{errorPerfil}</p>}
         </form>
       </section>
+
+      <CambiarContrasena />
 
       <div className="account-actions">
         <Link href="/" className="account-home-link secondary-action">Volver a la tienda</Link>

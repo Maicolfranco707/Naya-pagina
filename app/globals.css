@@ -4878,3 +4878,14 @@ a.nh-mega__title:hover { color: #b86b2e; }
   }
   body:has(.pd-sticky--visible) .naya-whatsapp { bottom: 84px; transition: bottom 260ms ease; }
 }
+
+/* ── Ingresar: pestañas "Ya tengo cuenta" / "Crear cuenta" ── */
+.account-title-sm { margin-bottom: 18px; }
+.account-tabs { margin-bottom: 20px; padding: 4px; border-radius: 8px; background: #f1ece3; gap: 4px; }
+.account-tab { border: 0; border-radius: 6px; background: transparent; color: #5f6d69; font-size: 13.5px; }
+.account-tab--on { background: #fff; color: #0b3a3c; box-shadow: 0 1px 4px rgba(11, 58, 60, 0.12); }
+.account-pass { position: relative; }
+.account-pass .account-field { padding-right: 44px; }
+.account-pass button { position: absolute; top: 50%; right: 8px; display: grid; place-items: center; width: 34px; height: 34px; border: 0; background: transparent; color: #697570; cursor: pointer; transform: translateY(-50%); }
+.account-form label small { color: #8a948f; font-weight: 400; }
+.account-link { margin-top: 4px; padding: 0; border: 0; background: none; color: #0b3a3c; font: inherit; font-size: 13.5px; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
